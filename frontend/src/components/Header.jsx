@@ -1,8 +1,10 @@
 import { Bell, Calendar, UserRound, Menu } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
+import { useAuthStore } from '../store/authStore.js';
 
 const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
+  const { user } = useAuthStore();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -35,7 +37,7 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
 
           {/* Welcome text - responsive */}
           <h1 className='text-lg sm:text-2xl font-bold text-black'>
-            <span className='hidden sm:inline'>Welcome back John</span>
+            <span className='hidden sm:inline'>Welcome back {user.name}</span>
           </h1>
         </div>
 
@@ -44,14 +46,17 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
           {/* Make Appointment Button - Hidden on mobile, different sizes */}
           <div className='hidden md:flex items-center gap-2 py-2 px-3 bg-purple-600 hover:bg-purple-500 text-white rounded-md cursor-pointer transition-colors shadow-md'>
             <Calendar className='h-4 w-4' />
-            <Link to={'#'} className='font-semibold tracking-wide text-sm'>
+            <Link
+              to={'appointments/create'}
+              className='font-semibold tracking-wide text-sm'
+            >
               Make Appointment
             </Link>
           </div>
 
           {/* Mobile Make Appointment Button - Icon only */}
           <Link
-            to={'#'}
+            to={'appointment/create'}
             className='md:hidden p-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md cursor-pointer transition-colors shadow-md'
           >
             <Calendar className='h-5 w-5' />
@@ -68,12 +73,9 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
           {/* User Profile - Responsive */}
           <div className='flex items-center gap-2 py-2 px-2 sm:px-3 bg-white rounded-md shadow-md'>
             <UserRound className='h-5 w-5 sm:h-6 sm:w-6' />
-            <span className='capitalize font-semibold text-sm sm:text-base hidden xs:inline'>
-              John Doe
-            </span>
             {/* Show just first name on very small screens */}
             <span className='capitalize font-semibold text-sm xs:hidden'>
-              John
+              {user.name.split(' ')[0]}
             </span>
           </div>
         </div>

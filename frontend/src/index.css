@@ -7,7 +7,7 @@
 }
 
 .primary-btn {
-    @apply bg-purple-400 text-gray-100 hover:bg-purple-500 transition-all;
+    @apply bg-purple-500 text-white hover:bg-purple-400 transition-all;
 }
 
 .container {

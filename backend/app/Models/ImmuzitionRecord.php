@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class ImmuzitionRecord extends Model
+{
+    protected $fillable = [
+        'patient_it',
+        'tetanus_vaccine_id',
+        'covid_vaccine_id',
+        'other_vaccine_id',
+    ];
+
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    public function tetanus_vaccine(): BelongsTo
+    {
+        return $this->belongsTo(TetanusVaccine::class);
+    }
+
+    public function covid_vaccine(): BelongsTo
+    {
+        return $this->belongsTo(CovidVaccine::class);
+    }
+
+    public function other_vaccine(): BelongsTo
+    {
+        return $this->belongsTo(OtherVaccine::class);
+    }
+}

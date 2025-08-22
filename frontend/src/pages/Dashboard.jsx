@@ -1,6 +1,6 @@
 import { Calendar, ChevronRight } from 'lucide-react';
-import Card from '../components/Card';
 import { Link } from 'react-router';
+import Card from '../components/Card';
 
 const Dashboard = () => {
   const referrals = [
@@ -296,7 +296,7 @@ const Dashboard = () => {
               <div className='mt-4 pt-4 border-t border-gray-200'>
                 <Link
                   to={'appointments'}
-                  className='w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors'
+                  className='w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors'
                 >
                   View All Appointments
                   <ChevronRight className='ml-1 h-4 w-4' />

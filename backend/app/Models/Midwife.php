@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Midwife extends Model
+{
+    protected $fillable = [
+        'firstname',
+        'lastname',
+        'barangay_center_id',
+    ];
+
+    public function barangay_center(): BelongsTo
+    {
+        return $this->belongsTo(BarangayCenter::class);
+    }
+
+    public function pregnancy_tracking(): HasMany
+    {
+        return $this->hasMany(PregnancyTracking::class);
+    }
+}

@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, UserRound } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import InputGroup from '../components/InputGroup';
+import InputGroup from '../components/ui/InputGroup.jsx';
 import Logo from '../assets/st-paul-logo.webp';
-import { useAuthStore } from '../store/AuthStore';
-import useErrorStore from '../store/errorStore';
+import { useAuthStore } from '../store/authStore.js';
+import useErrorStore from '../store/errorStore.js';
 import Title from '../components/Title';
 
 export default function LoginPage() {

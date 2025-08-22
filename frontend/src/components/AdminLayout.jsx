@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router';
+import { useState } from 'react';
 import Sidebar from './Sidebar';
 import MobileSidebar from './MobileSidebar';
-import { useState } from 'react';
 import Header from './Header';
 import {
   LayoutDashboard,

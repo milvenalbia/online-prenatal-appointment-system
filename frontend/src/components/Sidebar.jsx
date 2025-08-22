@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, LogOut, UserRound } from 'lucide-react';
 import { NavLink } from 'react-router';
 import Logo from '../assets/st-paul-logo.webp';
 import Tooltip from './Tooltip';
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore } from '../store/authStore.js';
 
 const Sidebar = ({ toggle, setToggle, mainLinks }) => {
   const { logout } = useAuthStore();
