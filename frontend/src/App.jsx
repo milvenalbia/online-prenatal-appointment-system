@@ -15,6 +15,9 @@ import CreateAppointment from './pages/appointment/CreateAppointment';
 import PregnancyTrackingRecords from './pages/pregnancy_tracking/PregnancyTrackingRecords';
 import CreatePregnancyTracking from './pages/pregnancy_tracking/CreatePregnancyTracking';
 import UserRecords from './pages/user_management/UserRecords';
+import HealthStations from './pages/health_station/HealthStations';
+import Midwives from './pages/midwives/Midwives';
+import BarangayWorkers from './pages/barangay_workers/BarangayWorkers';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -59,6 +62,9 @@ function App() {
             path='immunization-records'
             element={<ImmunizationRecords />}
           />
+          <Route path='midwives' element={<Midwives />} />
+          <Route path='health-stations' element={<HealthStations />} />
+          <Route path='barangay-workers' element={<BarangayWorkers />} />
           <Route path='reports' element={<Reports />} />
           <Route path='users' element={<UserRecords />} />
         </Route>

@@ -14,6 +14,11 @@ class Midwife extends Model
         'barangay_center_id',
     ];
 
+    public function getFullNameAttribute()
+    {
+        return "{$this->firstname} {$this->lastname}";
+    }
+
     public function barangay_center(): BelongsTo
     {
         return $this->belongsTo(BarangayCenter::class);

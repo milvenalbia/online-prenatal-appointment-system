@@ -6,6 +6,7 @@ import FormModal from '../../components/ui/FormModal';
 import { useFormSubmit } from '../../utils/functions';
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import SelectGroup from '../../components/ui/SelectGroup';
+import { user_columns } from '../../utils/columns';
 
 const UserRecords = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -110,31 +111,7 @@ const UserRecords = () => {
     },
   ];
 
-  const columns = [
-    {
-      key: 'index',
-      title: 'No.',
-      sortable: false,
-      width: 'w-[10%]',
-      render: (value, row, index) => {
-        return <span className='ml-5'>{index + 1}</span>;
-      },
-    },
-    { key: 'name', title: 'Name', sortable: true, width: 'w-[25%]' },
-    { key: 'email', title: 'Email', sortable: true, width: 'w-[25%]' },
-    { key: 'role', title: 'Role', sortable: false, width: 'w-[15%]' },
-    {
-      key: 'created_at',
-      title: 'Created',
-      sortable: true,
-      width: 'w-[15%]',
-      render: (value) => new Date(value).toLocaleDateString(),
-    },
-    {
-      key: 'id',
-      hidden: true,
-    },
-  ];
+  const columns = user_columns;
   return (
     <Container title={'User Managemnet'}>
       <DataTable
@@ -148,7 +125,7 @@ const UserRecords = () => {
         showPagination={true}
         showPerPage={true}
         showActions={true}
-        defaultPerPage={10}
+        defaultPerPage={2}
         onAdd={handleAdd}
         addButton={'Add User'}
         ref={dataTableRef}
@@ -260,7 +237,13 @@ const UserRecords = () => {
                     : 'from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
                 }`}
               >
-                {isSubmitting ? 'Creating User...' : 'Create User'}
+                {isSubmitting
+                  ? isEdit
+                    ? 'Updating ...'
+                    : 'Creating ...'
+                  : isEdit
+                  ? 'Update'
+                  : 'Create'}
               </button>
             </div>
           </form>

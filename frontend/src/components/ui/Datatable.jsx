@@ -64,17 +64,16 @@ const DataTable = forwardRef((props, ref) => {
         search: debouncedSearchTerm,
         sort_by: sortField,
         sort_dir: sortDirection,
-        date_from: dateFrom ? dateFrom.toISOString().split('T')[0] : undefined,
-        date_to: dateTo ? dateTo.toISOString().split('T')[0] : undefined,
+        date_from: dateFrom ? dateFrom.toLocaleDateString('en-CA') : undefined,
+        date_to: dateFrom ? dateTo.toLocaleDateString('en-CA') : undefined,
       };
-
       const response = await api.get(apiEndpoint, { params });
 
       const result = response.data;
 
       setData(result.data);
-      setTotalPages(result.last_page);
-      setTotalRecords(result.total);
+      setTotalPages(result.meta?.last_page ?? result.last_page);
+      setTotalRecords(result.meta?.total ?? result.total);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {

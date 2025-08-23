@@ -26,13 +26,18 @@ class Patient extends Model
         'riligion',
         'contact',
         'contact_person_name',
-        'contact_person_name',
+        'contact_person_number',
         'contact_person_relationship',
         'region',
         'province',
         'municipality',
         'barangay',
     ];
+
+    public function getFullNameAttribute()
+    {
+        return "{$this->firstname} {$this->lastname}";
+    }
 
     public function pregnancy_trackings(): HasMany
     {
@@ -59,23 +64,32 @@ class Patient extends Model
         return $this->hasMany(ImmuzitionRecord::class);
     }
 
-    public function region(): BelongsTo
+    public function regions(): BelongsTo
     {
         return $this->belongsTo(Region::class, 'region');
     }
 
-    public function province(): BelongsTo
+    public function provinces(): BelongsTo
     {
         return $this->belongsTo(Province::class, 'province');
     }
 
-    public function municipality(): BelongsTo
+    public function municipalities(): BelongsTo
     {
         return $this->belongsTo(Municipality::class, 'municipality');
     }
 
-    public function barangay(): BelongsTo
+    public function barangays(): BelongsTo
     {
         return $this->belongsTo(Barangay::class, 'barangay');
+    }
+
+    public function getAddressAttribute()
+    {
+        $barangay = $this->barangays?->name ?? '';
+        $municipality = $this->municipalities?->name ?? '';
+        $province = $this->provinces?->name ?? '';
+
+        return trim("{$barangay} {$municipality}, {$province}");
     }
 }

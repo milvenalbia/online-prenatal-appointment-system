@@ -1,7 +1,26 @@
-import React from 'react';
+import { useLocation } from 'react-router';
+import FormWizard from '../../components/FormWizard';
+import Breadcrumb from '../../components/ui/Breadcrumb';
+import Container from '../../components/ui/Container';
 
 const CreatePregnancyTracking = () => {
-  return <div>CreatePregnancyTracking</div>;
+  const location = useLocation();
+  const { row } = location.state || {};
+  const breadcrumbItems = [
+    { label: 'Dashboard', to: '/admin/dashboard' },
+    { label: 'Pregnancy Tracking', to: '/admin/pregnancy-trackings' },
+    { label: 'Create Pregnancy Tracking' },
+  ];
+  return (
+    <Container title={'Create Pregnancy Tracking'}>
+      <Breadcrumb items={breadcrumbItems} />
+      <div className='w-full'>
+        <div className='px-6 py-4'>
+          <FormWizard row={row} />
+        </div>
+      </div>
+    </Container>
+  );
 };
 
 export default CreatePregnancyTracking;

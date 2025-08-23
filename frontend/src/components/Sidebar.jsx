@@ -51,7 +51,7 @@ const Sidebar = ({ toggle, setToggle, mainLinks }) => {
         </button>
       </header>
 
-      <div className='flex-1 flex flex-col min-h-0'>
+      <div className='flex-1 flex flex-col min-h-0 mt-4'>
         {/* Scrollable Navigation Section */}
         <div className='flex-1 overflow-x-hidden overflow-y-hidden hover:overflow-y-auto'>
           <ul className='flex flex-col gap-4 mt-6 pb-4'>

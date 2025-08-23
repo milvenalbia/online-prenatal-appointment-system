@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use App\Http\Resources\SelectPatientsResource;
 
 class PatientController extends Controller
 {
@@ -13,7 +14,9 @@ class PatientController extends Controller
      */
     public function index()
     {
-        //
+        $patients = Patient::select('id', 'firstname', 'lastname')->get();
+
+        return SelectPatientsResource::collection($patients);
     }
 
     /**

@@ -3,6 +3,22 @@ import { useState } from 'react';
 import useErrorStore from '../store/errorStore.js';
 import api from '../api/axios';
 
+export const fetchOptions = async (endpoint, valueKey, labelKey) => {
+  try {
+    const res = await api.get(endpoint);
+
+    const data = res.data?.data ?? res.data ?? [];
+
+    return data.map((item) => ({
+      value: item[valueKey],
+      label: item[labelKey],
+    }));
+  } catch (error) {
+    console.error('Error fetching options:', error);
+    return [];
+  }
+};
+
 export function useFormSubmit() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { error, setError } = useErrorStore();

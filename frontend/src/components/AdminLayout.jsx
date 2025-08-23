@@ -11,6 +11,9 @@ import {
   Stethoscope,
   Syringe,
   FileBarChart,
+  HeartPulse,
+  ClipboardList,
+  Hospital,
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -47,6 +50,21 @@ const AdminLayout = () => {
       name: 'Immunization Records',
       link: 'immunization-records',
       icon: <Syringe />,
+    },
+    {
+      name: 'Midwives',
+      link: 'midwives',
+      icon: <HeartPulse />,
+    },
+    {
+      name: 'Barangay Workers',
+      link: 'barangay-workers',
+      icon: <ClipboardList />,
+    },
+    {
+      name: 'Health Stations',
+      link: 'health-stations',
+      icon: <Hospital />,
     },
     {
       name: 'Reports',

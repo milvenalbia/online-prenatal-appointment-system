@@ -2,17 +2,67 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MidwifeResource;
+use App\Http\Resources\SelectMidWifeResource;
+use App\Models\BarangayCenter;
 use App\Models\Midwife;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MidwifeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $search     = $request->input('search');
+        $dateFrom   = $request->input('date_from');
+        $dateTo     = $request->input('date_to');
+        $sortBy     = $request->input('sort_by', 'created_at');
+        $sortDir    = $request->input('sort_dir', 'desc');
+        $perPage    = $request->input('per_page', 10);
+
+        // Optional: whitelist sortable columns to prevent SQL injection
+        $sortableColumns = [
+            'fullname' => 'firstname',
+            'created_at' => 'created_at',
+        ];
+
+        if (!array_key_exists($sortBy, $sortableColumns)) {
+            $sortBy = 'created_at';
+        }
+
+        $midwives = Midwife::with([
+            'barangay_center',
+            'barangay_center.barangays',
+            'barangay_center.municipalities',
+            'barangay_center.provinces'
+        ])
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where(DB::raw("CONCAT(firstname, ' ', lastname)"), 'LIKE', "%{$search}%");
+                });
+            })
+            ->when($dateFrom, function ($query, $dateFrom) {
+                $query->whereDate('created_at', '>=', $dateFrom);
+            })
+            ->when($dateTo, function ($query, $dateTo) {
+                $query->whereDate('created_at', '<=', $dateTo);
+            })
+            ->orderBy($sortableColumns[$sortBy], $sortDir)
+            ->paginate($perPage);
+
+
+        return [
+            'data' => MidwifeResource::collection($midwives),
+            'meta' => [
+                'total' => $midwives->total(),
+                'per_page' => $midwives->perPage(),
+                'current_page' => $midwives->currentPage(),
+                'last_page' => $midwives->lastPage(),
+            ],
+        ];
     }
 
     /**
@@ -20,15 +70,28 @@ class MidwifeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $fields = $request->validate([
+            'firstname' => 'required|max:255',
+            'lastname' => 'required|max:255',
+            'barangay_center_id' => 'required|exists:barangay_centers,id',
+        ]);
+
+        Midwife::create($fields);
+
+        return [
+            'message' => 'Midwife created successfully',
+        ];
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Midwife $midwife)
+    public function show(BarangayCenter $barangay_center)
     {
-        //
+        $midwives = Midwife::where('barangay_center_id', $barangay_center->id)
+            ->get();
+
+        return SelectMidWifeResource::collection($midwives);
     }
 
     /**
@@ -36,7 +99,17 @@ class MidwifeController extends Controller
      */
     public function update(Request $request, Midwife $midwife)
     {
-        //
+        $fields = $request->validate([
+            'firstname' => 'required|max:255',
+            'lastname' => 'required|max:255',
+            'barangay_center_id' => 'required|exists:barangay_centers,id',
+        ]);
+
+        $midwife->update($fields);
+
+        return [
+            'message' => 'Midwife updated successfully',
+        ];
     }
 
     /**
