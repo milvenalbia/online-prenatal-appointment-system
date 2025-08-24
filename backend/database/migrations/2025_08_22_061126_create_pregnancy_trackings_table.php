@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('pregnancy_trackings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id')->constrained('patients');;
-            $table->foreignId('barangay_center_id');
-            $table->foreignId('barangay_worker_id');
-            $table->foreignId('midwife_id');
+            $table->foreignId('patient_id')->nullable()->constrained('patients');
+            $table->foreignId('barangay_center_id')->nullable()->constrained('barangay_centers');
+            $table->foreignId('barangay_worker_id')->nullable()->constrained('barangay_workers');
+            $table->foreignId('midwife_id')->nullable()->constrained('midwives');
             $table->string('fullname');
             $table->integer('age');
             $table->string('gravidity')->nullable();
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('referral_center')->nullable();
             $table->string('referral_center_address')->nullable();
             $table->string('barangay_health_station')->nullable();
-            $table->string('rural_unit')->nullable();
+            $table->string('rural_health_unit')->nullable();
             $table->timestamps();
         });
     }

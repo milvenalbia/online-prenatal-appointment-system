@@ -20,8 +20,6 @@ import Midwives from './pages/midwives/Midwives';
 import BarangayWorkers from './pages/barangay_workers/BarangayWorkers';
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <BrowserRouter>
       <Routes>

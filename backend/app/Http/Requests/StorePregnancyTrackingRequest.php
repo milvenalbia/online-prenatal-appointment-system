@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+
+class StorePregnancyTrackingRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize()
+    {
+        $user = Auth::user();
+
+        if (!in_array($user->role, ['admin', 'opd'])) {
+            throw new AuthorizationException('You are not authorized to perform this action.');
+        }
+
+        return true;
+    }
+
+    public function rules()
+    {
+        $patientType = $this->input('patient_type');
+
+        $rules = [
+            'barangay_center_id'        => 'required|exists:barangay_centers,id',
+            'barangay_worker_id'        => 'required|exists:barangay_workers,id',
+            'midwife_id'                => 'required|exists:midwives,id',
+            'gravidity'                 => 'required|max:255',
+            'parity'                    => 'required|max:255',
+            'lmp'                       => 'required|date',
+            'edc'                       => 'required|date',
+            'birthing_center'           => 'required|max:255',
+            'birthing_center_address'   => 'required|max:255',
+            'referral_center'           => 'required|max:255',
+            'referral_center_address'   => 'required|max:255',
+            'barangay_health_station'   => 'required|max:255',
+            'rural_health_unit'         => 'required|max:255',
+        ];
+
+        if ($patientType === 'existing') {
+            $rules = array_merge($rules, [
+                'patient_id'                => 'required|exists:patients,id',
+            ]);
+        }
+
+        if ($patientType === 'new') {
+            $rules = array_merge($rules, [
+                'firstname'                 => 'required|max:255',
+                'lastname'                  => 'required|max:255',
+                'middlename'                => 'required|max:255',
+                'age'                       => 'required|integer|min:1',
+                'sex'                       => 'required|max:255',
+                'status'                    => 'required|max:255',
+                'birth_date'                => 'required|date',
+                'birth_place'               => 'required|max:255',
+                'religion'                  => 'required|max:255',
+                'contact'                   => 'required|regex:/^639\d{9}$/|unique:patients',
+                'contact_person_name'       => 'required|max:255',
+                'contact_person_number'     => 'required|regex:/^639\d{9}$/',
+                'contact_person_relationship' => 'required|max:255',
+                'region'                    => 'required|exists:regions,id',
+                'province'                  => 'required|exists:provinces,id',
+                'municipality'              => 'required|exists:municipalities,id',
+                'barangay'                  => 'required|exists:barangays,id',
+            ]);
+        }
+
+
+
+        return $rules;
+    }
+}

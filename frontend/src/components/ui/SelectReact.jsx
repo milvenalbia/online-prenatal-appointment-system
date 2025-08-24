@@ -44,7 +44,9 @@ const SelectReact = ({
 
   return (
     <div className='flex flex-col gap-2 w-full'>
-      <label htmlFor={id}>{label}</label>
+      <label className='text-gray-700' htmlFor={id}>
+        {label}
+      </label>
       <Select
         inputId={id}
         name={name}

@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router';
-import FormWizard from '../../components/FormWizard';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import Container from '../../components/ui/Container';
+import FormWizard from '../../components/interfaces/FormWizard';
 
 const CreatePregnancyTracking = () => {
   const location = useLocation();
@@ -15,7 +15,7 @@ const CreatePregnancyTracking = () => {
     <Container title={'Create Pregnancy Tracking'}>
       <Breadcrumb items={breadcrumbItems} />
       <div className='w-full'>
-        <div className='px-6 py-4'>
+        <div className='px-2 py-4 sm:px-6'>
           <FormWizard row={row} />
         </div>
       </div>

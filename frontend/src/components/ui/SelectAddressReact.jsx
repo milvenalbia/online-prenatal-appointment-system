@@ -143,7 +143,9 @@ const SelectAddressReact = ({
 
   return (
     <div className='flex flex-col gap-2 w-full'>
-      <label htmlFor={id}>{label}</label>
+      <label className='text-gray-700' htmlFor={id}>
+        {label}
+      </label>
       {isLoading ? (
         <div className='animate-pulse'>
           <div className='h-10 bg-gray-200 rounded-md'></div>

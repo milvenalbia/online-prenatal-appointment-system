@@ -87,7 +87,7 @@ const AdminLayout = () => {
 
       {/* Main Content */}
       <main
-        className={`flex flex-col w-full py-3 px-6 transition-all duration-300  ${
+        className={`flex flex-col w-full py-3 px-0 sm:px-6 transition-all duration-300  ${
           toggle ? 'sm:max-w-[calc(100%-128px)]' : 'sm:max-w-[calc(100%-280px)]'
         }`}
       >

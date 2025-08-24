@@ -125,7 +125,7 @@ const UserRecords = () => {
         showPagination={true}
         showPerPage={true}
         showActions={true}
-        defaultPerPage={2}
+        defaultPerPage={10}
         onAdd={handleAdd}
         addButton={'Add User'}
         ref={dataTableRef}

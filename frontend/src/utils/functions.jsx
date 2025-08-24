@@ -22,6 +22,7 @@ export const fetchOptions = async (endpoint, valueKey, labelKey) => {
 export function useFormSubmit() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { error, setError } = useErrorStore();
+  const [data, SetData] = useState(null);
 
   const handleSubmit = async ({
     e,
@@ -30,6 +31,7 @@ export function useFormSubmit() {
     formData,
     onSuccess,
     onReset,
+    showToastError = false,
   }) => {
     e?.preventDefault();
     setIsSubmitting(true);
@@ -43,8 +45,9 @@ export function useFormSubmit() {
 
       if (data) {
         toast.success(data.message);
-        onSuccess?.();
+        onSuccess?.(data.data ?? data);
         onReset?.();
+        SetData(data?.data ?? data);
       }
     } catch (error) {
       if (error.response) {
@@ -52,6 +55,9 @@ export function useFormSubmit() {
 
         if (status === 422 && data.errors) {
           setError(data.errors || data.message);
+          if (showToastError) {
+            toast.error(`Please check the form for possible errors.`);
+          }
         } else if (status === 429) {
           toast.error(`${data.message} Try again in a moment.`);
         } else {
@@ -65,5 +71,5 @@ export function useFormSubmit() {
     }
   };
 
-  return { handleSubmit, isSubmitting, error, setError };
+  return { handleSubmit, isSubmitting, error, setError, data };
 }

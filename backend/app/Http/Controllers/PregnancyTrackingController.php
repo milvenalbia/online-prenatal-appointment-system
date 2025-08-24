@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePregnancyTrackingRequest;
 use App\Http\Resources\PregnancyTrackingResource;
+use App\Models\Patient;
 use App\Models\PregnancyTracking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +41,7 @@ class PregnancyTrackingController extends Controller
             'patient.provinces',
             'midwife',
             'barangay_worker',
-            'branagay_center'
+            'barangay_center'
         ])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -53,7 +55,7 @@ class PregnancyTrackingController extends Controller
             ->when($dateTo, function ($query, $dateTo) {
                 $query->whereDate('created_at', '<=', $dateTo);
             })
-            ->orderBy($sortableColumns[$sortBy], $sortDir)
+            ->orderBy($sortBy, $sortDir)
             ->paginate($perPage);
 
 
@@ -71,10 +73,35 @@ class PregnancyTrackingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePregnancyTrackingRequest $request)
     {
-        //
+        $fields = $request->validated();
+        $patientType = $request->input('patient_type');
+
+        $pregnancy_tracking = DB::transaction(function () use ($fields, $patientType) {
+            if ($patientType === 'new') {
+                $patient = Patient::create(array_merge($fields, [
+                    "address" => "n/a",
+                ]));
+                $fields['patient_id'] = $patient->id;
+
+                $address = "{$patient->barangays->name} {$patient->municipalities->name}, {$patient->provinces->name}";
+                $patient->update([
+                    'address' => $address,
+                ]);
+
+                $fields['fullname'] = $patient->fullname;
+            }
+
+            return PregnancyTracking::create($fields);
+        });
+
+        return [
+            'data' => new PregnancyTrackingResource($pregnancy_tracking),
+            'message' => 'Pregnancy Tracking created successfully',
+        ];
     }
+
 
     /**
      * Display the specified resource.

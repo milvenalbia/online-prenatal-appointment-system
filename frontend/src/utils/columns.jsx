@@ -3,7 +3,7 @@ export const pregnancy_tracking_columns = [
     key: 'index',
     title: 'No.',
     sortable: false,
-    width: 'w-[10%]',
+    width: 'w-[5%]',
     render: (value, row, index) => {
       return <span className='ml-5'>{index + 1}</span>;
     },
@@ -36,20 +36,20 @@ export const pregnancy_tracking_columns = [
     key: 'birthing_center',
     title: 'Birthing Center',
     sortable: false,
-    width: 'w-[12%]',
+    width: 'w-[13%]',
   },
   {
     key: 'referral_center',
     title: 'Refferal Center',
     sortable: false,
-    width: 'w-[13%]',
+    width: 'w-[12%]',
   },
 
   {
     key: 'created_at',
     title: 'Created',
     sortable: true,
-    width: 'w-[15%]',
+    width: 'w-[10%]',
     render: (value) => new Date(value).toLocaleDateString(),
   },
 

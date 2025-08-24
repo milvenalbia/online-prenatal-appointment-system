@@ -23,7 +23,7 @@ class Patient extends Model
         'birth_date',
         'birth_place',
         'address',
-        'riligion',
+        'religion',
         'contact',
         'contact_person_name',
         'contact_person_number',
