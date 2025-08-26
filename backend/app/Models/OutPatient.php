@@ -19,6 +19,8 @@ class OutPatient extends Model
         'pr',
         'two_sat',
         'bp',
+        'phic',
+        'chief_complaint',
     ];
 
     public function patient(): BelongsTo

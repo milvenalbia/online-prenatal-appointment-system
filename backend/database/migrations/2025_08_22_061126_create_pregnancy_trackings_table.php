@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('referral_center_address')->nullable();
             $table->string('barangay_health_station')->nullable();
             $table->string('rural_health_unit')->nullable();
+            $table->boolean('isDone')->default(false);
             $table->timestamps();
         });
     }

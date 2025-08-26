@@ -26,7 +26,7 @@ const PersonalDetailsStep = ({
     { name: 'Female', value: 'female' },
   ];
 
-  if (patientType !== 'new') {
+  if (patientType === 'existing') {
     return (
       <div className='text-center py-8'>
         <p className='text-gray-500'>
@@ -54,6 +54,7 @@ const PersonalDetailsStep = ({
               icon={<User className='h-5 w-5 text-gray-400' />}
               hasLabel
               label='Sex'
+              disabled={true}
             />
             {error.sex && <p className='error mt-1'>{error.sex[0]}</p>}
           </div>

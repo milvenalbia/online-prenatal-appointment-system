@@ -108,7 +108,11 @@ const BarangayWorkers = () => {
         ref={dataTableRef}
       />
       {isOpen && (
-        <FormModal closeModal={closeModal} isEdit={isEdit} title={'Midwife'}>
+        <FormModal
+          closeModal={closeModal}
+          isEdit={isEdit}
+          title={'Barangay Worker'}
+        >
           <form onSubmit={onSubmit}>
             <div className='space-y-6 sm:w-auto'>
               <div className='flex justify-between gap-2 -mt-2'>

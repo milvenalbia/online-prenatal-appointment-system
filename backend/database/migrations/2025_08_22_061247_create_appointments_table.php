@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pregnancy_tracking_id')->constrained('pregnancy_trackings');
-            $table->date('data');
+            $table->date('date');
             $table->time('start_time');
             $table->time('end_time');
             $table->string('priority');
             $table->string('status');
+            $table->string('note')->nullable();
             $table->timestamps();
         });
     }

@@ -18,13 +18,23 @@ const PregnancyTrackingRecords = () => {
     navigate('create');
   };
 
-  const handelView = async (row) => {
+  const handelDownload = async (row) => {
     const blob = await pdf(
       <PregnancyTrackingPDF formData={row} patientType={''} />
     ).toBlob();
 
     const url = URL.createObjectURL(blob);
+
+    // ✅ Trigger browser download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'pregnancy-tracking.pdf'; // filename
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
     window.open(url, '_blank');
+
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
@@ -45,7 +55,7 @@ const PregnancyTrackingRecords = () => {
         showActions={true}
         defaultPerPage={8}
         onAdd={handleAdd}
-        onView={handelView}
+        onDownload={handelDownload}
         addButton={'Create Pregnancy Tracking'}
         ref={dataTableRef}
       />

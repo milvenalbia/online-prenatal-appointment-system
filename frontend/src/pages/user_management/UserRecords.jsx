@@ -7,6 +7,7 @@ import { useFormSubmit } from '../../utils/functions';
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import SelectGroup from '../../components/ui/SelectGroup';
 import { user_columns } from '../../utils/columns';
+import SelectReact from '../../components/ui/SelectReact';
 
 const UserRecords = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +18,8 @@ const UserRecords = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: '',
+    role_id: '',
+    barangay_center_id: '',
     password: '',
     password_confirmation: '',
   });
@@ -37,7 +39,8 @@ const UserRecords = () => {
     setFormData({
       name: '',
       email: '',
-      role: '',
+      role_id: '',
+      barangay_center_id: '',
       password: '',
       password_confirmation: '',
     });
@@ -50,7 +53,8 @@ const UserRecords = () => {
     setFormData({
       name: row.name,
       email: row.email,
-      role: row.role,
+      role_id: row.role_id,
+      barangay_center_id: row.barangay_center_id,
       password: '',
       password_confirmation: '',
     });
@@ -74,7 +78,8 @@ const UserRecords = () => {
         setFormData({
           name: '',
           email: '',
-          role: '',
+          role_id: '',
+          barangay_center_id: '',
           password: '',
           password_confirmation: '',
         });
@@ -90,26 +95,12 @@ const UserRecords = () => {
 
   const inputChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-
-  const selectOptions = [
-    {
-      name: 'Admin',
-      value: 'admin',
-    },
-    {
-      name: 'Midwife',
-      value: 'midwife',
-    },
-    {
-      name: 'OPD',
-      value: 'opd',
-    },
-  ];
 
   const columns = user_columns;
   return (
@@ -160,17 +151,42 @@ const UserRecords = () => {
               />
               {error.email && <p className='error -mt-4'>{error.email[0]}</p>}
 
-              <SelectGroup
-                name='role'
-                value={formData.role}
-                onChange={inputChange}
-                placeholder='Select Role'
-                options={selectOptions}
-                id={'role'}
-                hasLabel
-                label={'Role'}
+              <SelectReact
+                label='Role'
+                id='role_id'
+                name='role_id'
+                endpoint='/api/filter/roles'
+                placeholder='Choose a role'
+                formData={formData}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    role_id: value,
+                    barangay_center_id:
+                      value == 2 ? prev.barangay_center_id : null,
+                  }))
+                }
+                setFormData={setFormData}
+                labelKey={'role'}
               />
               {error.role && <p className='error -mt-4'>{error.role[0]}</p>}
+
+              {formData.role_id == 2 && (
+                <SelectReact
+                  label='Barangay (Optional, only for midwife role)'
+                  id='barangay_id'
+                  name='barangay_center_id'
+                  endpoint='/api/barangay-centers'
+                  placeholder='Choose a health station'
+                  formData={formData}
+                  setFormData={setFormData}
+                  labelKey={'health_station'}
+                  disabled={formData.role_id != 2}
+                />
+              )}
+              {error.barangay_center_id && (
+                <p className='error -mt-4'>{error.barangay_center_id[0]}</p>
+              )}
 
               <div className='flex justify-between gap-2 -mt-2'>
                 <InputGroup

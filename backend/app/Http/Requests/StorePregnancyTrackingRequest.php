@@ -15,7 +15,7 @@ class StorePregnancyTrackingRequest extends FormRequest
     {
         $user = Auth::user();
 
-        if (!in_array($user->role, ['admin', 'opd'])) {
+        if (!in_array($user->role->role, ['admin', 'opd'])) {
             throw new AuthorizationException('You are not authorized to perform this action.');
         }
 
@@ -38,7 +38,6 @@ class StorePregnancyTrackingRequest extends FormRequest
             'birthing_center_address'   => 'required|max:255',
             'referral_center'           => 'required|max:255',
             'referral_center_address'   => 'required|max:255',
-            'barangay_health_station'   => 'required|max:255',
             'rural_health_unit'         => 'required|max:255',
         ];
 
@@ -63,6 +62,7 @@ class StorePregnancyTrackingRequest extends FormRequest
                 'contact_person_name'       => 'required|max:255',
                 'contact_person_number'     => 'required|regex:/^639\d{9}$/',
                 'contact_person_relationship' => 'required|max:255',
+                'zone'                      => 'required|max:255',
                 'region'                    => 'required|exists:regions,id',
                 'province'                  => 'required|exists:provinces,id',
                 'municipality'              => 'required|exists:municipalities,id',

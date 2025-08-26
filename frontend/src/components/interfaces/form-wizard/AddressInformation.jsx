@@ -1,10 +1,59 @@
+import { MapPinHouse } from 'lucide-react';
+import api from '../../../api/axios';
+import InputGroup from '../../ui/InputGroup';
 import SelectAddressReact from '../../ui/SelectAddressReact';
 
 const AddressInformation = ({ formData, setFormData, error }) => {
+  const handleChangeAddress = async (value) => {
+    console.log(value);
+    setFormData((prev) => ({
+      ...prev,
+      barangay: value,
+    }));
+
+    const params = {
+      barangay_id: value,
+      municipality_id: formData.municipality,
+      province_id: formData.province,
+      region_id: formData.region,
+    };
+    const response = await api.get('/api/address-name', { params });
+
+    const data = response.data?.data || response.data;
+
+    if (data) {
+      setFormData((prev) => ({
+        ...prev,
+        barangay_name: data.barangay_name,
+        municipality_name: data.municipality_name,
+        province_name: data.province_name,
+        region_name: data.region_name,
+      }));
+    }
+  };
   return (
     <div className='space-y-4'>
       <h4 className='font-medium text-gray-900'>Address Information</h4>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className='col-span-2'>
+          <InputGroup
+            type='text'
+            name='zone'
+            value={formData.zone}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                zone: e.target.value,
+              }))
+            }
+            placeholder='Zone'
+            icon={<MapPinHouse className='h-5 w-5 text-gray-400' />}
+            id='zone'
+            hasLabel
+            label='Zone/Purok'
+          />
+          {error.zone && <p className='error mt-1'>{error.zone[0]}</p>}
+        </div>
         <div className='w-full'>
           <SelectAddressReact
             label='Region'
@@ -80,6 +129,7 @@ const AddressInformation = ({ formData, setFormData, error }) => {
             placeholder='Choose a barangay'
             formData={formData}
             setFormData={setFormData}
+            onChange={(value) => handleChangeAddress(value)}
             disabled={!formData.municipality}
           />
           {error.barangay && <p className='error mt-1'>{error.barangay[0]}</p>}

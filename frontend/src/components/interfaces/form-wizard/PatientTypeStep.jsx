@@ -42,6 +42,7 @@ const PatientTypeStep = ({
   formData,
   setFormData,
   inputChange,
+  isEdit,
   error,
 }) => {
   const onClick = (value) => {
@@ -50,29 +51,31 @@ const PatientTypeStep = ({
   };
   return (
     <div className='space-y-6'>
-      <div>
-        <h3 className='text-lg font-medium text-gray-900 mb-4'>
-          Choose Patient Type
-        </h3>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          <PatientTypeCard
-            type='existing'
-            title='Existing Patient'
-            description='Select from registered patients'
-            icon={<UserCheck className='h-6 w-6' />}
-            patientType={patientType}
-            onClick={() => onClick('existing')}
-          />
-          <PatientTypeCard
-            type='new'
-            title='New Patient'
-            description='Register a new patient'
-            icon={<User className='h-6 w-6' />}
-            patientType={patientType}
-            onClick={() => onClick('new')}
-          />
+      {!isEdit && (
+        <div>
+          <h3 className='text-lg font-medium text-gray-900 mb-4'>
+            Choose Patient Type
+          </h3>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <PatientTypeCard
+              type='existing'
+              title='Existing Patient'
+              description='Select from registered patients'
+              icon={<UserCheck className='h-6 w-6' />}
+              patientType={patientType}
+              onClick={() => onClick('existing')}
+            />
+            <PatientTypeCard
+              type='new'
+              title='New Patient'
+              description='Register a new patient'
+              icon={<User className='h-6 w-6' />}
+              patientType={patientType}
+              onClick={() => onClick('new')}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {patientType === 'existing' && (
         <div className='mt-6'>
@@ -92,7 +95,7 @@ const PatientTypeStep = ({
         </div>
       )}
 
-      {patientType === 'new' && (
+      {(patientType === 'new' || patientType === 'edit') && (
         <NewPatientBasicInfo
           formData={formData}
           inputChange={inputChange}

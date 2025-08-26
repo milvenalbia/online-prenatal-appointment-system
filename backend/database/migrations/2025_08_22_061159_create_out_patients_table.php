@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('pr')->nullable();
             $table->string('two_sat')->nullable();
             $table->string('bp')->nullable();
+            $table->string('phic')->nullable();
+            $table->string('chief_complaint')->nullable();
             $table->timestamps();
         });
     }

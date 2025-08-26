@@ -1,8 +1,9 @@
 import { X } from 'lucide-react';
+import cn from '../../utils/cn';
 
-const FormModal = ({ children, closeModal, isEdit, title }) => {
+const FormModal = ({ children, closeModal, isEdit, title, className }) => {
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center p-4 h-screen'>
+    <div className='fixed inset-0 z-50 flex items-center p-0 sm:p-4 justify-center h-screen'>
       {/* Backdrop */}
       <div
         className='absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300'
@@ -10,12 +11,16 @@ const FormModal = ({ children, closeModal, isEdit, title }) => {
       ></div>
 
       {/* Modal Content */}
-      <div className='relative bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-xl mx-4 duration-300 border border-white/20'>
-        <div className='relative bg-white rounded-3xl p-8 max-h-[90vh] overflow-y-auto'>
+      <div
+        className={cn(
+          `relative bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-xl mx-4 duration-300 border border-white/20 ${className}`
+        )}
+      >
+        <div className='relative bg-white rounded-3xl px-2 py-5 sm:p-8 max-h-[90vh] overflow-y-auto'>
           {/* Header */}
-          <div className='flex items-center justify-between mb-6'>
+          <div className='flex items-center px-4 justify-between mb-6'>
             <div className='flex items-center gap-3'>
-              <h1 className='text-2xl font-semibold'>
+              <h1 className='text-xl sm:text-2xl font-semibold'>
                 {isEdit ? `Edit ${title}` : `Add ${title}`}
               </h1>
             </div>

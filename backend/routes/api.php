@@ -30,7 +30,7 @@ Route::middleware(['throttle:api', 'auth:sanctum'])->group(function () {
     Route::apiResource('/midwives', MidwifeController::class);
     Route::apiResource('/barangay-workers', BarangayWorkerController::class);
     Route::apiResource('/pregnancy-trackings', PregnancyTrackingController::class);
-    Route::apiResource('/immunizations', ImmuzitionRecordController::class);
+    Route::apiResource('/immunization-records', ImmuzitionRecordController::class);
     Route::apiResource('/prenatal-visits', PrenatalVisitController::class);
     Route::apiResource('/out-patients', OutPatientController::class);
 
@@ -40,4 +40,7 @@ Route::middleware(['throttle:api', 'auth:sanctum'])->group(function () {
     Route::get('/select-address/barangays/{municipality}', [SelectAddressController::class, 'barangays']);
     Route::get('/midwives/barangay-centers/{barangay_center}', [SelectAddressController::class, 'midwives']);
     Route::get('/barangay-workers/barangay-centers/{barangay_center}', [SelectAddressController::class, 'barangay_workers']);
+    Route::get('/address-name', [SelectAddressController::class, 'getAddressName']);
+    Route::get('/midwife-and-barangay-worker-name', [SelectAddressController::class, 'getMidwifeAndBarangayWorkerName']);
+    Route::get('/filter/roles', [SelectAddressController::class, 'roles']);
 });

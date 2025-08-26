@@ -6,6 +6,8 @@ const NavigationButtons = ({
   totalSteps,
   patientType,
   isSubmitted,
+  isSubmitting,
+  isEdit,
   onPrevious,
   onNext,
   onSubmit,
@@ -32,14 +34,22 @@ const NavigationButtons = ({
 
       <button
         onClick={isLastStep ? onSubmit : onNext}
-        disabled={isNextDisabled}
+        disabled={isNextDisabled || isSubmitting}
         className={`flex items-center px-6 py-2 rounded-md font-medium ${
-          isNextDisabled
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          isNextDisabled || isSubmitting
+            ? 'bg-purple-300 text-white cursor-not-allowed'
             : 'bg-purple-500 text-white hover:bg-purple-600'
         }`}
       >
-        {isLastStep ? 'Submit' : 'Next'}
+        {isLastStep
+          ? isSubmitting
+            ? isEdit
+              ? 'Updating ...'
+              : 'Submitting ...'
+            : isEdit
+            ? 'Update'
+            : 'Submit'
+          : 'Next'}
         {!isLastStep && <ChevronRight className='h-4 w-4 ml-2' />}
       </button>
     </div>

@@ -1,7 +1,7 @@
 import { LogOut, UserRound, X } from 'lucide-react';
 import { NavLink } from 'react-router';
 import Logo from '../assets/st-paul-logo.webp';
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore } from '../store/AuthStore';
 
 const MobileSidebar = ({ isOpen, setIsOpen, mainLinks }) => {
   const { logout } = useAuthStore();
@@ -34,7 +34,7 @@ const MobileSidebar = ({ isOpen, setIsOpen, mainLinks }) => {
                     className='w-full h-full object-cover object-center rounded-full'
                   />
                 </div>
-                <span className='text-xl font-semibold'>ST. Paul</span>
+                <span className='text-xl font-semibold'>St. Paul</span>
               </div>
             </NavLink>
             <button

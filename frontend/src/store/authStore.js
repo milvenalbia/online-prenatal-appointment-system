@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import CryptoJS from 'crypto-js';
-import api from '../api/axios';
 import { toast } from 'sonner';
+import api from '../api/axios';
 // Optional: use env or hardcode for dev (not safe for production frontend)
 const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
@@ -53,11 +53,9 @@ export const useAuthStore = create(
       },
 
       login: async (formData, navigate, setError) => {
-        console.log('login', formData);
         try {
           const res = await api.post('/api/login', formData);
           const data = res.data;
-          console.log('#Login Data: ', data);
           set({ user: data.user, token: data.token, isLoading: false });
 
           navigate('/admin/dashboard');

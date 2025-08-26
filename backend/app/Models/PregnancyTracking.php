@@ -23,7 +23,8 @@ class PregnancyTracking extends Model
         'referral_center',
         'referral_center_address',
         'barangay_health_station',
-        'rural_unit',
+        'rural_health_unit',
+        'isDone',
     ];
 
     public function patient(): BelongsTo
@@ -43,6 +44,6 @@ class PregnancyTracking extends Model
 
     public function barangay_worker(): BelongsTo
     {
-        return $this->belongsTo(Midwife::class);
+        return $this->belongsTo(BarangayWorker::class);
     }
 }

@@ -22,6 +22,7 @@ class Patient extends Model
         'status',
         'birth_date',
         'birth_place',
+        'zone',
         'address',
         'religion',
         'contact',
@@ -85,6 +86,15 @@ class Patient extends Model
     }
 
     public function getAddressAttribute()
+    {
+        $barangay = $this->barangays?->name ?? '';
+        $municipality = $this->municipalities?->name ?? '';
+        // $province = $this->provinces?->name ?? '';
+
+        return trim("{$barangay}, {$municipality}");
+    }
+
+    public function getFullAddressAttribute()
     {
         $barangay = $this->barangays?->name ?? '';
         $municipality = $this->municipalities?->name ?? '';

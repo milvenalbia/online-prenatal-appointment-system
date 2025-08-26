@@ -15,13 +15,14 @@ return new class extends Migration
             $table->id();
             $table->string('firstname');
             $table->string('lastname');
-            $table->string('middlename')->nullbale();
+            $table->string('middlename')->nullable();
             $table->integer('age');
             $table->string('sex');
             $table->string('status');
             $table->date('birth_date');
             $table->string('birth_place');
             $table->string('address');
+            $table->string('zone');
             $table->string('religion');
             $table->string('contact')->unique();
             $table->string('contact_person_name');

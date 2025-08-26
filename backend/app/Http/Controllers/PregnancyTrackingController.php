@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePregnancyTrackingRequest;
 use App\Http\Resources\PregnancyTrackingResource;
+use App\Models\BarangayCenter;
 use App\Models\Patient;
 use App\Models\PregnancyTracking;
 use Illuminate\Http\Request;
@@ -85,12 +86,16 @@ class PregnancyTrackingController extends Controller
                 ]));
                 $fields['patient_id'] = $patient->id;
 
-                $address = "{$patient->barangays->name} {$patient->municipalities->name}, {$patient->provinces->name}";
+                $address = "{$patient->zone}, {$patient->barangays->name} {$patient->municipalities->name}, {$patient->provinces->name}";
                 $patient->update([
                     'address' => $address,
                 ]);
 
+                $health_station = BarangayCenter::where('id', $fields['barangay_center_id'])->first();
+
                 $fields['fullname'] = $patient->fullname;
+                $fields['barangay_health_station'] = $health_station->health_station;
+                $fields['rural_unit'] = $fields['rural_health_unit'];
             }
 
             return PregnancyTracking::create($fields);

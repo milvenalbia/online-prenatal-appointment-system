@@ -4,8 +4,6 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 import {
   Search,
   ChevronLeft,
@@ -17,9 +15,12 @@ import {
   Plus,
   Eye,
   PlusCircle,
+  FileDown,
 } from 'lucide-react';
 import api from '../../api/axios';
 import SmallLoading from './SmallLoading';
+import DateInput from './DateInput';
+import Tooltip from '../Tooltip';
 
 const DataTable = forwardRef((props, ref) => {
   const {
@@ -35,6 +36,7 @@ const DataTable = forwardRef((props, ref) => {
     onEdit = null,
     onDelete = null,
     onView = null,
+    onDownload = null,
     onCustomAction = null,
     customActions = [],
     addButton = null,
@@ -64,9 +66,18 @@ const DataTable = forwardRef((props, ref) => {
         search: debouncedSearchTerm,
         sort_by: sortField,
         sort_dir: sortDirection,
-        date_from: dateFrom ? dateFrom.toISOString().split('T')[0] : undefined, //toLocaleDateString('en-CA')
-        date_to: dateFrom ? dateTo.toISOString().split('T')[0] : undefined,
+        date_from: dateFrom
+          ? dateFrom.toLocaleDateString('en-CA') // → "2025-08-24"
+          : undefined,
+        date_to: dateTo
+          ? (() => {
+              const end = new Date(dateTo);
+              end.setHours(23, 59, 59, 999); // last millisecond of the day
+              return `${end.toLocaleDateString('en-CA')} 23:59:59`;
+            })()
+          : undefined,
       };
+
       const response = await api.get(apiEndpoint, { params });
 
       const result = response.data;
@@ -149,6 +160,12 @@ const DataTable = forwardRef((props, ref) => {
     setCurrentPage(1);
   };
 
+  const handleDownload = (row) => {
+    if (onDownload) {
+      onDownload(row);
+    }
+  };
+
   const handleAdd = () => {
     if (onAdd) {
       onAdd();
@@ -187,30 +204,64 @@ const DataTable = forwardRef((props, ref) => {
 
     return (
       <div className='flex items-center gap-1'>
-        {onView && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleView(row);
-            }}
-            className='p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-100 rounded-md transition-colors'
-            title='View'
+        {onDownload && (
+          <Tooltip
+            toggle
+            title={'Download pdf'}
+            className={'bg-red-500'}
+            secondClassName={'border-r-red-500'}
+            minusRight={-5}
           >
-            <Eye className='w-5.5 h-5.5' />
-          </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownload(row);
+              }}
+              className='p-1.5 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors'
+            >
+              <FileDown className='w-5.5 h-5.5' />
+            </button>
+          </Tooltip>
+        )}
+
+        {onView && (
+          <Tooltip
+            toggle
+            title={'View'}
+            className={'bg-purple-500'}
+            secondClassName={'border-r-purple-500'}
+            minusRight={-5}
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleView(row);
+              }}
+              className='p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-100 rounded-md transition-colors'
+            >
+              <Eye className='w-5.5 h-5.5' />
+            </button>
+          </Tooltip>
         )}
 
         {onEdit && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(row);
-            }}
-            className='p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors'
-            title='Edit'
+          <Tooltip
+            toggle
+            title={'Edit'}
+            className={'bg-blue-500'}
+            secondClassName={'border-r-blue-500'}
+            minusRight={onView || onDownload ? -5 : 20}
           >
-            <Edit className='w-5 h-5' />
-          </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit(row);
+              }}
+              className='p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors'
+            >
+              <Edit className='w-5 h-5' />
+            </button>
+          </Tooltip>
         )}
 
         {onDelete && (
@@ -375,11 +426,8 @@ const DataTable = forwardRef((props, ref) => {
 
           {/* Date Filters */}
           {showDateFilter && (
-            <div className='relative'>
-              <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                <Calendar className='text-gray-400 w-4 h-4' />
-              </div>
-              <DatePicker
+            <div className='relative -mt-4'>
+              <DateInput
                 className='w-full pl-10 pr-4 py-2 border border-gray-300 outline-none rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all'
                 selectsRange
                 startDate={dateFrom}
@@ -388,9 +436,8 @@ const DataTable = forwardRef((props, ref) => {
                   setDateFrom(start);
                   setDateTo(end);
                 }}
-                placeholderText='Select date range'
-                dateFormat='yyyy-MM-dd'
-                wrapperClassName='w-full'
+                placeholdertext='Select date range'
+                dateformat='yyyy-MM-dd'
               />
             </div>
           )}

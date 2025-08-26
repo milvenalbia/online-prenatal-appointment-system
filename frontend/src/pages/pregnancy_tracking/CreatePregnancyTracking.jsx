@@ -9,10 +9,12 @@ const CreatePregnancyTracking = () => {
   const breadcrumbItems = [
     { label: 'Dashboard', to: '/admin/dashboard' },
     { label: 'Pregnancy Tracking', to: '/admin/pregnancy-trackings' },
-    { label: 'Create Pregnancy Tracking' },
+    { label: row ? 'Edit Pregnancy Tracking' : 'Create Pregnancy Tracking' },
   ];
   return (
-    <Container title={'Create Pregnancy Tracking'}>
+    <Container
+      title={row ? 'Edit Pregnancy Tracking' : 'Create Pregnancy Tracking'}
+    >
       <Breadcrumb items={breadcrumbItems} />
       <div className='w-full'>
         <div className='px-2 py-4 sm:px-6'>

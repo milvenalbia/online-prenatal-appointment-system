@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, LogOut, UserRound } from 'lucide-react';
 import { NavLink } from 'react-router';
 import Logo from '../assets/st-paul-logo.webp';
 import Tooltip from './Tooltip';
-import { useAuthStore } from '../store/authStore.js';
+import { useAuthStore } from '../store/AuthStore';
 
 const Sidebar = ({ toggle, setToggle, mainLinks }) => {
   const { logout } = useAuthStore();
@@ -30,7 +30,7 @@ const Sidebar = ({ toggle, setToggle, mainLinks }) => {
                 }`}
               >
                 <span className='text-2xl font-semibold whitespace-nowrap'>
-                  ST. Paul
+                  St. Paul
                 </span>
               </div>
             </div>

@@ -108,7 +108,18 @@ const PregnancyReviewInterface = ({
     ).toBlob();
 
     const url = URL.createObjectURL(blob);
+
+    // ✅ Trigger browser download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'pregnancy-tracking.pdf'; // filename
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // optional: also open in new tab for preview
     window.open(url, '_blank');
+
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
@@ -152,10 +163,11 @@ const PregnancyReviewInterface = ({
         {/* Location Information */}
         <InfoCard title='Location Information' icon={MapPin}>
           <div className='space-y-0'>
-            <InfoRow label='Region' value={savedData.region} />
-            <InfoRow label='Province' value={savedData.province} />
-            <InfoRow label='Municipality' value={savedData.municipality} />
-            <InfoRow label='Barangay' value={savedData.barangay} />
+            <InfoRow label='Region' value={savedData.region_name} />
+            <InfoRow label='Province' value={savedData.province_name} />
+            <InfoRow label='Municipality' value={savedData.municipality_name} />
+            <InfoRow label='Barangay' value={savedData.barangay_name} />
+            <InfoRow label='Zone/Purok' value={savedData.zone} />
           </div>
         </InfoCard>
 
@@ -222,9 +234,9 @@ const PregnancyReviewInterface = ({
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <InfoRow
               label='Barangay Health Worker'
-              value={savedData.barangay_worker_id}
+              value={savedData.barangay_worker_name}
             />
-            <InfoRow label='Midwife' value={savedData.midwife_id} />
+            <InfoRow label='Midwife' value={savedData.midwife_name} />
           </div>
         </InfoCard>
       </div>
@@ -239,7 +251,7 @@ const PregnancyReviewInterface = ({
               className='flex items-center justify-center px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-semibold'
             >
               <Printer className='h-5 w-5 mr-2' />
-              Print PDF (Landscape)
+              Download PDF (Landscape)
             </button>
             <button
               onClick={() => handleNewRecord()}

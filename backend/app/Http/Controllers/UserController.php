@@ -26,13 +26,14 @@ class UserController extends Controller
             $sortBy = 'created_at';
         }
 
-        $users = User::when($search, function ($query, $search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%");
-            });
-        })
+        $users = User::with(['role', 'barangay_center'])
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', "%{$search}%");
+                });
+            })
             ->when($role, function ($query, $role) {
-                $query->where('role', $role);
+                $query->where('role_id', $role);
             })
             ->when($dateFrom, function ($query, $dateFrom) {
                 $query->whereDate('created_at', '>=', $dateFrom);
@@ -55,7 +56,8 @@ class UserController extends Controller
             'name' => 'required|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8|confirmed',
-            'role' => 'required'
+            'role_id' => 'required|exists:roles,id',
+            'barangay_center_id' => 'nullable|exists:barangay_centers,id'
         ]);
 
         $user = User::create($fields);
@@ -82,7 +84,8 @@ class UserController extends Controller
             'name' => 'required|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|min:8|confirmed',
-            'role' => 'required'
+            'role_id' => 'required|exists:roles,id',
+            'barangay_center_id' => 'nullable|exists:barangay_centers,id'
         ]);
 
         if (empty($fields['password'])) {

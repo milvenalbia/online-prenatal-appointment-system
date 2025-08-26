@@ -68,23 +68,7 @@ const HealthcareFacilities = ({ formData, inputChange, error }) => {
           <p className='error mt-1'>{error.referral_center_address[0]}</p>
         )}
       </div>
-      <div className='w-full'>
-        <InputGroup
-          type='text'
-          name='barangay_health_station'
-          value={formData.barangay_health_station}
-          onChange={inputChange}
-          placeholder='Barangay health station'
-          icon={<Hospital className='h-5 w-5 text-gray-400' />}
-          id='barangay_health_station'
-          hasLabel
-          label='Barangay Health Station'
-        />
-        {error.barangay_health_station && (
-          <p className='error mt-1'>{error.barangay_health_station[0]}</p>
-        )}
-      </div>
-      <div className='w-full'>
+      <div className='w-full col-span-1 sm:col-span-2'>
         <InputGroup
           type='text'
           name='rural_health_unit'

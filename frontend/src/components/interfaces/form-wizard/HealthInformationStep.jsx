@@ -28,6 +28,7 @@ const HealthInformationStep = ({
             id='gravidity'
             hasLabel
             label='Gravidity'
+            min={0}
           />
           {error.gravidity && (
             <p className='error mt-1'>{error.gravidity[0]}</p>
@@ -44,6 +45,7 @@ const HealthInformationStep = ({
             id='parity'
             hasLabel
             label='Parity'
+            min={0}
           />
           {error.parity && <p className='error mt-1'>{error.parity[0]}</p>}
         </div>
@@ -52,7 +54,26 @@ const HealthInformationStep = ({
             name='lmp'
             id='lmp'
             value={formData.lmp}
-            onChange={inputChange}
+            onChange={(e) =>
+              setFormData((prev) => {
+                const lmp = e.target.value;
+                const [y, m, d] = lmp.split('-').map(Number);
+                const date = new Date(y, m - 1, d);
+                date.setMonth(date.getMonth() + 9);
+
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const edc = `${year}-${month}-${day}`;
+
+                console.log('lmp: ', lmp, 'edc: ', edc);
+                return {
+                  ...prev,
+                  lmp,
+                  edc,
+                };
+              })
+            }
             placeholder='Last Menstrual Period'
             hasLabel
             label='Last Menstrual Period (LMP)'
@@ -68,6 +89,7 @@ const HealthInformationStep = ({
             placeholder='Expected Date of Confinement'
             hasLabel
             label='Expected Date of Confinement (EDC)'
+            disabled={true}
           />
           {error.edc && <p className='error mt-1'>{error.edc[0]}</p>}
         </div>

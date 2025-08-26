@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\GetAddressesNameResource;
+use App\Http\Resources\GetMidwivesAndBarangayWorkersResource;
 use App\Http\Resources\SelectBarangayWorkerResource;
 use App\Http\Resources\SelectMidWifeResource;
 use App\Models\Barangay;
@@ -12,6 +14,7 @@ use App\Models\Midwife;
 use App\Models\Municipality;
 use App\Models\Province;
 use App\Models\Region;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -54,6 +57,46 @@ class SelectAddressController extends Controller
                 ->orderBy('name')
                 ->get();
         });
+    }
+
+    public function roles()
+    {
+        return Cache::remember("roles", 3600, function () {
+            return Role::select('id', 'role')
+                ->orderBy('role')
+                ->get();
+        });
+    }
+
+    public function getAddressName(Request $request)
+    {
+        $barangay = Barangay::find($request->input('barangay_id'));
+        $municipality = Municipality::find($request->input('municipality_id'));
+        $province = Province::find($request->input('province_id'));
+        $region = Region::find($request->input('region_id'));
+
+        // Bundle the names into a simple object or array
+        $address = (object) [
+            'barangay_name' => $barangay?->name,
+            'municipality_name' => $municipality?->name,
+            'province_name' => $province?->name,
+            'region_name' => $region?->name,
+        ];
+
+        return new GetAddressesNameResource($address);
+    }
+
+    public function getMidwifeAndBarangayWorkerName(Request $request)
+    {
+        $midwife = Midwife::find($request->input('midwife_id'));
+        $barangay_worker = BarangayWorker::find($request->input('barangay_worker_id'));
+
+        $data = (object) [
+            'midwife_name' => $midwife?->fullname,
+            'barangay_worker_name' => $barangay_worker?->fullname,
+        ];
+
+        return new GetMidwivesAndBarangayWorkersResource($data);
     }
 
     public function midwives(BarangayCenter $barangay_center)

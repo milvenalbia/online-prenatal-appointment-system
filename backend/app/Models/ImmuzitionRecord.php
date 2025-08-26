@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ImmuzitionRecord extends Model
 {
     protected $fillable = [
-        'patient_it',
+        'patient_id',
         'tetanus_vaccine_id',
         'covid_vaccine_id',
         'other_vaccine_id',

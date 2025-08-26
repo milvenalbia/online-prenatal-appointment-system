@@ -116,16 +116,17 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     paddingLeft: 5,
   },
-  // Column widths
+  // Fixed column widths for perfect alignment
   noCell: { width: 25 },
   nameCellWidth: { width: 100 },
   ageCell: { width: 30 },
-  gravidityCell: { width: 50 },
+  gravidityCell: { width: 60 },
   parityCell: { width: 40 },
-  deliverySubcell: { width: 30, fontSize: 7 },
-  checkupSubcell: { width: 70, fontSize: 7 },
-  outcomeSubcell: { width: 50, fontSize: 7 },
-  prenatalSubcell: { width: 60, fontSize: 7 },
+  lmpCell: { width: 90 },
+  edcCell: { width: 90 },
+  checkupCell: { width: 70 },
+  outcomeCell: { width: 50 },
+  prenatalCell: { width: 60 },
   bottomSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -234,99 +235,35 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
         <View style={styles.mainTable}>
           {/* Table Header - First Row */}
           <View style={[styles.tableHeaderRow, styles.tableHeader]}>
-            <View
-              style={[
-                styles.headerCell,
-                styles.noCell,
-                { borderBottomWidth: 0, borderBottomColor: 'transparent' },
-              ]}
-            >
+            <View style={[styles.headerCell, styles.noCell]}>
               <Text>No.</Text>
             </View>
-            <View
-              style={[
-                styles.headerCell,
-                styles.nameCellWidth,
-                { borderBottomWidth: 0, borderBottomColor: 'transparent' },
-              ]}
-            >
+            <View style={[styles.headerCell, styles.nameCellWidth]}>
               <Text>Name</Text>
             </View>
-            <View
-              style={[
-                styles.headerCell,
-                styles.ageCell,
-                { borderBottomWidth: 0, borderBottomColor: 'transparent' },
-              ]}
-            >
+            <View style={[styles.headerCell, styles.ageCell]}>
               <Text>Age</Text>
             </View>
-            <View
-              style={[
-                styles.headerCell,
-                styles.gravidityCell,
-                { borderBottomWidth: 0, borderBottomColor: 'transparent' },
-              ]}
-            >
+            <View style={[styles.headerCell, styles.gravidityCell]}>
               <Text>Gravidity</Text>
             </View>
-            <View
-              style={[
-                styles.headerCell,
-                styles.parityCell,
-                { borderBottomWidth: 0, borderBottomColor: 'transparent' },
-              ]}
-            >
+            <View style={[styles.headerCell, styles.parityCell]}>
               <Text>Parity</Text>
             </View>
-            <View
-              style={[
-                styles.headerCell,
-                {
-                  width: 90,
-                  borderBottomWidth: 0,
-                  borderBottomColor: 'transparent',
-                },
-              ]}
-            >
-              <Text style={styles.multiLine}>
-                Expected Date of{'\n'}Delivery
-              </Text>
+            <View style={[styles.headerCell, styles.lmpCell]}>
+              <Text>LMP</Text>
             </View>
-            <View
-              style={[
-                styles.headerCell,
-                {
-                  width: 280,
-                  borderBottomWidth: 0,
-                  borderBottomColor: 'transparent',
-                },
-              ]}
-            >
+            <View style={[styles.headerCell, { width: 90 }]}>
+              <Text>EDC</Text>
+            </View>
+            <View style={[styles.headerCell, { width: 280 }]}>
               <Text>Antenatal Care Check-Ups</Text>
             </View>
-            <View
-              style={[
-                styles.headerCell,
-                {
-                  width: 200,
-                  borderBottomWidth: 0,
-                  borderBottomColor: 'transparent',
-                },
-              ]}
-            >
+            <View style={[styles.headerCell, { width: 200 }]}>
               <Text style={styles.multiLine}>Pregnancy{'\n'}Outcome</Text>
             </View>
             <View
-              style={[
-                styles.headerCell,
-                {
-                  width: 120,
-                  borderBottomWidth: 0,
-                  borderBottomColor: 'transparent',
-                  borderRightWidth: 0,
-                },
-              ]}
+              style={[styles.headerCell, { width: 120, borderRightWidth: 0 }]}
             >
               <Text style={styles.multiLine}>
                 Mother and Child{'\n'}Prenatal Check-up
@@ -336,15 +273,15 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
 
           {/* Table Header - Second Row */}
           <View style={[styles.tableSubHeaderRow, styles.tableHeader]}>
+            {/* Empty cells for first 5 columns */}
             <View
               style={[
                 styles.headerCell,
                 styles.noCell,
                 {
                   backgroundColor: 'transparent',
-                  borderRightWidth: 1,
-                  borderBottomWidth: 1,
                   borderRightColor: 'transparent',
+                  borderBottom: 1,
                 },
               ]}
             />
@@ -353,10 +290,9 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
                 styles.headerCell,
                 styles.nameCellWidth,
                 {
-                  borderBottomWidth: 1,
                   backgroundColor: 'transparent',
-                  borderRightWidth: 1,
                   borderRightColor: 'transparent',
+                  borderBottom: 1,
                 },
               ]}
             />
@@ -365,10 +301,9 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
                 styles.headerCell,
                 styles.ageCell,
                 {
-                  borderBottomWidth: 1,
                   backgroundColor: 'transparent',
-                  borderRightWidth: 1,
                   borderRightColor: 'transparent',
+                  borderBottom: 1,
                 },
               ]}
             />
@@ -377,10 +312,9 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
                 styles.headerCell,
                 styles.gravidityCell,
                 {
-                  borderBottomWidth: 1,
                   backgroundColor: 'transparent',
-                  borderRightWidth: 1,
                   borderRightColor: 'transparent',
+                  borderBottom: 1,
                 },
               ]}
             />
@@ -389,10 +323,20 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
                 styles.headerCell,
                 styles.parityCell,
                 {
-                  borderBottomWidth: 1,
                   backgroundColor: 'transparent',
-                  borderRightWidth: 1,
                   borderRightColor: 'transparent',
+                  borderBottom: 1,
+                },
+              ]}
+            />
+            <View
+              style={[
+                styles.headerCell,
+                styles.lmpCell,
+                {
+                  backgroundColor: 'transparent',
+                  borderRightColor: 'transparent',
+                  borderBottom: 1,
                 },
               ]}
             />
@@ -400,36 +344,21 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View
               style={[
                 styles.headerCell,
-                styles.deliverySubcell,
-                { borderBottomWidth: 1 },
+                styles.edcCell,
+                {
+                  backgroundColor: 'transparent',
+                  borderRightColor: 'transparent',
+                  borderBottom: 1,
+                },
               ]}
-            >
-              <Text>Month</Text>
-            </View>
-            <View
-              style={[
-                styles.headerCell,
-                styles.deliverySubcell,
-                { borderBottomWidth: 1 },
-              ]}
-            >
-              <Text>Day</Text>
-            </View>
-            <View
-              style={[
-                styles.headerCell,
-                styles.deliverySubcell,
-                { borderBottomWidth: 1 },
-              ]}
-            >
-              <Text>Year</Text>
-            </View>
+            />
 
+            {/* Antenatal Care sub-headers */}
             <View
               style={[
                 styles.headerCell,
-                styles.checkupSubcell,
-                { borderBottomWidth: 1 },
+                styles.checkupCell,
+                { borderBottom: 1 },
               ]}
             >
               <Text style={styles.multiLine}>1st visit{'\n'}Date</Text>
@@ -437,8 +366,8 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View
               style={[
                 styles.headerCell,
-                styles.checkupSubcell,
-                { borderBottomWidth: 1 },
+                styles.checkupCell,
+                { borderBottom: 1 },
               ]}
             >
               <Text style={styles.multiLine}>2nd visit{'\n'}Date</Text>
@@ -446,8 +375,8 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View
               style={[
                 styles.headerCell,
-                styles.checkupSubcell,
-                { borderBottomWidth: 1 },
+                styles.checkupCell,
+                { borderBottom: 1 },
               ]}
             >
               <Text style={styles.multiLine}>3rd visit{'\n'}Date</Text>
@@ -455,8 +384,8 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View
               style={[
                 styles.headerCell,
-                styles.checkupSubcell,
-                { borderBottomWidth: 1 },
+                styles.checkupCell,
+                { borderBottom: 1 },
               ]}
             >
               <Text style={styles.multiLine}>
@@ -464,11 +393,12 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
               </Text>
             </View>
 
+            {/* Pregnancy Outcome sub-headers */}
             <View
               style={[
                 styles.headerCell,
-                styles.outcomeSubcell,
-                { borderBottomWidth: 1 },
+                styles.outcomeCell,
+                { borderBottom: 1 },
               ]}
             >
               <Text>Live Birth</Text>
@@ -476,8 +406,8 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View
               style={[
                 styles.headerCell,
-                styles.outcomeSubcell,
-                { borderBottomWidth: 1 },
+                styles.outcomeCell,
+                { borderBottom: 1 },
               ]}
             >
               <Text>Preterm Birth</Text>
@@ -485,8 +415,8 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View
               style={[
                 styles.headerCell,
-                styles.outcomeSubcell,
-                { borderBottomWidth: 1 },
+                styles.outcomeCell,
+                { borderBottom: 1 },
               ]}
             >
               <Text>Stillbirth</Text>
@@ -494,18 +424,19 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View
               style={[
                 styles.headerCell,
-                styles.outcomeSubcell,
-                { borderBottomWidth: 1 },
+                styles.outcomeCell,
+                { borderBottom: 1 },
               ]}
             >
               <Text>Abortion</Text>
             </View>
 
+            {/* Prenatal Check-up sub-headers */}
             <View
               style={[
                 styles.headerCell,
-                styles.prenatalSubcell,
-                { borderBottomWidth: 1 },
+                styles.prenatalCell,
+                { borderBottom: 1 },
               ]}
             >
               <Text style={styles.multiLine}>
@@ -515,8 +446,8 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View
               style={[
                 styles.headerCell,
-                styles.prenatalSubcell,
-                { borderRightWidth: 0, borderBottomWidth: 1 },
+                styles.prenatalCell,
+                { borderRightWidth: 0, borderBottom: 1 },
               ]}
             >
               <Text style={styles.multiLine}>
@@ -542,27 +473,41 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View style={[styles.cell, styles.parityCell]}>
               <Text>{formData.parity || ''}</Text>
             </View>
-            <View style={[styles.cell, styles.deliverySubcell]}>
-              <Text>{edc.month}</Text>
+            <View style={[styles.cell, styles.lmpCell]}>
+              <Text>{formData.lmp}</Text>
             </View>
-            <View style={[styles.cell, styles.deliverySubcell]}>
-              <Text>{edc.day}</Text>
+            <View style={[styles.cell, styles.edcCell]}>
+              <Text>{formData.edc}</Text>
             </View>
-            <View style={[styles.cell, styles.deliverySubcell]}>
-              <Text>{edc.year}</Text>
-            </View>
-            {/* Empty cells for the rest of the columns */}
-            {Array.from({ length: 10 }).map((_, index) => (
+
+            {/* Antenatal Care columns */}
+            {Array.from({ length: 4 }).map((_, index) => (
               <View
-                key={index}
+                key={`checkup-${index}`}
+                style={[styles.cell, styles.checkupCell]}
+              >
+                <Text></Text>
+              </View>
+            ))}
+
+            {/* Pregnancy Outcome columns */}
+            {Array.from({ length: 4 }).map((_, index) => (
+              <View
+                key={`outcome-${index}`}
+                style={[styles.cell, styles.outcomeCell]}
+              >
+                <Text></Text>
+              </View>
+            ))}
+
+            {/* Prenatal Check-up columns */}
+            {Array.from({ length: 2 }).map((_, index) => (
+              <View
+                key={`prenatal-${index}`}
                 style={[
                   styles.cell,
-                  index < 4
-                    ? styles.checkupSubcell
-                    : index < 8
-                    ? styles.outcomeSubcell
-                    : styles.prenatalSubcell,
-                  index === 9 ? { borderRightWidth: 0 } : {},
+                  styles.prenatalCell,
+                  index === 1 ? { borderRightWidth: 0 } : {},
                 ]}
               >
                 <Text></Text>
@@ -576,28 +521,55 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
               <View style={[styles.cell, styles.noCell]}>
                 <Text>{rowIndex + 2}</Text>
               </View>
-              {Array.from({ length: 17 }).map((_, cellIndex) => (
+              <View
+                style={[styles.cell, styles.nameCellWidth, styles.nameCell]}
+              >
+                <Text></Text>
+              </View>
+              <View style={[styles.cell, styles.ageCell]}>
+                <Text></Text>
+              </View>
+              <View style={[styles.cell, styles.gravidityCell]}>
+                <Text></Text>
+              </View>
+              <View style={[styles.cell, styles.parityCell]}>
+                <Text></Text>
+              </View>
+              <View style={[styles.cell, styles.lmpCell]}>
+                <Text></Text>
+              </View>
+              <View style={[styles.cell, styles.edcCell]}>
+                <Text></Text>
+              </View>
+
+              {/* Antenatal Care empty columns */}
+              {Array.from({ length: 4 }).map((_, index) => (
                 <View
-                  key={cellIndex}
+                  key={`empty-checkup-${index}`}
+                  style={[styles.cell, styles.checkupCell]}
+                >
+                  <Text></Text>
+                </View>
+              ))}
+
+              {/* Pregnancy Outcome empty columns */}
+              {Array.from({ length: 4 }).map((_, index) => (
+                <View
+                  key={`empty-outcome-${index}`}
+                  style={[styles.cell, styles.outcomeCell]}
+                >
+                  <Text></Text>
+                </View>
+              ))}
+
+              {/* Prenatal Check-up empty columns */}
+              {Array.from({ length: 2 }).map((_, index) => (
+                <View
+                  key={`empty-prenatal-${index}`}
                   style={[
                     styles.cell,
-                    cellIndex === 0
-                      ? styles.nameCellWidth
-                      : cellIndex === 1
-                      ? styles.ageCell
-                      : cellIndex === 2
-                      ? styles.gravidityCell
-                      : cellIndex === 3
-                      ? styles.parityCell
-                      : cellIndex >= 4 && cellIndex <= 6
-                      ? styles.deliverySubcell
-                      : cellIndex >= 7 && cellIndex <= 10
-                      ? styles.checkupSubcell
-                      : cellIndex >= 11 && cellIndex <= 14
-                      ? styles.outcomeSubcell
-                      : styles.prenatalSubcell,
-                    cellIndex === 0 ? styles.nameCell : {},
-                    cellIndex === 16 ? { borderRightWidth: 0 } : {},
+                    styles.prenatalCell,
+                    index === 1 ? { borderRightWidth: 0 } : {},
                   ]}
                 >
                   <Text></Text>

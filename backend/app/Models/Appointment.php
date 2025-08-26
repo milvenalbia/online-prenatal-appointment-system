@@ -14,6 +14,7 @@ class Appointment extends Model
         'end_time',
         'priority',
         'status',
+        'note',
     ];
 
     public function pregnancy_tracking(): BelongsTo
