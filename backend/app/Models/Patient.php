@@ -94,6 +94,13 @@ class Patient extends Model
         return trim("{$barangay}, {$municipality}");
     }
 
+    public function getShortAddressAttribute()
+    {
+        $barangay = $this->barangays?->name ?? '';
+
+        return trim("{$this->zone}, {$barangay}");
+    }
+
     public function getFullAddressAttribute()
     {
         $barangay = $this->barangays?->name ?? '';

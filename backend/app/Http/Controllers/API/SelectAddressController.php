@@ -7,11 +7,14 @@ use App\Http\Resources\GetAddressesNameResource;
 use App\Http\Resources\GetMidwivesAndBarangayWorkersResource;
 use App\Http\Resources\SelectBarangayWorkerResource;
 use App\Http\Resources\SelectMidWifeResource;
+use App\Http\Resources\SelectNurseResource;
 use App\Models\Barangay;
 use App\Models\BarangayCenter;
 use App\Models\BarangayWorker;
 use App\Models\Midwife;
 use App\Models\Municipality;
+use App\Models\Nurse;
+use App\Models\PregnancyTracking;
 use App\Models\Province;
 use App\Models\Region;
 use App\Models\Role;
@@ -99,12 +102,46 @@ class SelectAddressController extends Controller
         return new GetMidwivesAndBarangayWorkersResource($data);
     }
 
+    public function getMidwifeAndNurseName(Request $request)
+    {
+        $midwife = Midwife::find($request->input('midwife_id'));
+        $nurse = Nurse::find($request->input('nurse_id'));
+
+        $data = (object) [
+            'midwife_name' => $midwife?->fullname,
+            'nurse_name' => $nurse?->fullname,
+        ];
+
+        return new GetMidwivesAndBarangayWorkersResource($data);
+    }
+
+    public function pregnancy_trackings()
+    {
+        $pregnancy_trackings = PregnancyTracking::select(['id', 'fullname'])
+            ->get();
+
+        return $pregnancy_trackings->map(function ($tracking) {
+            return [
+                'id' => $tracking->id,
+                'fullname' => $tracking->fullname,
+            ];
+        });
+    }
+
     public function midwives(BarangayCenter $barangay_center)
     {
         $midwives = Midwife::where('barangay_center_id', $barangay_center->id)
             ->get();
 
         return SelectMidWifeResource::collection($midwives);
+    }
+
+    public function nurses(BarangayCenter $barangay_center)
+    {
+        $nurses = Nurse::where('barangay_center_id', $barangay_center->id)
+            ->get();
+
+        return SelectNurseResource::collection($nurses);
     }
 
     public function barangay_workers(BarangayCenter $barangay_center)

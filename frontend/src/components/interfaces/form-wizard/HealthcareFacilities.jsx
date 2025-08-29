@@ -7,81 +7,77 @@ const HealthcareFacilities = ({ formData, inputChange, error }) => {
       <div className='w-full'>
         <InputGroup
           type='text'
-          name='birthing_center'
-          value={formData.birthing_center}
+          name='bemoc'
+          value={formData.bemoc}
           onChange={inputChange}
           placeholder='Birthing center'
           icon={<Hospital className='h-5 w-5 text-gray-400' />}
-          id='birthing_center'
+          id='bemoc'
           hasLabel
-          label='Birthing Center'
+          label='BEMOC'
         />
-        {error.birthing_center && (
-          <p className='error mt-1'>{error.birthing_center[0]}</p>
-        )}
+        {error.bemoc && <p className='error mt-1'>{error.bemoc[0]}</p>}
       </div>
       <div className='w-full'>
         <InputGroup
           type='text'
-          name='birthing_center_address'
-          value={formData.birthing_center_address}
+          name='bemoc_address'
+          value={formData.bemoc_address}
           onChange={inputChange}
-          placeholder='Birthing center address'
+          placeholder='BEMOC address'
           icon={<MapPin className='h-5 w-5 text-gray-400' />}
-          id='birthing_center_address'
+          id='bemoc_address'
           hasLabel
-          label='Birthing Center Address'
+          label='BEMOC Address'
         />
-        {error.birthing_center_address && (
-          <p className='error mt-1'>{error.birthing_center_address[0]}</p>
+        {error.bemoc_address && (
+          <p className='error mt-1'>{error.bemoc_address[0]}</p>
         )}
       </div>
       <div className='w-full'>
         <InputGroup
           type='text'
-          name='referral_center'
-          value={formData.referral_center}
+          name='cemoc'
+          value={formData.cemoc}
           onChange={inputChange}
-          placeholder='Referral center'
+          placeholder='CEMOC'
           icon={<Building className='h-5 w-5 text-gray-400' />}
-          id='referral_center'
+          id='cemoc'
           hasLabel
-          label='Referral Center'
+          label='CEMOC'
         />
-        {error.referral_center && (
-          <p className='error mt-1'>{error.referral_center[0]}</p>
-        )}
+        {error.cemoc && <p className='error mt-1'>{error.cemoc[0]}</p>}
       </div>
       <div className='w-full'>
         <InputGroup
           type='text'
-          name='referral_center_address'
-          value={formData.referral_center_address}
+          name='cemoc_address'
+          value={formData.cemoc_address}
           onChange={inputChange}
-          placeholder='Referral center address'
+          placeholder='CEMOC address'
           icon={<MapPin className='h-5 w-5 text-gray-400' />}
-          id='referral_center_address'
+          id='cemoc_address'
           hasLabel
-          label='Referral Center Address'
+          label='CEMOC Address'
         />
-        {error.referral_center_address && (
-          <p className='error mt-1'>{error.referral_center_address[0]}</p>
+        {error.cemoc_address && (
+          <p className='error mt-1'>{error.cemoc_address[0]}</p>
         )}
       </div>
       <div className='w-full col-span-1 sm:col-span-2'>
         <InputGroup
           type='text'
-          name='rural_health_unit'
-          value={formData.rural_health_unit}
+          name='referral_unit'
+          value={formData.referral_unit}
           onChange={inputChange}
-          placeholder='Rural health unit'
+          placeholder='Referral unit'
           icon={<Landmark className='h-5 w-5 text-gray-400' />}
-          id='rural_health_unit'
+          id='referral_unit'
           hasLabel
-          label='Rural Health Unit'
+          label='Referral Unit'
         />
-        {error.rural_health_unit && (
-          <p className='error mt-1'>{error.rural_health_unit[0]}</p>
+        {error.referral_unit && (
+          <p className='error mt-1'>{error.referral_unit[0]}</p>
         )}
       </div>
     </div>

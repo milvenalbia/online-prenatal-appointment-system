@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PregnancyTracking extends Model
 {
@@ -11,19 +12,28 @@ class PregnancyTracking extends Model
         'patient_id',
         'barangay_center_id',
         'barangay_worker_id',
+        'nurse_id',
         'midwife_id',
         'fullname',
         'age',
         'gravidity',
         'parity',
+        'abortion',
         'lmp',
         'edc',
-        'birthing_center',
-        'birthing_center_address',
-        'referral_center',
-        'referral_center_address',
+        'bemoc',
+        'bemoc_address',
+        'cemoc',
+        'cemoc_address',
+        'anc_given',
+        'date_delivery',
+        'outcome_sex',
+        'outcome_weight',
+        'place_of_delivery',
+        'attended_by',
+        'phic',
         'barangay_health_station',
-        'rural_health_unit',
+        'referral_unit',
         'isDone',
     ];
 
@@ -42,8 +52,18 @@ class PregnancyTracking extends Model
         return $this->belongsTo(Midwife::class);
     }
 
+    public function nurse(): BelongsTo
+    {
+        return $this->belongsTo(Nurse::class);
+    }
+
     public function barangay_worker(): BelongsTo
     {
         return $this->belongsTo(BarangayWorker::class);
+    }
+
+    public function risk_codes(): HasMany
+    {
+        return $this->hasMany(RiskCode::class);
     }
 }

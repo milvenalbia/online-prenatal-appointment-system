@@ -21,28 +21,34 @@ export const pregnancy_tracking_columns = [
     width: 'w-[5%]',
   },
   {
-    key: 'year',
-    title: 'Year',
+    key: 'contact',
+    title: 'Contact',
     sortable: true,
     width: 'w-[10%]',
   },
   {
-    key: 'patient_address',
+    key: 'contact',
+    title: 'Contact',
+    sortable: true,
+    width: 'w-[10%]',
+  },
+  {
+    key: 'patient_short_address',
     title: 'Address',
     sortable: false,
-    width: 'w-[20%]',
+    width: 'w-[15%]',
   },
   {
-    key: 'birthing_center',
-    title: 'Birthing Center',
+    key: 'bemoc',
+    title: 'BEMOC',
     sortable: false,
-    width: 'w-[13%]',
+    width: 'w-[15%]',
   },
   {
-    key: 'referral_center',
-    title: 'Refferal Center',
+    key: 'cemoc',
+    title: 'CEMOC',
     sortable: false,
-    width: 'w-[12%]',
+    width: 'w-[15%]',
   },
 
   {
@@ -150,6 +156,10 @@ export const pregnancy_tracking_columns = [
     hidden: true,
   },
   {
+    key: 'abortion',
+    hidden: true,
+  },
+  {
     key: 'lmp',
     hidden: true,
   },
@@ -158,11 +168,11 @@ export const pregnancy_tracking_columns = [
     hidden: true,
   },
   {
-    key: 'birthing_center_address',
+    key: 'bemoc_address',
     hidden: true,
   },
   {
-    key: 'refferal_center_address',
+    key: 'cemoc_address',
     hidden: true,
   },
   {
@@ -178,7 +188,23 @@ export const pregnancy_tracking_columns = [
     hidden: true,
   },
   {
-    key: 'rural_health_unit',
+    key: 'referral_unit',
+    hidden: true,
+  },
+  {
+    key: 'patient_address',
+    hidden: true,
+  },
+  {
+    key: 'center_province',
+    hidden: true,
+  },
+  {
+    key: 'center_municipality',
+    hidden: true,
+  },
+  {
+    key: 'center_barangay',
     hidden: true,
   },
 ];
@@ -241,6 +267,51 @@ export const barangay_center_columns = [
 ];
 
 export const barangay_worker_columns = [
+  {
+    key: 'index',
+    title: 'No.',
+    sortable: false,
+    width: 'w-[10%]',
+    render: (value, row, index) => {
+      return <span className='ml-5'>{index + 1}</span>;
+    },
+  },
+  {
+    key: 'fullname',
+    title: 'Full Name',
+    sortable: true,
+    width: 'w-[15%]',
+  },
+  {
+    key: 'health_station',
+    title: 'Health Station',
+    sortable: false,
+    width: 'w-[20%]',
+  },
+  {
+    key: 'address',
+    title: 'BHS Address',
+    sortable: false,
+    width: 'w-[30%]',
+  },
+  {
+    key: 'created_at',
+    title: 'Created',
+    sortable: true,
+    width: 'w-[15%]',
+    render: (value) => new Date(value).toLocaleDateString(),
+  },
+  {
+    key: 'id',
+    hidden: true,
+  },
+  {
+    key: 'barangay_center_id',
+    hidden: true,
+  },
+];
+
+export const nurse_columns = [
   {
     key: 'index',
     title: 'No.',
@@ -811,6 +882,75 @@ export const immunization_records_columns = [
   },
   {
     key: 'other_fifth_comeback',
+    hidden: true,
+  },
+];
+
+export const appointment_columns = [
+  {
+    key: 'index',
+    title: 'No.',
+    sortable: false,
+    width: 'w-[10%]',
+    render: (value, row, index) => {
+      return <span className='ml-5'>{index + 1}</span>;
+    },
+  },
+  {
+    key: 'fullname',
+    title: 'Full Name',
+    sortable: true,
+    width: 'w-[10%]',
+  },
+  {
+    key: 'contact',
+    title: 'Contact',
+    sortable: false,
+    width: 'w-[10%]',
+  },
+  {
+    key: 'date',
+    title: 'Date',
+    sortable: false,
+    width: 'w-[10%]',
+  },
+  {
+    key: 'start_time',
+    title: 'Start Time',
+    sortable: false,
+    width: 'w-[10%]',
+  },
+  {
+    key: 'end_time',
+    title: 'End Time',
+    sortable: false,
+    width: 'w-[10%]',
+  },
+  {
+    key: 'priority',
+    title: 'Priority',
+    sortable: false,
+    width: 'w-[10%]',
+  },
+  {
+    key: 'status',
+    title: 'Status',
+    sortable: false,
+    width: 'w-[10%]',
+  },
+  {
+    key: 'created_at',
+    title: 'Created',
+    sortable: true,
+    width: 'w-[10%]',
+    render: (value) => new Date(value).toLocaleDateString(),
+  },
+  {
+    key: 'id',
+    hidden: true,
+  },
+  {
+    key: 'pregnancy_id',
     hidden: true,
   },
 ];

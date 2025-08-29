@@ -7,6 +7,10 @@ import PregnancyReviewInterface from './form-wizard/PregnancyTrackingReviewItern
 import StepIndicator from './form-wizard/StepIndicator';
 import NavigationButtons from './form-wizard/NavigationButtons';
 import { printPdf } from './form-wizard/pdf/PrintToPdf.js';
+import {
+  pregnancyEditFormData,
+  pregnancyFormData,
+} from '../../utils/formDefault.jsx';
 
 const FormWizard = ({ row = null }) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -20,59 +24,19 @@ const FormWizard = ({ row = null }) => {
   const [savedFormData, setSavedFormData] = useState({});
 
   // Without Value FormData
-  // const [formData, setFormData] = useState({
-  //   age: '',
-  //   barangay: '',
-  //   barangay_center_id: '',
-  //   barangay_health_station: '',
-  //   barangay_worker_id: '',
-  //   birth_date: '',
-  //   birth_place: '',
-  //   birthing_center: 'St. Paul Hospital',
-  //   birthing_center_address: 'Poblacion Tagoloan',
-  //   contact: '',
-  //   contact_person_name: '',
-  //   contact_person_number: '',
-  //   contact_person_relationship: '',
-  //   edc: '',
-  //   firstname: '',
-  //   gravidity: '',
-  //   lastname: '',
-  //   lmp: '',
-  //   middlename: '',
-  //   midwife_id: '',
-  //   municipality: '',
-  //   parity: '',
-  //   patient_id: '',
-  //   patient_type: '',
-  //   province: '',
-  //   referral_center: 'St. Paul Hospital',
-  //   referral_center_address: 'Poblacion Tagoloan',
-  //   region: '',
-  //   religion: '',
-  //   rural_health_unit: 'Tagoloan RHU',
-  //   sex: 'female',
-  //   status: '',
-  //   barangay_name: '',
-  //   barangay_worker_name: '',
-  //   midwife_name: '',
-  //   municipality_name: '',
-  //   province_name: '',
-  //   region_name: '',
-  //   zone: '',
-  // });
+  // const [formData, setFormData] = useState(pregnancyFormData);
 
   // With Value FormData for testing
   const [formData, setFormData] = useState({
-    age: '25',
+    age: '',
     barangay: 32991,
     barangay_center_id: 2,
-    barangay_health_station: 'Mohon Health Station',
-    barangay_worker_id: 3,
+    barangay_health_station: 'St. Paul Hospital',
+    nurse_id: 3,
     birth_date: '2002-08-06',
     birth_place: 'Tagoloan Misamis Oriental',
-    birthing_center: 'Mohon Center',
-    birthing_center_address: 'Mohon Tagoloan',
+    bemoc: 'St. Paul Hospital',
+    bemoc_address: 'Poblacion Tagoloan Misamis Oriental',
     contact: '639637475332',
     contact_person_name: 'Mae  A. Pragas',
     contact_person_number: '639871233542',
@@ -89,20 +53,21 @@ const FormWizard = ({ row = null }) => {
     patient_id: '',
     patient_type: 'new',
     province: 57,
-    referral_center: 'St. Paul Tagoloan',
-    referral_center_address: 'Tagoloan Misamis Oriental',
+    cemoc: 'St. Paul Hospital',
+    cemoc_address: 'Poblacion Tagoloan Misamis Oriental',
     region: 13,
     religion: 'Roman Catholic',
-    rural_health_unit: 'Tagoloan RHU',
+    referral_unit: 'St. Paul Hospital',
     sex: 'female',
     status: 'single',
     zone: 'Zone 4',
     barangay_name: '',
-    barangay_worker_name: '',
+    nurse_name: '',
     midwife_name: '',
     municipality_name: '',
     province_name: '',
     region_name: '',
+    abortion: 0,
   });
 
   const { handleSubmit, isSubmitting, error, setError, data } = useFormSubmit();
@@ -141,47 +106,7 @@ const FormWizard = ({ row = null }) => {
     setIsSubmitted(false);
     setPregnancyTrackingData(null);
     setSavedFormData({});
-    setFormData({
-      age: '',
-      barangay: '',
-      barangay_center_id: '',
-      barangay_health_station: '',
-      barangay_worker_id: '',
-      birth_date: '',
-      birth_place: '',
-      birthing_center: 'St. Paul Hospital',
-      birthing_center_address: 'Poblacion Tagoloan',
-      contact: '',
-      contact_person_name: '',
-      contact_person_number: '',
-      contact_person_relationship: '',
-      edc: '',
-      firstname: '',
-      gravidity: '',
-      lastname: '',
-      lmp: '',
-      middlename: '',
-      midwife_id: '',
-      municipality: '',
-      parity: '',
-      patient_id: '',
-      patient_type: '',
-      province: '',
-      referral_center: 'St. Paul Hospital',
-      referral_center_address: 'Poblacion Tagoloan',
-      region: '',
-      religion: '',
-      rural_health_unit: 'Tagoloan RHU',
-      sex: 'female',
-      status: '',
-      zone: '',
-      barangay_name: '',
-      barangay_worker_name: '',
-      midwife_name: '',
-      municipality_name: '',
-      province_name: '',
-      region_name: '',
-    });
+    setFormData(pregnancyFormData);
   };
 
   const showToastError = true;
@@ -201,47 +126,7 @@ const FormWizard = ({ row = null }) => {
         setPregnancyTrackingData(record);
       },
       onReset: () => {
-        setFormData({
-          age: '',
-          barangay: '',
-          barangay_center_id: '',
-          barangay_health_station: '',
-          barangay_worker_id: '',
-          birth_date: '',
-          birth_place: '',
-          birthing_center: 'St. Paul Hospital',
-          birthing_center_address: 'Poblacion Tagoloan',
-          contact: '',
-          contact_person_name: '',
-          contact_person_number: '',
-          contact_person_relationship: '',
-          edc: '',
-          firstname: '',
-          gravidity: '',
-          lastname: '',
-          lmp: '',
-          middlename: '',
-          midwife_id: '',
-          municipality: '',
-          parity: '',
-          patient_id: '',
-          patient_type: '',
-          province: '',
-          referral_center: 'St. Paul Hospital',
-          referral_center_address: 'Poblacion Tagoloan',
-          region: '',
-          religion: '',
-          rural_health_unit: 'Tagoloan RHU',
-          sex: 'female',
-          status: '',
-          zone: '',
-          barangay_name: '',
-          barangay_worker_name: '',
-          midwife_name: '',
-          municipality_name: '',
-          province_name: '',
-          region_name: '',
-        });
+        setFormData(pregnancyFormData);
         setError({});
         if (isEdit) {
           setPregnancyTrackingId(0);
@@ -256,90 +141,8 @@ const FormWizard = ({ row = null }) => {
       setIsEdit(true);
       setPatientType('edit');
       setPregnancyTrackingId(row.id);
-      setFormData({
-        firstname: row.firstname,
-        lastname: row.lastname,
-        middlename: row.middlename,
-        age: row.age,
-        sex: row.sex,
-        status: row.status,
-        birth_date: row.birth_date,
-        birth_place: row.birth_place,
-        religion: row.religion,
-        contact: row.contact,
-        contact_person_name: row.contact_person_name,
-        contact_person_number: row.contact_person_number,
-        contact_person_relationship: row.contact_person_relationship,
-        region: row.region_id,
-        province: row.province_id,
-        municipality: row.municipality_id,
-        barangay: row.barangay_id,
-        // Tracking fields
-        barangay_center_id: row.barangay_center_id,
-        barangay_worker_id: row.barangay_worker_id,
-        midwife_id: row.midwife_id,
-        gravidity: row.gravidity,
-        parity: row.parity,
-        lmp: row.lmp,
-        edc: row.edc,
-        birthing_center: row.birthing_center,
-        birthing_center_address: row.birthing_center_address,
-        referral_center: row.referral_center,
-        referral_center_address: row.referral_center_address,
-        barangay_health_station: row.health_station,
-        rural_health_unit: row.rural_health_unit,
-        // Existing patient
-        patient_id: row.patient_id,
-        zone: row.zone,
-        barangay_name: row.barangay,
-        barangay_worker_name: row.barangay_worker_name,
-        midwife_name: row.midwife_name,
-        municipality_name: row.municipality,
-        province_name: row.province,
-        region_name: row.region,
-      });
-      setSavedFormData({
-        firstname: row.firstname,
-        lastname: row.lastname,
-        middlename: row.middlename,
-        age: row.age,
-        sex: row.sex,
-        status: row.status,
-        birth_date: row.birth_date,
-        birth_place: row.birth_place,
-        religion: row.religion,
-        contact: row.contact,
-        contact_person_name: row.contact_person_name,
-        contact_person_number: row.contact_person_number,
-        contact_person_relationship: row.contact_person_relationship,
-        region: row.region_id,
-        province: row.province_id,
-        municipality: row.municipality_id,
-        barangay: row.barangay_id,
-        // Tracking fields
-        barangay_center_id: row.barangay_center_id,
-        barangay_worker_id: row.barangay_worker_id,
-        midwife_id: row.midwife_id,
-        gravidity: row.gravidity,
-        parity: row.parity,
-        lmp: row.lmp,
-        edc: row.edc,
-        birthing_center: row.birthing_center,
-        birthing_center_address: row.birthing_center_address,
-        referral_center: row.referral_center,
-        referral_center_address: row.referral_center_address,
-        barangay_health_station: row.health_station,
-        rural_health_unit: row.rural_health_unit,
-        // Existing patient
-        patient_id: row.patient_id,
-        zone: row.zone,
-        barangay_name: row.barangay,
-        barangay_worker_name: row.barangay_worker_name,
-        midwife_name: row.midwife_name,
-        municipality_name: row.municipality,
-        province_name: row.province,
-        region_name: row.region,
-      });
+      setFormData(pregnancyEditFormData(row));
+      setSavedFormData(pregnancyEditFormData(row));
     }
   }, [row]);
 

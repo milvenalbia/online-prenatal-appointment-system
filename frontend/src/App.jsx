@@ -18,6 +18,7 @@ import UserRecords from './pages/user_management/UserRecords';
 import HealthStations from './pages/health_station/HealthStations';
 import Midwives from './pages/midwives/Midwives';
 import BarangayWorkers from './pages/barangay_workers/BarangayWorkers';
+import Nurse from './pages/nurses/Nurse';
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
           <Route path='midwives' element={<Midwives />} />
           <Route path='health-stations' element={<HealthStations />} />
           <Route path='barangay-workers' element={<BarangayWorkers />} />
+          <Route path='nurses' element={<Nurse />} />
           <Route path='reports' element={<Reports />} />
           <Route path='users' element={<UserRecords />} />
         </Route>

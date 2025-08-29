@@ -26,12 +26,12 @@ const PregnancyTrackingRecords = () => {
     const url = URL.createObjectURL(blob);
 
     // ✅ Trigger browser download
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'pregnancy-tracking.pdf'; // filename
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // const link = document.createElement('a');
+    // link.href = url;
+    // link.download = 'pregnancy-tracking.pdf'; // filename
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
 
     window.open(url, '_blank');
 

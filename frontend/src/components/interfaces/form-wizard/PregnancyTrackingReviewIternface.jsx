@@ -72,11 +72,29 @@ const PregnancyReviewInterface = ({
       className={`flex justify-between py-2 border-b border-gray-100 last:border-b-0 ${className}`}
     >
       <span className='text-sm text-gray-600 font-medium'>{label}:</span>
-      <span className='text-sm text-gray-900 font-semibold'>
-        {value || 'Not specified'}
+      <span className='text-sm capitalize text-gray-900 font-semibold'>
+        {value ? value : value === 0 ? 0 : 'Not specified'}
       </span>
     </div>
   );
+
+  function calculateAge(birthDate) {
+    const today = new Date();
+    const birth = new Date(birthDate);
+
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+
+    // If birthday hasn't happened yet this year, subtract 1
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  }
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Not specified';
@@ -130,7 +148,7 @@ const PregnancyReviewInterface = ({
         <InfoCard title='Personal Information' icon={User}>
           <div className='space-y-0'>
             <InfoRow label='Full Name' value={getFullName()} />
-            <InfoRow label='Age' value={savedData.age} />
+            <InfoRow label='Age' value={calculateAge(savedData.birth_date)} />
             <InfoRow label='Sex' value={savedData.sex} />
             <InfoRow label='Civil Status' value={savedData.status} />
             <InfoRow
@@ -176,6 +194,7 @@ const PregnancyReviewInterface = ({
           <div className='space-y-0'>
             <InfoRow label='Gravidity' value={savedData.gravidity} />
             <InfoRow label='Parity' value={savedData.parity} />
+            <InfoRow label='Abortion' value={savedData.abortion ?? 0} />
             <InfoRow
               label='Last Menstrual Period'
               value={formatDate(savedData.lmp)}
@@ -195,13 +214,10 @@ const PregnancyReviewInterface = ({
         >
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <div className='space-y-0'>
-              <InfoRow
-                label='Birthing Center'
-                value={savedData.birthing_center}
-              />
+              <InfoRow label='BEMOC' value={savedData.bemoc} />
               <InfoRow
                 label='Birthing Center Address'
-                value={savedData.birthing_center_address}
+                value={savedData.bemoc_address}
               />
               <InfoRow
                 label='Barangay Health Station'
@@ -209,18 +225,9 @@ const PregnancyReviewInterface = ({
               />
             </div>
             <div className='space-y-0'>
-              <InfoRow
-                label='Referral Center'
-                value={savedData.referral_center}
-              />
-              <InfoRow
-                label='Referral Center Address'
-                value={savedData.referral_center_address}
-              />
-              <InfoRow
-                label='Rural Health Unit'
-                value={savedData.rural_health_unit}
-              />
+              <InfoRow label='CEMOC' value={savedData.cemoc} />
+              <InfoRow label='CEMOC Address' value={savedData.cemoc_address} />
+              <InfoRow label='Referral Unit' value={savedData.referral_unit} />
             </div>
           </div>
         </InfoCard>
@@ -232,10 +239,7 @@ const PregnancyReviewInterface = ({
           className='lg:col-span-2'
         >
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            <InfoRow
-              label='Barangay Health Worker'
-              value={savedData.barangay_worker_name}
-            />
+            <InfoRow label='HRH In-chrage' value={savedData.nurse_name} />
             <InfoRow label='Midwife' value={savedData.midwife_name} />
           </div>
         </InfoCard>

@@ -10,10 +10,10 @@ const HealthcareProviders = ({ formData, setFormData, error }) => {
 
     const params = {
       midwife_id: value,
-      barangay_worker_id: formData.barangay_worker_id,
+      nurse_id: formData.nurse_id,
     };
 
-    const response = await api.get('/api/midwife-and-barangay-worker-name', {
+    const response = await api.get('/api/midwife-and-nurse-name', {
       params,
     });
 
@@ -23,7 +23,7 @@ const HealthcareProviders = ({ formData, setFormData, error }) => {
       setFormData((prev) => ({
         ...prev,
         midwife_name: data.midwife_name,
-        barangay_worker_name: data.barangay_worker_name,
+        nurse_name: data.nurse_name,
       }));
     }
   };
@@ -56,19 +56,17 @@ const HealthcareProviders = ({ formData, setFormData, error }) => {
         </div>
         <div className='w-full'>
           <SelectReact
-            label='Barangay Worker'
-            id='barangay_worker_id'
-            name='barangay_worker_id'
-            endpoint={`/api/barangay-workers/barangay-centers/${formData.barangay_center_id}`}
-            placeholder='Choose a worker'
+            label='HRH In-charge'
+            id='nurse_id'
+            name='nurse_id'
+            endpoint={`/api/nurses/barangay-centers/${formData.barangay_center_id}`}
+            placeholder='Choose a nurse'
             formData={formData}
             setFormData={setFormData}
             labelKey='fullname'
             disabled={!formData.barangay_center_id}
           />
-          {error.barangay_worker_id && (
-            <p className='error mt-1'>{error.barangay_worker_id[0]}</p>
-          )}
+          {error.nurse_id && <p className='error mt-1'>{error.nurse_id[0]}</p>}
         </div>
         <div className='w-full'>
           <SelectReact

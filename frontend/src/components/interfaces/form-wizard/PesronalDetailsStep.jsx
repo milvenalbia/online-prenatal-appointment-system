@@ -74,38 +74,22 @@ const PersonalDetailsStep = ({
           </div>
         </div>
 
-        {/* Row 2: Birth Place (full width) */}
-        <div>
-          <InputGroup
-            type='text'
-            name='birth_place'
-            value={formData.birth_place}
-            onChange={inputChange}
-            placeholder='Birth place'
-            icon={<MapPin className='h-5 w-5 text-gray-400' />}
-            id='birth_place'
-            hasLabel
-            label='Birth Place'
-          />
-          {error.birth_place && (
-            <p className='error mt-1'>{error.birth_place[0]}</p>
-          )}
-        </div>
-
         {/* Row 3: Birth Date & Religion */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <div className='w-full'>
-            <DateInput
-              name='birth_date'
-              id='birth_date'
-              value={formData.birth_date}
+            <InputGroup
+              type='text'
+              name='birth_place'
+              value={formData.birth_place}
               onChange={inputChange}
-              placeholder='Birth date'
+              placeholder='Birth place'
+              icon={<MapPin className='h-5 w-5 text-gray-400' />}
+              id='birth_place'
               hasLabel
-              label='Birth Date'
+              label='Birth Place'
             />
-            {error.birth_date && (
-              <p className='error mt-1'>{error.birth_date[0]}</p>
+            {error.birth_place && (
+              <p className='error mt-1'>{error.birth_place[0]}</p>
             )}
           </div>
           <div className='w-full'>

@@ -31,6 +31,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 15,
   },
+  subTitle: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: 16,
+  },
   infoSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -42,12 +47,13 @@ const styles = StyleSheet.create({
   },
   infoRow: {
     flexDirection: 'row',
-    marginBottom: 4,
+    marginBottom: 2,
     alignItems: 'center',
   },
   infoLabel: {
     minWidth: 80,
     marginRight: 5,
+    fontSize: 9,
   },
   infoValue: {
     borderBottomWidth: 1,
@@ -55,8 +61,9 @@ const styles = StyleSheet.create({
     borderBottomStyle: 'solid',
     flex: 1,
     paddingHorizontal: 3,
-    minHeight: 14,
-    paddingBottom: 2,
+    minHeight: 10,
+    paddingBottom: 1,
+    fontSize: 9,
   },
   mainTable: {
     borderWidth: 2,
@@ -120,21 +127,39 @@ const styles = StyleSheet.create({
   noCell: { width: 25 },
   nameCellWidth: { width: 100 },
   ageCell: { width: 30 },
-  gravidityCell: { width: 60 },
+  gravidityCell: { width: 90 },
   parityCell: { width: 40 },
   lmpCell: { width: 90 },
+  contactCell: { width: 110 },
   edcCell: { width: 90 },
-  checkupCell: { width: 70 },
+  checkupCell: { width: 30 },
+  checkupCell2: { width: 35 },
+  checkupCell3: { width: 160 },
   outcomeCell: { width: 50 },
   prenatalCell: { width: 60 },
   bottomSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 15,
-    fontSize: 10,
+    width: '100%',
+    paddingTop: 5,
   },
-  bottomColumn: {
-    width: '48%',
+  legendRow: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  legendColumn: {
+    flex: 1,
+    paddingRight: 10,
+    paddingLeft: 5,
+  },
+  infoLabel2: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  infoValue2: {
+    fontSize: 8,
+    lineHeight: 1.2,
+    marginBottom: 1,
   },
   multiLine: {
     fontSize: 7,
@@ -169,64 +194,81 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
       <Page size='A4' orientation='landscape' style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>
-            National Safe Motherhood Program
+          <Text style={styles.headerTitle}>PREGNANCY TRACKING FORM</Text>
+          <Text style={styles.headerSubtitle}>
+            Month:{'  '}
+            {new Date(formData.created_at).toLocaleString('default', {
+              month: 'long',
+            })}
+            {'  '}
+            {new Date(formData.created_at).getFullYear()}
           </Text>
-          <Text style={styles.headerSubtitle}>PREGNANCY TRACKING</Text>
         </View>
 
         {/* Top Information Section */}
         <View style={styles.infoSection}>
           <View style={styles.infoColumn}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Year:</Text>
+              <Text style={styles.infoLabel}>Barangay:</Text>
               <Text style={styles.infoValue}>
-                {new Date(formData.created_at).getFullYear()}
+                {formData.center_barangay || ''}
               </Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Region:</Text>
-              <Text style={styles.infoValue}>{formData.region || ''}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Province:</Text>
-              <Text style={styles.infoValue}>{formData.province || ''}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Municipality:</Text>
               <Text style={styles.infoValue}>
-                {formData.municipality || ''}
+                {formData.center_municipality || ''}
               </Text>
             </View>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Barangay:</Text>
-              <Text style={styles.infoValue}>{formData.barangay || ''}</Text>
+              <Text style={styles.infoLabel}>Province:</Text>
+              <Text style={styles.infoValue}>
+                {formData.center_province || ''}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Referral Unit:</Text>
+              <Text style={styles.infoValue}>
+                {formData.referral_unit || ''}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>BEMOC:</Text>
+              <Text style={styles.infoValue}>{formData.bemoc || ''}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Address:</Text>
+              <Text style={styles.infoValue}>
+                {formData.bemoc_address || ''}
+              </Text>
             </View>
           </View>
           <View style={styles.infoColumn}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Birthing Center:</Text>
-              <Text style={styles.infoValue}>
-                {formData.birthing_center || ''}
-              </Text>
+              <Text style={styles.infoLabel}>CEMOC:</Text>
+              <Text style={styles.infoValue}>{formData.cemoc || ''}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Address:</Text>
               <Text style={styles.infoValue}>
-                {formData.birthing_center_address || ''}
+                {formData.cemoc_address || ''}
               </Text>
             </View>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Referral Center:</Text>
+              <Text style={styles.infoLabel}>Name of Midwife:</Text>
               <Text style={styles.infoValue}>
-                {formData.referral_center || ''}
+                {formData.midwife_name || ''}
               </Text>
             </View>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Address:</Text>
+              <Text style={styles.infoLabel}>Duty Station & Address:</Text>
               <Text style={styles.infoValue}>
-                {formData.referral_center_address || ''}
+                {`${formData.health_station} - ${formData.barangay}` || ''}
               </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>HRH In-charge</Text>
+              <Text style={styles.infoValue}>{formData.nurse_name || ''}</Text>
             </View>
           </View>
         </View>
@@ -241,14 +283,17 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View style={[styles.headerCell, styles.nameCellWidth]}>
               <Text>Name</Text>
             </View>
+            <View style={[styles.headerCell, styles.gravidityCell]}>
+              <Text>Address</Text>
+            </View>
+            <View style={[styles.headerCell, styles.gravidityCell]}>
+              <Text>Date of Birth</Text>
+            </View>
             <View style={[styles.headerCell, styles.ageCell]}>
               <Text>Age</Text>
             </View>
-            <View style={[styles.headerCell, styles.gravidityCell]}>
-              <Text>Gravidity</Text>
-            </View>
-            <View style={[styles.headerCell, styles.parityCell]}>
-              <Text>Parity</Text>
+            <View style={[styles.headerCell, styles.contactCell]}>
+              <Text>Contact</Text>
             </View>
             <View style={[styles.headerCell, styles.lmpCell]}>
               <Text>LMP</Text>
@@ -256,18 +301,26 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View style={[styles.headerCell, { width: 90 }]}>
               <Text>EDC</Text>
             </View>
-            <View style={[styles.headerCell, { width: 280 }]}>
-              <Text>Antenatal Care Check-Ups</Text>
+            <View style={[styles.headerCell, { width: 90 }]}>
+              <Text>Parity (Gravida, Para)</Text>
             </View>
-            <View style={[styles.headerCell, { width: 200 }]}>
-              <Text style={styles.multiLine}>Pregnancy{'\n'}Outcome</Text>
+            <View style={[styles.headerCell, { width: 70 }]}>
+              <Text>4 ANC Given</Text>
             </View>
-            <View
-              style={[styles.headerCell, { width: 120, borderRightWidth: 0 }]}
-            >
-              <Text style={styles.multiLine}>
-                Mother and Child{'\n'}Prenatal Check-up
-              </Text>
+            <View style={[styles.headerCell, { width: 160 }]}>
+              <Text>Risk Code & Date Detected</Text>
+            </View>
+            <View style={[styles.headerCell, styles.lmpCell]}>
+              <Text>Date Terminated/Delivery</Text>
+            </View>
+            <View style={[styles.headerCell, { width: 60 }]}>
+              <Text>Outcome Sex & Weight</Text>
+            </View>
+            <View style={[styles.headerCell, { width: 130 }]}>
+              <Text>Place oof Delivery & Attended By</Text>
+            </View>
+            <View style={[styles.headerCell, { width: 40 }]}>
+              <Text>PHIC</Text>
             </View>
           </View>
 
@@ -299,7 +352,7 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View
               style={[
                 styles.headerCell,
-                styles.ageCell,
+                styles.gravidityCell,
                 {
                   backgroundColor: 'transparent',
                   borderRightColor: 'transparent',
@@ -321,7 +374,18 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View
               style={[
                 styles.headerCell,
-                styles.parityCell,
+                styles.ageCell,
+                {
+                  backgroundColor: 'transparent',
+                  borderRightColor: 'transparent',
+                  borderBottom: 1,
+                },
+              ]}
+            />
+            <View
+              style={[
+                styles.headerCell,
+                styles.contactCell,
                 {
                   backgroundColor: 'transparent',
                   borderRightColor: 'transparent',
@@ -353,107 +417,113 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
               ]}
             />
 
+            {/* Parity Gravida Para Sub headers */}
+            <View
+              style={[
+                styles.headerCell,
+                styles.checkupCell,
+                { borderBottom: 1 },
+              ]}
+            ></View>
+            <View
+              style={[
+                styles.headerCell,
+                styles.checkupCell,
+                { borderBottom: 1 },
+              ]}
+            ></View>
+            <View
+              style={[
+                styles.headerCell,
+                styles.checkupCell,
+                { borderBottom: 1 },
+              ]}
+            ></View>
+
             {/* Antenatal Care sub-headers */}
             <View
               style={[
                 styles.headerCell,
-                styles.checkupCell,
+                styles.checkupCell2,
                 { borderBottom: 1 },
               ]}
             >
-              <Text style={styles.multiLine}>1st visit{'\n'}Date</Text>
+              <Text>Yes</Text>
             </View>
             <View
               style={[
                 styles.headerCell,
-                styles.checkupCell,
+                styles.checkupCell2,
                 { borderBottom: 1 },
               ]}
             >
-              <Text style={styles.multiLine}>2nd visit{'\n'}Date</Text>
-            </View>
-            <View
-              style={[
-                styles.headerCell,
-                styles.checkupCell,
-                { borderBottom: 1 },
-              ]}
-            >
-              <Text style={styles.multiLine}>3rd visit{'\n'}Date</Text>
-            </View>
-            <View
-              style={[
-                styles.headerCell,
-                styles.checkupCell,
-                { borderBottom: 1 },
-              ]}
-            >
-              <Text style={styles.multiLine}>
-                4th visit{'\n'}or more{'\n'}Date
-              </Text>
+              <Text>No</Text>
             </View>
 
-            {/* Pregnancy Outcome sub-headers */}
+            {/* Risk Code & Date Detected */}
             <View
               style={[
                 styles.headerCell,
-                styles.outcomeCell,
+                styles.checkupCell3,
                 { borderBottom: 1 },
               ]}
-            >
-              <Text>Live Birth</Text>
-            </View>
-            <View
-              style={[
-                styles.headerCell,
-                styles.outcomeCell,
-                { borderBottom: 1 },
-              ]}
-            >
-              <Text>Preterm Birth</Text>
-            </View>
-            <View
-              style={[
-                styles.headerCell,
-                styles.outcomeCell,
-                { borderBottom: 1 },
-              ]}
-            >
-              <Text>Stillbirth</Text>
-            </View>
-            <View
-              style={[
-                styles.headerCell,
-                styles.outcomeCell,
-                { borderBottom: 1 },
-              ]}
-            >
-              <Text>Abortion</Text>
-            </View>
+            ></View>
 
-            {/* Prenatal Check-up sub-headers */}
             <View
               style={[
                 styles.headerCell,
-                styles.prenatalCell,
-                { borderBottom: 1 },
+                styles.lmpCell,
+                {
+                  backgroundColor: 'transparent',
+                  borderRightColor: 'transparent',
+                  borderBottom: 1,
+                },
               ]}
-            >
-              <Text style={styles.multiLine}>
-                Day of Discharge/{'\n'}24 hours after birth
-              </Text>
-            </View>
+            />
             <View
               style={[
                 styles.headerCell,
-                styles.prenatalCell,
-                { borderRightWidth: 0, borderBottom: 1 },
+                {
+                  backgroundColor: 'transparent',
+                  borderRightColor: 'transparent',
+                  width: 60,
+                  borderBottom: 1,
+                },
               ]}
-            >
-              <Text style={styles.multiLine}>
-                Within 7 days{'\n'}after birth
-              </Text>
-            </View>
+            />
+            <View
+              style={[
+                styles.headerCell,
+                {
+                  backgroundColor: 'transparent',
+                  borderRightColor: 'transparent',
+                  width: 65,
+                  borderBottom: 1,
+                },
+              ]}
+            />
+            <View
+              style={[
+                styles.headerCell,
+                {
+                  backgroundColor: 'transparent',
+                  borderRightColor: 'transparent',
+                  width: 65,
+                  borderBottom: 1,
+                },
+              ]}
+            />
+            <View
+              style={[
+                styles.headerCell,
+                {
+                  backgroundColor: 'transparent',
+                  borderRightColor: 'transparent',
+                  width: 40,
+                  borderBottom: 1,
+                },
+              ]}
+            />
           </View>
 
           {/* Data Row */}
@@ -464,59 +534,83 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             <View style={[styles.cell, styles.nameCellWidth, styles.nameCell]}>
               <Text>{getPatientName()}</Text>
             </View>
+            <View style={[styles.cell, styles.gravidityCell]}>
+              <Text>{formData.patient_short_address || ''}</Text>
+            </View>
+            <View style={[styles.cell, styles.gravidityCell]}>
+              <Text>{formData.birth_date || ''}</Text>
+            </View>
             <View style={[styles.cell, styles.ageCell]}>
               <Text>{formData.age || ''}</Text>
             </View>
-            <View style={[styles.cell, styles.gravidityCell]}>
-              <Text>{formData.gravidity || ''}</Text>
-            </View>
-            <View style={[styles.cell, styles.parityCell]}>
-              <Text>{formData.parity || ''}</Text>
+            <View style={[styles.cell, styles.contactCell]}>
+              <Text>{formData.contact || ''}</Text>
             </View>
             <View style={[styles.cell, styles.lmpCell]}>
-              <Text>{formData.lmp}</Text>
+              <Text>{formData.lmp || ''}</Text>
             </View>
             <View style={[styles.cell, styles.edcCell]}>
-              <Text>{formData.edc}</Text>
+              <Text>{formData.edc || ''}</Text>
             </View>
 
             {/* Antenatal Care columns */}
-            {Array.from({ length: 4 }).map((_, index) => (
-              <View
-                key={`checkup-${index}`}
-                style={[styles.cell, styles.checkupCell]}
-              >
-                <Text></Text>
-              </View>
-            ))}
+            <View style={[styles.cell, styles.checkupCell]}>
+              <Text>{`G${formData.gravidity || '-'}`}</Text>
+            </View>
+            <View style={[styles.cell, styles.checkupCell]}>
+              <Text>{`P${formData.parity || '-'}`}</Text>
+            </View>
+            <View style={[styles.cell, styles.checkupCell]}>
+              <Text>{`A${formData.abortion || '-'}`}</Text>
+            </View>
 
-            {/* Pregnancy Outcome columns */}
-            {Array.from({ length: 4 }).map((_, index) => (
-              <View
-                key={`outcome-${index}`}
-                style={[styles.cell, styles.outcomeCell]}
-              >
-                <Text></Text>
-              </View>
-            ))}
+            {/* 4 ANC Given columns */}
+            <View style={[styles.cell, styles.checkupCell2]}>
+              <Text>✔</Text>
+            </View>
+            <View style={[styles.cell, styles.checkupCell2]}>
+              <Text></Text>
+            </View>
 
-            {/* Prenatal Check-up columns */}
-            {Array.from({ length: 2 }).map((_, index) => (
-              <View
-                key={`prenatal-${index}`}
-                style={[
-                  styles.cell,
-                  styles.prenatalCell,
-                  index === 1 ? { borderRightWidth: 0 } : {},
-                ]}
-              >
-                <Text></Text>
-              </View>
-            ))}
+            {/* Risk Code and Date Detected columns */}
+            <View style={[styles.cell, styles.checkupCell3]}>
+              <Text>Teenage pregnancy 19Y.O below</Text>
+              <Text>Date: 2025-08-23</Text>
+            </View>
+
+            {/* Date Terminated/Delivery */}
+            <View style={[styles.cell, styles.lmpCell]}>
+              <Text>{formData?.date_delivery || ''}</Text>
+            </View>
+
+            {/* Outcome Sex and Weight */}
+            <View style={[styles.cell, { width: 60 }]}>
+              <Text>
+                {formData?.outcome_sex && formData?.outcome_weight
+                  ? `${formData.outcome_sex.slice(0, 1).toUppercase()}/${
+                      formData.outcome_weight
+                    } kg`
+                  : ''}
+              </Text>
+            </View>
+
+            {/* Pace of delivery and attended by */}
+            <View style={[styles.cell, { width: 65 }]}>
+              <Text>{formData?.place_of_delivery || ''}</Text>
+            </View>
+
+            <View style={[styles.cell, { width: 65 }]}>
+              <Text>{formData?.attended_by || ''}</Text>
+            </View>
+
+            {/* PHIC */}
+            <View style={[styles.cell, { width: 40 }]}>
+              <Text>{formData?.phic ? 'Yes' : 'No'}</Text>
+            </View>
           </View>
 
           {/* Empty Rows */}
-          {Array.from({ length: 9 }).map((_, rowIndex) => (
+          {Array.from({ length: 6 }).map((_, rowIndex) => (
             <View key={rowIndex} style={styles.emptyTableRow}>
               <View style={[styles.cell, styles.noCell]}>
                 <Text>{rowIndex + 2}</Text>
@@ -526,13 +620,16 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
               >
                 <Text></Text>
               </View>
-              <View style={[styles.cell, styles.ageCell]}>
+              <View style={[styles.cell, styles.gravidityCell]}>
                 <Text></Text>
               </View>
               <View style={[styles.cell, styles.gravidityCell]}>
                 <Text></Text>
               </View>
-              <View style={[styles.cell, styles.parityCell]}>
+              <View style={[styles.cell, styles.ageCell]}>
+                <Text></Text>
+              </View>
+              <View style={[styles.cell, styles.contactCell]}>
                 <Text></Text>
               </View>
               <View style={[styles.cell, styles.lmpCell]}>
@@ -543,7 +640,7 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
               </View>
 
               {/* Antenatal Care empty columns */}
-              {Array.from({ length: 4 }).map((_, index) => (
+              {Array.from({ length: 3 }).map((_, index) => (
                 <View
                   key={`empty-checkup-${index}`}
                   style={[styles.cell, styles.checkupCell]}
@@ -552,61 +649,119 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
                 </View>
               ))}
 
-              {/* Pregnancy Outcome empty columns */}
-              {Array.from({ length: 4 }).map((_, index) => (
+              {/* 4 ANC Given empty columns */}
+              {Array.from({ length: 2 }).map((_, index) => (
                 <View
                   key={`empty-outcome-${index}`}
-                  style={[styles.cell, styles.outcomeCell]}
+                  style={[styles.cell, styles.checkupCell2]}
                 >
                   <Text></Text>
                 </View>
               ))}
 
-              {/* Prenatal Check-up empty columns */}
-              {Array.from({ length: 2 }).map((_, index) => (
-                <View
-                  key={`empty-prenatal-${index}`}
-                  style={[
-                    styles.cell,
-                    styles.prenatalCell,
-                    index === 1 ? { borderRightWidth: 0 } : {},
-                  ]}
-                >
-                  <Text></Text>
-                </View>
-              ))}
+              {/* Risk Code and Date Detected empty columns */}
+              <View style={[styles.cell, styles.checkupCell3]}>
+                <Text></Text>
+              </View>
+              {/* <View style={[styles.cell, styles.checkupCell3]}>
+                <Text>Teenage pregnancy 19Y.O below</Text>
+                <Text>Date: 2025-08-23</Text>
+              </View> */}
+
+              {/* Date Terminated/Delivery */}
+              <View style={[styles.cell, styles.lmpCell]}>
+                <Text></Text>
+              </View>
+
+              {/* Outcome Sex and Weight */}
+              <View style={[styles.cell, { width: 60 }]}>
+                <Text></Text>
+              </View>
+
+              {/* Pace of delivery and attended by */}
+              <View style={[styles.cell, { width: 65 }]}>
+                <Text></Text>
+              </View>
+
+              <View style={[styles.cell, { width: 65 }]}>
+                <Text></Text>
+              </View>
+
+              {/* PHIC */}
+              <View style={[styles.cell, { width: 40 }]}>
+                <Text></Text>
+              </View>
             </View>
           ))}
         </View>
 
         {/* Bottom Section */}
         <View style={styles.bottomSection}>
-          <View style={styles.bottomColumn}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Name of BHW:</Text>
-              <Text style={styles.infoValue}>
-                {formData.barangay_worker_name || ''}
+          {/* Single row with multiple columns */}
+          <View style={styles.legendRow}>
+            {/* First Column - Risk Code A,B,C,D */}
+            <View style={styles.legendColumn}>
+              <Text style={styles.infoLabel2}>Risk Code:</Text>
+              <Text style={styles.infoValue2}>
+                A = an age less than 18 years old
+              </Text>
+              <Text style={styles.infoValue2}>
+                B = an age more than 35 years old
+              </Text>
+              <Text style={styles.infoValue2}>
+                C = being less than 145 cm (4'9) tall
+              </Text>
+              <Text style={styles.infoValue2}>
+                D = having fourth or more baby or so called grandmulti
               </Text>
             </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Name of Midwife:</Text>
-              <Text style={styles.infoValue}>
-                {formData.midwife_name || ''}
+
+            {/* Second Column - Risk Code E */}
+            <View style={styles.legendColumn}>
+              <Text style={styles.infoLabel2}></Text>
+              <Text style={styles.infoValue2}>
+                E = having one or more of the ff:
               </Text>
+              <Text style={styles.infoValue2}>
+                (a) a previous caesarean section
+              </Text>
+              <Text style={styles.infoValue2}>
+                (b) 3 consecutive miscarriages or stillborn baby
+              </Text>
+              <Text style={styles.infoValue2}>(c) postpartum hemorrhage</Text>
             </View>
-          </View>
-          <View style={styles.bottomColumn}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Barangay Health Station:</Text>
-              <Text style={styles.infoValue}>
-                {formData.health_station || ''}
+
+            {/* Third Column - Risk Code F */}
+            <View style={styles.legendColumn}>
+              <Text style={styles.infoLabel2}></Text>
+              <Text style={styles.infoValue2}>
+                F = having one or more of the ff:
               </Text>
+              <Text style={styles.infoValue2}>
+                (1) Tuberculosis (2) Heart Disease
+              </Text>
+              <Text style={styles.infoValue2}>
+                (3) Diabetes (4) Bronchial Asthma
+              </Text>
+              <Text style={styles.infoValue2}>(5) Goiter</Text>
             </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Rural Health Unit:</Text>
-              <Text style={styles.infoValue}>
-                {formData.rural_health_unit || ''}
-              </Text>
+
+            {/* Fourth Column - Outcome */}
+            <View style={styles.legendColumn}>
+              <Text style={styles.infoLabel2}>Outcome:</Text>
+              <Text style={styles.infoValue2}>LB = Live Birth</Text>
+              <Text style={styles.infoValue2}>SB = Still Birth</Text>
+              <Text style={styles.infoValue2}>AB = Abortion</Text>
+            </View>
+
+            {/* Fifth Column - Attendant */}
+            <View style={styles.legendColumn}>
+              <Text style={styles.infoLabel2}>Attendant:</Text>
+              <Text style={styles.infoValue2}>A = Doctor</Text>
+              <Text style={styles.infoValue2}>B = Nurse</Text>
+              <Text style={styles.infoValue2}>C = Midwife</Text>
+              <Text style={styles.infoValue2}>D = Hilot/TBA</Text>
+              <Text style={styles.infoValue2}>E = Others</Text>
             </View>
           </View>
         </View>

@@ -14,13 +14,18 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pregnancy_tracking_id')->constrained('pregnancy_trackings');
-            $table->date('date');
+            $table->date('appointment_date');
             $table->time('start_time');
             $table->time('end_time');
-            $table->string('priority');
-            $table->string('status');
-            $table->string('note')->nullable();
+            $table->enum('priority', ['high', 'medium', 'low'])->default('medium');
+            $table->integer('visit_count')->default(1);
+            $table->enum('status', ['scheduled', 'completed', 'cancelled'])->default('scheduled');
+            $table->text('notes')->nullable();
+            $table->timestamp('booking_timestamp')->useCurrent();
             $table->timestamps();
+
+            $table->index(['appointment_date', 'start_time']);
+            $table->index(['pregnancy_tracking_id', 'appointment_date']);
         });
     }
 

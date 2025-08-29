@@ -2,6 +2,7 @@ import React from 'react';
 import { User, Calendar, Phone } from 'lucide-react';
 import InputGroup from '../../ui/InputGroup';
 import PhoneNumberField from '../../ui/PhoneNumberField';
+import DateInput from '../../ui/DateInput';
 
 const NewPatientBasicInfo = ({ formData, inputChange, error }) => {
   return (
@@ -59,18 +60,18 @@ const NewPatientBasicInfo = ({ formData, inputChange, error }) => {
       {/* Row 2: Age, Contact */}
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         <div className='w-full'>
-          <InputGroup
-            type='number'
-            name='age'
-            value={formData.age}
+          <DateInput
+            name='birth_date'
+            id='birth_date'
+            value={formData.birth_date}
             onChange={inputChange}
-            placeholder='Age'
-            icon={<Calendar className='h-5 w-5 text-gray-400' />}
-            id='age'
+            placeholder='Birth date'
             hasLabel
-            label='Age'
+            label='Birth Date'
           />
-          {error.age && <p className='error mt-1'>{error.age[0]}</p>}
+          {error.birth_date && (
+            <p className='error mt-1'>{error.birth_date[0]}</p>
+          )}
         </div>
 
         <div className='w-full'>

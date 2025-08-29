@@ -16,7 +16,7 @@ const HealthInformationStep = ({
       <h3 className='text-lg font-medium text-gray-900'>Health Information</h3>
 
       {/* Basic Health Info */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
         <div className='w-full'>
           <InputGroup
             type='number'
@@ -49,6 +49,24 @@ const HealthInformationStep = ({
           />
           {error.parity && <p className='error mt-1'>{error.parity[0]}</p>}
         </div>
+        <div className='w-full'>
+          <InputGroup
+            type='number'
+            name='abortion'
+            value={formData.abortion}
+            onChange={inputChange}
+            placeholder='Abortion'
+            icon={<Heart className='h-5 w-5 text-gray-400' />}
+            id='abortion'
+            hasLabel
+            label='Abortion'
+            min={0}
+          />
+          {error.abortion && <p className='error mt-1'>{error.abortion[0]}</p>}
+        </div>
+      </div>
+
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         <div className='w-full'>
           <DateInput
             name='lmp'

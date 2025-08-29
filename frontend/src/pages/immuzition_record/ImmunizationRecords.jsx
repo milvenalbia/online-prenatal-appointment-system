@@ -89,8 +89,6 @@ const ImmunizationRecords = () => {
       ...row,
     }));
 
-    console.log(formData);
-
     setIsOpen(true);
   };
 

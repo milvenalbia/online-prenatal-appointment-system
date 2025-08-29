@@ -7,6 +7,7 @@ use App\Http\Resources\PregnancyTrackingResource;
 use App\Models\BarangayCenter;
 use App\Models\Patient;
 use App\Models\PregnancyTracking;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -41,7 +42,8 @@ class PregnancyTrackingController extends Controller
             'patient.municipalities',
             'patient.provinces',
             'midwife',
-            'barangay_worker',
+            'nurse',
+            'risk_codes',
             'barangay_center'
         ])
             ->when($search, function ($query, $search) {
@@ -78,7 +80,7 @@ class PregnancyTrackingController extends Controller
     {
         $fields = $request->validated();
         $patientType = $request->input('patient_type');
-
+        $fields['age'] = Carbon::parse($fields['birth_date'])->age;
         $pregnancy_tracking = DB::transaction(function () use ($fields, $patientType) {
             if ($patientType === 'new') {
                 $patient = Patient::create(array_merge($fields, [
@@ -95,7 +97,6 @@ class PregnancyTrackingController extends Controller
 
                 $fields['fullname'] = $patient->fullname;
                 $fields['barangay_health_station'] = $health_station->health_station;
-                $fields['rural_unit'] = $fields['rural_health_unit'];
             }
 
             return PregnancyTracking::create($fields);

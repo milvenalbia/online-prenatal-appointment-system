@@ -14,6 +14,7 @@ import {
   HeartPulse,
   ClipboardList,
   Hospital,
+  ClipboardPlus,
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -57,10 +58,15 @@ const AdminLayout = () => {
       icon: <HeartPulse />,
     },
     {
-      name: 'Barangay Workers',
-      link: 'barangay-workers',
-      icon: <ClipboardList />,
+      name: 'Nurses',
+      link: 'nurses',
+      icon: <ClipboardPlus />,
     },
+    // {
+    //   name: 'Barangay Workers',
+    //   link: 'barangay-workers',
+    //   icon: <ClipboardList />,
+    // },
     {
       name: 'Health Stations',
       link: 'health-stations',

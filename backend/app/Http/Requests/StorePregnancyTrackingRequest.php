@@ -28,17 +28,18 @@ class StorePregnancyTrackingRequest extends FormRequest
 
         $rules = [
             'barangay_center_id'        => 'required|exists:barangay_centers,id',
-            'barangay_worker_id'        => 'required|exists:barangay_workers,id',
+            'nurse_id'                  => 'required|exists:nurses,id',
             'midwife_id'                => 'required|exists:midwives,id',
             'gravidity'                 => 'required|max:255',
             'parity'                    => 'required|max:255',
+            'abortion'                  => 'required|max:255',
             'lmp'                       => 'required|date',
             'edc'                       => 'required|date',
-            'birthing_center'           => 'required|max:255',
-            'birthing_center_address'   => 'required|max:255',
-            'referral_center'           => 'required|max:255',
-            'referral_center_address'   => 'required|max:255',
-            'rural_health_unit'         => 'required|max:255',
+            'bemoc'                     => 'required|max:255',
+            'bemoc_address'             => 'required|max:255',
+            'cemoc'                     => 'required|max:255',
+            'cemoc_address'             => 'required|max:255',
+            'referral_unit'             => 'required|max:255',
         ];
 
         if ($patientType === 'existing') {
@@ -52,7 +53,6 @@ class StorePregnancyTrackingRequest extends FormRequest
                 'firstname'                 => 'required|max:255',
                 'lastname'                  => 'required|max:255',
                 'middlename'                => 'required|max:255',
-                'age'                       => 'required|integer|min:1',
                 'sex'                       => 'required|max:255',
                 'status'                    => 'required|max:255',
                 'birth_date'                => 'required|date',
