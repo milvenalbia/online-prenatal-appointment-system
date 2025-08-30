@@ -16,9 +16,11 @@ import {
   Hospital,
   ClipboardPlus,
 } from 'lucide-react';
+import { useAuthStore } from '../store/AuthStore';
 
 const AdminLayout = () => {
   const [toggle, setToggle] = useState(false);
+  const { user } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const mainLinks = [
@@ -26,41 +28,49 @@ const AdminLayout = () => {
       name: 'Dashboard',
       link: 'dashboard',
       icon: <LayoutDashboard />,
+      show: user.role_id === 1 || user.role_id === 2 || user.role_id === 3,
     },
     {
       name: 'Appointments',
       link: 'appointments',
       icon: <CalendarCheck />,
+      show: user.role_id === 1 || user.role_id === 3,
     },
     {
       name: 'Pregnancy Trackings',
       link: 'pregnancy-trackings',
       icon: <Baby />,
+      show: user.role_id === 1 || user.role_id === 2 || user.role_id === 3,
     },
     {
       name: 'Out Patients',
       link: 'out-patients',
       icon: <Users />,
+      show: user.role_id === 1 || user.role_id === 3,
     },
     {
       name: 'Prenatal Visits',
       link: 'prenatal-visits',
       icon: <Stethoscope />,
+      show: user.role_id === 1 || user.role_id === 3,
     },
     {
       name: 'Immunization Records',
       link: 'immunization-records',
       icon: <Syringe />,
+      show: user.role_id === 1 || user.role_id === 3,
     },
     {
       name: 'Midwives',
       link: 'midwives',
       icon: <HeartPulse />,
+      show: user.role_id === 1 || user.role_id === 2,
     },
     {
       name: 'Nurses',
       link: 'nurses',
       icon: <ClipboardPlus />,
+      show: user.role_id === 1 || user.role_id === 2,
     },
     // {
     //   name: 'Barangay Workers',
@@ -71,24 +81,32 @@ const AdminLayout = () => {
       name: 'Health Stations',
       link: 'health-stations',
       icon: <Hospital />,
+      show: user.role_id === 1,
     },
     {
       name: 'Reports',
       link: 'reports',
       icon: <FileBarChart />,
+      show: user.role_id === 1 || user.role_id === 3,
     },
   ];
 
   return (
     <div className='flex'>
       {/* Desktop Sidebar */}
-      <Sidebar toggle={toggle} setToggle={setToggle} mainLinks={mainLinks} />
+      <Sidebar
+        toggle={toggle}
+        setToggle={setToggle}
+        mainLinks={mainLinks}
+        user={user}
+      />
 
       {/* Mobile Sidebar */}
       <MobileSidebar
         isOpen={mobileMenuOpen}
         setIsOpen={setMobileMenuOpen}
         mainLinks={mainLinks}
+        user={user}
       />
 
       {/* Main Content */}
@@ -101,6 +119,7 @@ const AdminLayout = () => {
           <Header
             mobileMenuOpen={mobileMenuOpen}
             setMobileMenuOpen={setMobileMenuOpen}
+            user={user}
           />
           <div className='mt-6'>
             <Outlet />

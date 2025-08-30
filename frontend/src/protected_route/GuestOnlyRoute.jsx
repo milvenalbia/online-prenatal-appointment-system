@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router';
-import { useAuthStore } from '../store/authStore.js';
+import { useAuthStore } from '../store/AuthStore';
 
 const GuestOnlyRoute = ({ children }) => {
   const { token } = useAuthStore();

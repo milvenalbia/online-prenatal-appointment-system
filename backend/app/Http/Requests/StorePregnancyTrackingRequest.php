@@ -15,7 +15,7 @@ class StorePregnancyTrackingRequest extends FormRequest
     {
         $user = Auth::user();
 
-        if (!in_array($user->role->role, ['admin', 'opd'])) {
+        if (!in_array($user->role->role, ['admin', 'midwife'])) {
             throw new AuthorizationException('You are not authorized to perform this action.');
         }
 

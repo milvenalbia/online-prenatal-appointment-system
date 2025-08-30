@@ -1,7 +1,7 @@
 import { Bell, Calendar, UserRound, Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { useAuthStore } from '../store/authStore.js';
+import { useAuthStore } from '../store/AuthStore';
 
 const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
   const { user } = useAuthStore();
@@ -44,23 +44,27 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
         {/* Right side - Actions */}
         <div className='flex gap-4 sm:gap-6 items-center'>
           {/* Make Appointment Button - Hidden on mobile, different sizes */}
-          <div className='hidden md:flex items-center gap-2 py-2 px-3 bg-purple-600 hover:bg-purple-500 text-white rounded-md cursor-pointer transition-colors shadow-md'>
-            <Calendar className='h-4 w-4' />
-            <Link
-              to={'appointments/create'}
-              className='font-semibold tracking-wide text-sm'
-            >
-              Make Appointment
-            </Link>
-          </div>
-
-          {/* Mobile Make Appointment Button - Icon only */}
-          <Link
-            to={'appointment/create'}
-            className='md:hidden p-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md cursor-pointer transition-colors shadow-md'
-          >
-            <Calendar className='h-5 w-5' />
-          </Link>
+          {user.role_id !== 2 && (
+            <>
+              <Link
+                to={'appointments/create'}
+                className='group hidden md:flex items-center gap-2 py-2 px-3 
+             bg-purple-600 hover:bg-purple-500 text-white rounded-md 
+             cursor-pointer transition-colors shadow-md'
+              >
+                <Calendar className='h-4 w-4' />
+                <span className='font-semibold tracking-wide text-sm'>
+                  Make Appointment
+                </span>
+              </Link>
+              <Link
+                to={'appointment/create'}
+                className='md:hidden p-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md cursor-pointer transition-colors shadow-md'
+              >
+                <Calendar className='h-5 w-5' />
+              </Link>{' '}
+            </>
+          )}
 
           {/* Notifications */}
           <div className='relative'>

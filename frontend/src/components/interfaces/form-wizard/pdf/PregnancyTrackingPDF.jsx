@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   // Fixed column widths for perfect alignment
   noCell: { width: 25 },
   nameCellWidth: { width: 100 },
-  ageCell: { width: 30 },
+  ageCell: { width: 35 },
   gravidityCell: { width: 90 },
   parityCell: { width: 40 },
   lmpCell: { width: 90 },
@@ -317,7 +317,7 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
               <Text>Outcome Sex & Weight</Text>
             </View>
             <View style={[styles.headerCell, { width: 130 }]}>
-              <Text>Place oof Delivery & Attended By</Text>
+              <Text>Place of Delivery & Attended By</Text>
             </View>
             <View style={[styles.headerCell, { width: 40 }]}>
               <Text>PHIC</Text>
@@ -544,7 +544,11 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
               <Text>{formData.age || ''}</Text>
             </View>
             <View style={[styles.cell, styles.contactCell]}>
-              <Text>{formData.contact || ''}</Text>
+              <Text>
+                {formData.contact.startsWith('63')
+                  ? `0${formData.contact.slice(2)}`
+                  : ''}
+              </Text>
             </View>
             <View style={[styles.cell, styles.lmpCell]}>
               <Text>{formData.lmp || ''}</Text>

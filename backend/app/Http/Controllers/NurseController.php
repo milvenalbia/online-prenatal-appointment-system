@@ -7,6 +7,7 @@ use App\Http\Resources\SelectNurseResource;
 use App\Models\BarangayCenter;
 use App\Models\Nurse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class NurseController extends Controller
@@ -33,12 +34,17 @@ class NurseController extends Controller
             $sortBy = 'created_at';
         }
 
+        $user = Auth::user();
+
         $nurses = Nurse::with([
             'barangay_center',
             'barangay_center.barangays',
             'barangay_center.municipalities',
             'barangay_center.provinces'
         ])
+            ->when($user->role_id === 2, function ($query) use ($user) {
+                $query->where('barangay_center_id', $user->barangay_center_id);
+            })
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where(DB::raw("CONCAT(firstname, ' ', lastname)"), 'LIKE', "%{$search}%");

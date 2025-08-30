@@ -3,7 +3,7 @@ import { NavLink } from 'react-router';
 import Logo from '../assets/st-paul-logo.webp';
 import { useAuthStore } from '../store/AuthStore';
 
-const MobileSidebar = ({ isOpen, setIsOpen, mainLinks }) => {
+const MobileSidebar = ({ isOpen, setIsOpen, mainLinks, user }) => {
   const { logout } = useAuthStore();
 
   const handleLinkClick = () => {
@@ -52,42 +52,46 @@ const MobileSidebar = ({ isOpen, setIsOpen, mainLinks }) => {
                 <p className='text-sm font-semibold text-gray-500 px-2 mb-4'>
                   Navigation
                 </p>
-                {mainLinks.map((link, index) => (
-                  <NavLink
-                    key={index}
-                    to={link.link}
-                    onClick={handleLinkClick}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 py-3 px-4 rounded-lg transition-all ${
-                        isActive
-                          ? 'bg-purple-100 text-purple-950 font-semibold'
-                          : 'text-gray-700 hover:bg-purple-50 hover:text-purple-950'
-                      }`
-                    }
-                  >
-                    <span>{link.icon}</span>
-                    <span className='font-medium'>{link.name}</span>
-                  </NavLink>
-                ))}
+                {mainLinks
+                  .filter((link) => link.show)
+                  .map((link, index) => (
+                    <NavLink
+                      key={index}
+                      to={link.link}
+                      onClick={handleLinkClick}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 py-3 px-4 rounded-lg transition-all ${
+                          isActive
+                            ? 'bg-purple-100 text-purple-950 font-semibold'
+                            : 'text-gray-700 hover:bg-purple-50 hover:text-purple-950'
+                        }`
+                      }
+                    >
+                      <span>{link.icon}</span>
+                      <span className='font-medium'>{link.name}</span>
+                    </NavLink>
+                  ))}
               </div>
             </div>
 
             {/* Fixed Bottom Section */}
             <div className='border-t border-gray-400 pt-4 mt-4 space-y-2'>
-              <NavLink
-                to='users'
-                onClick={handleLinkClick}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 py-3 px-4 rounded-lg transition-all ${
-                    isActive
-                      ? 'bg-purple-100 text-purple-950 font-semibold'
-                      : 'text-gray-700 hover:bg-purple-50 hover:text-purple-950'
-                  }`
-                }
-              >
-                <UserRound className='h-5 w-5' />
-                <span className='font-medium'>User Management</span>
-              </NavLink>
+              {user && user.role_did !== 2 && (
+                <NavLink
+                  to='users'
+                  onClick={handleLinkClick}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 py-3 px-4 rounded-lg transition-all ${
+                      isActive
+                        ? 'bg-purple-100 text-purple-950 font-semibold'
+                        : 'text-gray-700 hover:bg-purple-50 hover:text-purple-950'
+                    }`
+                  }
+                >
+                  <UserRound className='h-5 w-5' />
+                  <span className='font-medium'>User Management</span>
+                </NavLink>
+              )}
 
               <button
                 onClick={() => {

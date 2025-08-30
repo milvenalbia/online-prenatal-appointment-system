@@ -16,15 +16,20 @@ class Appointment extends Model
         'visit_count',
         'status',
         'notes',
-        'booking_timestamp'
+        'booking_timestamp',
+        'priority_score',
     ];
 
     protected $casts = [
-        'appointment_date' => 'date',
         'start_time' => 'datetime:H:i',
         'end_time' => 'datetime:H:i',
         'booking_timestamp' => 'datetime'
     ];
+
+    public function pregnancy_tracking(): BelongsTo
+    {
+        return $this->belongsTo(PregnancyTracking::class);
+    }
 
     /**
      * Calculate priority score for sorting

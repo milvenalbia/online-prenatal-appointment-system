@@ -1,7 +1,9 @@
 import api from '../../../api/axios';
+import { useAuthStore } from '../../../store/AuthStore';
 import SelectReact from '../../ui/SelectReact';
 
 const HealthcareProviders = ({ formData, setFormData, error }) => {
+  const { user } = useAuthStore();
   const handleChangeName = async (value) => {
     setFormData((prev) => ({
       ...prev,
@@ -27,6 +29,24 @@ const HealthcareProviders = ({ formData, setFormData, error }) => {
       }));
     }
   };
+
+  const handleChangeBarangay = async (value) => {
+    setFormData((prev) => ({
+      ...prev,
+      barangay_center_id: value,
+      nurse_id: 0,
+      midwife_id: 0,
+    }));
+
+    const response = await api.get(`/api/barangay-centers/${value}`);
+
+    const data = response.data;
+
+    setFormData((prev) => ({
+      ...prev,
+      barangay_health_station: data.health_station,
+    }));
+  };
   return (
     <div className='space-y-4'>
       <h4 className='font-medium text-gray-900'>Healthcare Providers</h4>
@@ -41,14 +61,10 @@ const HealthcareProviders = ({ formData, setFormData, error }) => {
             formData={formData}
             setFormData={setFormData}
             labelKey='health_station'
-            onChange={(value) =>
-              setFormData((prev) => ({
-                ...prev,
-                barangay_center_id: value,
-                barangay_worker_id: 0,
-                midwife_id: 0,
-              }))
-            }
+            onChange={(value) => handleChangeBarangay(value)}
+            isClearable={user.role_id !== 2}
+            isMenuOpen={user.role_id === 2 ? false : undefined}
+            isSearchable={user.role_id !== 2}
           />
           {error.barangay_center_id && (
             <p className='error mt-1'>{error.barangay_center_id[0]}</p>

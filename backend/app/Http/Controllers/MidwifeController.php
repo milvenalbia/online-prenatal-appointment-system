@@ -7,6 +7,7 @@ use App\Http\Resources\SelectMidWifeResource;
 use App\Models\BarangayCenter;
 use App\Models\Midwife;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class MidwifeController extends Controller
@@ -23,6 +24,7 @@ class MidwifeController extends Controller
         $sortDir    = $request->input('sort_dir', 'desc');
         $perPage    = $request->input('per_page', 10);
 
+        $user = Auth::user();
         // Optional: whitelist sortable columns to prevent SQL injection
         $sortableColumns = [
             'fullname' => 'firstname',
@@ -39,6 +41,9 @@ class MidwifeController extends Controller
             'barangay_center.municipalities',
             'barangay_center.provinces'
         ])
+            ->when($user->role_id === 2, function ($query) use ($user) {
+                $query->where('barangay_center_id', $user->barangay_center_id);
+            })
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where(DB::raw("CONCAT(firstname, ' ', lastname)"), 'LIKE', "%{$search}%");

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Container from '../../components/ui/Container';
 import DataTable from '../../components/ui/Datatable';
 import InputGroup from '../../components/ui/InputGroup';
@@ -7,8 +7,10 @@ import FormModal from '../../components/ui/FormModal';
 import { User } from 'lucide-react';
 import SelectReact from '../../components/ui/SelectReact';
 import { midwife_columns } from '../../utils/columns';
+import { useAuthStore } from '../../store/AuthStore';
 
 const Midwives = () => {
+  const { user } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [formData, setFormData] = useState({
@@ -77,6 +79,15 @@ const Midwives = () => {
     });
   };
 
+  useEffect(() => {
+    if (user.role_id === 2) {
+      setFormData((prev) => ({
+        ...prev,
+        barangay_center_id: user.barangay_center_id,
+      }));
+    }
+  }, [user]);
+
   const inputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -100,7 +111,7 @@ const Midwives = () => {
         showPagination={true}
         showPerPage={true}
         showActions={true}
-        defaultPerPage={8}
+        defaultPerPage={10}
         onAdd={handleAdd}
         addButton={'Add Midwife'}
         ref={dataTableRef}
@@ -144,16 +155,19 @@ const Midwives = () => {
                 </div>
               </div>
 
-              <SelectReact
-                label='Heath Station'
-                id='barangay_id'
-                name='barangay_center_id'
-                endpoint='/api/barangay-centers'
-                placeholder='Choose a health station'
-                formData={formData}
-                setFormData={setFormData}
-                labelKey={'health_station'}
-              />
+              {user.role_id !== 2 && (
+                <SelectReact
+                  label='Heath Station'
+                  id='barangay_id'
+                  name='barangay_center_id'
+                  endpoint='/api/barangay-centers'
+                  placeholder='Choose a health station'
+                  formData={formData}
+                  setFormData={setFormData}
+                  labelKey={'health_station'}
+                  disabled={user.role_id === 2}
+                />
+              )}
               {error.barangay_center_id && (
                 <p className='error -mt-4'>{error.barangay_center_id[0]}</p>
               )}

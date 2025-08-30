@@ -1,11 +1,11 @@
 // Review Summary Component
-const ReviewSummary = ({ formData, priorities }) => (
+const ReviewSummary = ({ formData, priorities, selectedDate }) => (
   <div className='max-w-md mx-auto'>
     <div className='bg-gray-50 rounded-xl p-6 space-y-4 mb-8'>
       <div className='flex justify-between items-center'>
         <span className='font-medium text-gray-700'>Date:</span>
         <span className='text-gray-900'>
-          {formData.selectedDate?.toLocaleDateString('en-PH', {
+          {selectedDate?.toLocaleDateString('en-PH', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
@@ -16,9 +16,7 @@ const ReviewSummary = ({ formData, priorities }) => (
 
       <div className='flex justify-between items-center'>
         <span className='font-medium text-gray-700'>Time:</span>
-        <span className='text-gray-900'>
-          {formData.selectedSlot?.start} - {formData.selectedSlot?.end}
-        </span>
+        <span className='text-gray-900'>Automatic based on priority.</span>
       </div>
 
       <div className='flex justify-between items-center'>

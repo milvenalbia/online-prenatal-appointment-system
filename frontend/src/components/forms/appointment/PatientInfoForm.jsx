@@ -1,23 +1,39 @@
-import { FileText } from 'lucide-react';
+import { FileText, Hospital } from 'lucide-react';
+import SelectReact from '../../ui/SelectReact';
+import InputGroup from '../../ui/InputGroup';
 
 // Patient Information Form Component
 const PatientInfoForm = ({ formData, setFormData, priorities }) => (
   <div className='max-w-md mx-auto space-y-6'>
     <div>
-      <label className='block text-sm font-medium text-gray-700 mb-2'>
-        Pregnancy Tracking ID *
-      </label>
-      <input
-        type='text'
-        value={formData.pregnancy_tracking_id}
+      <SelectReact
+        label='Pregnancy Tracking ID'
+        id='pregnancy_tracking_id'
+        name='pregnancy_tracking_id'
+        endpoint={`/api/filter/pregnancy_trakings`}
+        placeholder='Choose a patient pregnancy form'
+        formData={formData}
+        setFormData={setFormData}
+        labelKey='fullname'
+      />
+    </div>
+
+    <div>
+      <InputGroup
+        type='number'
+        name='visit_count'
+        value={formData.visit_count}
         onChange={(e) =>
-          setFormData({
-            ...formData,
-            pregnancy_tracking_id: e.target.value,
-          })
+          setFormData((prev) => ({
+            ...prev,
+            visit_count: e.target.value,
+          }))
         }
-        className='w-full p-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all'
-        placeholder='Enter your tracking ID'
+        placeholder='Visit Count'
+        icon={<Hospital className='h-5 w-5 text-gray-400' />}
+        id='visit_count'
+        hasLabel
+        label='Visit Count'
       />
     </div>
 

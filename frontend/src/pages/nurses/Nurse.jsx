@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { User } from 'lucide-react';
 import Container from '../../components/ui/Container';
 import DataTable from '../../components/ui/Datatable';
@@ -7,6 +7,7 @@ import { useFormSubmit } from '../../utils/functions';
 import FormModal from '../../components/ui/FormModal';
 import SelectReact from '../../components/ui/SelectReact';
 import { nurse_columns } from '../../utils/columns';
+import { useAuthStore } from '../../store/AuthStore';
 
 const Nurse = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +19,7 @@ const Nurse = () => {
   });
   const [nurseId, setNurseId] = useState(0);
   const dataTableRef = useRef();
+  const { user } = useAuthStore();
 
   const { handleSubmit, isSubmitting, error, setError } = useFormSubmit();
 
@@ -76,6 +78,15 @@ const Nurse = () => {
       },
     });
   };
+
+  useEffect(() => {
+    if (user.role_id === 2) {
+      setFormData((prev) => ({
+        ...prev,
+        barangay_center_id: user.barangay_center_id,
+      }));
+    }
+  }, [user]);
 
   const inputChange = (e) => {
     const { name, value } = e.target;
@@ -144,16 +155,19 @@ const Nurse = () => {
                 </div>
               </div>
 
-              <SelectReact
-                label='Heath Station'
-                id='barangay_id'
-                name='barangay_center_id'
-                endpoint='/api/barangay-centers'
-                placeholder='Choose a health station'
-                formData={formData}
-                setFormData={setFormData}
-                labelKey={'health_station'}
-              />
+              {user.role_id !== 2 && (
+                <SelectReact
+                  label='Heath Station'
+                  id='barangay_id'
+                  name='barangay_center_id'
+                  endpoint='/api/barangay-centers'
+                  placeholder='Choose a health station'
+                  formData={formData}
+                  setFormData={setFormData}
+                  labelKey={'health_station'}
+                  disabled={user.role_id === 2}
+                />
+              )}
               {error.barangay_center_id && (
                 <p className='error -mt-4'>{error.barangay_center_id[0]}</p>
               )}

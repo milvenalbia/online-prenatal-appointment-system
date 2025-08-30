@@ -79,7 +79,10 @@ class BarangayCenterController extends Controller
      */
     public function show(BarangayCenter $barangayCenter)
     {
-        //
+
+        return [
+            'health_station' => $barangayCenter->health_station,
+        ];
     }
 
     /**

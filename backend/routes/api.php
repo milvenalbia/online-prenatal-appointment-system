@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
+    return $request->user()->load('barangay_center');
 })->middleware('auth:sanctum');
 
 
@@ -36,14 +36,15 @@ Route::middleware(['throttle:api', 'auth:sanctum'])->group(function () {
     Route::apiResource('/immunization-records', ImmuzitionRecordController::class);
     Route::apiResource('/prenatal-visits', PrenatalVisitController::class);
     Route::apiResource('/out-patients', OutPatientController::class);
+    Route::apiResource('/appointments', AppointmentController::class);
 
-    Route::prefix('appointments')->group(function () {
-        Route::get('/available-slots', [AppointmentController::class, 'getAvailableSlots']);
-        Route::get('/calendar', [AppointmentController::class, 'getCalendarData']);
-        Route::post('/', [AppointmentController::class, 'store']);
-        Route::put('/{id}', [AppointmentController::class, 'update']);
-        Route::delete('/{id}', [AppointmentController::class, 'cancel']);
-    });
+    // Route::prefix('appointments')->group(function () {
+    //     Route::get('/available-slots', [AppointmentController::class, 'getAvailableSlots']);
+    //     Route::get('/calendar', [AppointmentController::class, 'getCalendarData']);
+    //     Route::post('/', [AppointmentController::class, 'store']);
+    //     Route::put('/{id}', [AppointmentController::class, 'update']);
+    //     Route::delete('/{id}', [AppointmentController::class, 'cancel']);
+    // });
 
     Route::get('/select-address/regions', [SelectAddressController::class, 'regions']);
     Route::get('/select-address/provinces/{region}', [SelectAddressController::class, 'provinces']);

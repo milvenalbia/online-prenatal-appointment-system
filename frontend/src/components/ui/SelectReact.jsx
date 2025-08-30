@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { fetchOptions } from '../../utils/functions';
+import { useAuthStore } from '../../store/AuthStore';
 
 const SelectReact = ({
   label,
@@ -13,6 +14,9 @@ const SelectReact = ({
   valueKey = 'id',
   labelKey = 'name',
   disabled = false,
+  isClearable = true,
+  isMenuOpen = undefined,
+  isSearchable = true,
   onChange,
 }) => {
   const [options, setOptions] = useState([]);
@@ -56,8 +60,10 @@ const SelectReact = ({
         placeholder={placeholder}
         value={currentValue}
         onChange={handleChange}
-        isClearable
+        isClearable={isClearable}
         isDisabled={disabled}
+        menuIsOpen={isMenuOpen}
+        isSearchable={isSearchable}
       />
     </div>
   );

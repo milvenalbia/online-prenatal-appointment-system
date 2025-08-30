@@ -52,6 +52,11 @@ class BarangayCenter extends Model
         return $this->belongsTo(Barangay::class, 'barangay');
     }
 
+    public function user(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+
     public function getAddressAttribute()
     {
         $barangay = $this->barangays?->name ?? '';

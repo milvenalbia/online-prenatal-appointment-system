@@ -11,6 +11,7 @@ import {
   pregnancyEditFormData,
   pregnancyFormData,
 } from '../../utils/formDefault.jsx';
+import { useAuthStore } from '../../store/AuthStore.js';
 
 const FormWizard = ({ row = null }) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -19,6 +20,7 @@ const FormWizard = ({ row = null }) => {
   const [isEdit, setIsEdit] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const printRef = useRef();
+  const { user } = useAuthStore();
 
   const [pregnancyTrackingData, setPregnancyTrackingData] = useState(null);
   const [savedFormData, setSavedFormData] = useState({});
@@ -30,8 +32,8 @@ const FormWizard = ({ row = null }) => {
   const [formData, setFormData] = useState({
     age: '',
     barangay: 32991,
-    barangay_center_id: 2,
-    barangay_health_station: 'St. Paul Hospital',
+    barangay_center_id: '',
+    barangay_health_station: '',
     nurse_id: 3,
     birth_date: '2002-08-06',
     birth_place: 'Tagoloan Misamis Oriental',
@@ -145,6 +147,16 @@ const FormWizard = ({ row = null }) => {
       setSavedFormData(pregnancyEditFormData(row));
     }
   }, [row]);
+
+  useEffect(() => {
+    if (user.role_id === 2) {
+      setFormData((prev) => ({
+        ...prev,
+        barangay_center_id: user.barangay_center_id,
+        barangay_health_station: user.barangay_center.health_station,
+      }));
+    }
+  }, [user]);
 
   const inputChange = (e, phoneNumber = null) => {
     const { name, value } = e.target;

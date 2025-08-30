@@ -9,6 +9,7 @@ use App\Models\Patient;
 use App\Models\PregnancyTracking;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PregnancyTrackingController extends Controller
@@ -27,14 +28,16 @@ class PregnancyTrackingController extends Controller
 
         // Optional: whitelist sortable columns to prevent SQL injection
         $sortableColumns = [
-            'fullname',
-            'age',
-            'created_at',
+            'fullname' => 'fullname',
+            'age' => 'age',
+            'created_at' => 'created_at',
         ];
 
         if (!array_key_exists($sortBy, $sortableColumns)) {
             $sortBy = 'created_at';
         }
+
+        $user = Auth::user();
 
         $pregnancy_trackings = PregnancyTracking::with([
             'patient',
@@ -46,6 +49,9 @@ class PregnancyTrackingController extends Controller
             'risk_codes',
             'barangay_center'
         ])
+            ->when($user->role_id === 2, function ($query) use ($user) {
+                $query->where('barangay_center_id', $user->barangay_center_id);
+            })
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('fullname', 'LIKE', "%{$search}%");
@@ -58,7 +64,7 @@ class PregnancyTrackingController extends Controller
             ->when($dateTo, function ($query, $dateTo) {
                 $query->whereDate('created_at', '<=', $dateTo);
             })
-            ->orderBy($sortBy, $sortDir)
+            ->orderBy($sortableColumns[$sortBy], $sortDir)
             ->paginate($perPage);
 
 

@@ -84,7 +84,6 @@ const HealthInformationStep = ({
                 const day = String(date.getDate()).padStart(2, '0');
                 const edc = `${year}-${month}-${day}`;
 
-                console.log('lmp: ', lmp, 'edc: ', edc);
                 return {
                   ...prev,
                   lmp,

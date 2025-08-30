@@ -14,6 +14,20 @@ class AppointmentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'pregnancy_tracking_id' => $this->pregnancy_tracking_id,
+            'fullname' => $this->pregnancy_tracking->fullname,
+            'appointment_date' => $this->appointment_date,
+            'start_time' => $this->start_time,
+            'end_time' => $this->end_time,
+            'priority' => $this->priority,
+            'status' => $this->status,
+            'visit_count' => $this->visit_count,
+            'notes' => $this->notes,
+            'contact' => $this->pregnancy_tracking->patient->contact ?? '',
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
     }
 }

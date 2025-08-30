@@ -57,6 +57,6 @@ class User extends Authenticatable
 
     public function barangay_center(): BelongsTo
     {
-        return $this->belongsTo(BarangayCenter::class);
+        return $this->belongsTo(BarangayCenter::class, 'barangay_center_id');
     }
 }

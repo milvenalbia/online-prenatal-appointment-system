@@ -4,7 +4,7 @@ import Logo from '../assets/st-paul-logo.webp';
 import Tooltip from './Tooltip';
 import { useAuthStore } from '../store/AuthStore';
 
-const Sidebar = ({ toggle, setToggle, mainLinks }) => {
+const Sidebar = ({ toggle, setToggle, mainLinks, user }) => {
   const { logout } = useAuthStore();
 
   return (
@@ -58,25 +58,27 @@ const Sidebar = ({ toggle, setToggle, mainLinks }) => {
             <li>
               <p className='text-sm font-semibold text-gray-500'>Navigation</p>
             </li>
-            {mainLinks.map((link, index) => (
-              <li key={index} className='flex items-center'>
-                <Tooltip title={link.name} toggle={toggle}>
-                  <NavLink
-                    to={link.link}
-                    className={({ isActive }) =>
-                      `inline-flex items-center gap-3 py-3 px-4 rounded-md transition-all group ${
-                        isActive
-                          ? 'bg-purple-100 text-purple-950 shadow-md'
-                          : 'bg-white hover:bg-purple-100 hover:text-purple-950 hover:shadow'
-                      } ${toggle ? 'w-14 justify-center' : 'w-full'}`
-                    }
-                  >
-                    <span className='group-hover:text-purple-950 flex-shrink-0'>
-                      {link.icon}
-                    </span>
+            {mainLinks
+              .filter((link) => link.show)
+              .map((link, index) => (
+                <li key={index} className='flex items-center'>
+                  <Tooltip title={link.name} toggle={toggle}>
+                    <NavLink
+                      to={link.link}
+                      className={({ isActive }) =>
+                        `inline-flex items-center gap-3 py-3 px-4 rounded-md transition-all group ${
+                          isActive
+                            ? 'bg-purple-100 text-purple-950 shadow-md'
+                            : 'bg-white hover:bg-purple-100 hover:text-purple-950 hover:shadow'
+                        } ${toggle ? 'w-14 justify-center' : 'w-full'}`
+                      }
+                    >
+                      <span className='group-hover:text-purple-950 flex-shrink-0'>
+                        {link.icon}
+                      </span>
 
-                    <span
-                      className={`
+                      <span
+                        className={`
                     font-semibold tracking-wide group-hover:text-purple-950
                     transition-all duration-300 text-nowrap ${
                       toggle
@@ -84,55 +86,57 @@ const Sidebar = ({ toggle, setToggle, mainLinks }) => {
                         : 'opacity-100 whitespace-nowrap'
                     }
                   `}
-                    >
-                      {link.name}
-                    </span>
-                  </NavLink>
-                </Tooltip>
-              </li>
-            ))}
+                      >
+                        {link.name}
+                      </span>
+                    </NavLink>
+                  </Tooltip>
+                </li>
+              ))}
           </ul>
         </div>
 
         {/* Fixed Bottom Section - User Management and Logout */}
         <div className='flex-shrink-0 mt-4 flex flex-col gap-4 border-t border-gray-400 pt-4'>
-          <NavLink
-            to={'users'}
-            className={({ isActive }) =>
-              `inline-flex items-center gap-3 py-3 px-4 rounded-md transition-all group relative ${
-                isActive
-                  ? 'bg-purple-100 text-purple-950 shadow-md'
-                  : 'bg-white hover:bg-purple-100 hover:text-purple-950 hover:shadow'
-              } ${toggle ? 'w-14 justify-center' : 'w-full'}`
-            }
-          >
-            <span className='group-hover:text-purple-950 flex-shrink-0'>
-              <UserRound />
-            </span>
-
-            <span
-              className={`
-                font-semibold tracking-wide group-hover:text-purple-950
-                transition-all duration-300 text-nowrap ${
-                  toggle
-                    ? 'opacity-0 w-0 overflow-hidden'
-                    : 'opacity-100 whitespace-nowrap'
-                }
-              `}
+          {user.role_id === 1 && (
+            <NavLink
+              to={'users'}
+              className={({ isActive }) =>
+                `inline-flex items-center gap-3 py-3 px-4 rounded-md transition-all group relative ${
+                  isActive
+                    ? 'bg-purple-100 text-purple-950 shadow-md'
+                    : 'bg-white hover:bg-purple-100 hover:text-purple-950 hover:shadow'
+                } ${toggle ? 'w-14 justify-center' : 'w-full'}`
+              }
             >
-              User Management
-            </span>
+              <span className='group-hover:text-purple-950 flex-shrink-0'>
+                <UserRound />
+              </span>
 
-            {/* Inline tooltip */}
-            {toggle && (
-              <div className='absolute left-[calc(100%+16px)] top-1/2 -translate-y-1/2 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 z-[60]'>
-                <div className='bg-purple-500 text-white text-sm px-3 py-2 rounded-md whitespace-nowrap shadow-lg'>
-                  User Management
-                  <div className='absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-purple-500' />
+              <span
+                className={`
+              font-semibold tracking-wide group-hover:text-purple-950
+              transition-all duration-300 text-nowrap ${
+                toggle
+                  ? 'opacity-0 w-0 overflow-hidden'
+                  : 'opacity-100 whitespace-nowrap'
+              }
+            `}
+              >
+                User Management
+              </span>
+
+              {/* Inline tooltip */}
+              {toggle && (
+                <div className='absolute left-[calc(100%+16px)] top-1/2 -translate-y-1/2 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 z-[60]'>
+                  <div className='bg-purple-500 text-white text-sm px-3 py-2 rounded-md whitespace-nowrap shadow-lg'>
+                    User Management
+                    <div className='absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-purple-500' />
+                  </div>
                 </div>
-              </div>
-            )}
-          </NavLink>
+              )}
+            </NavLink>
+          )}
 
           <button
             onClick={logout}

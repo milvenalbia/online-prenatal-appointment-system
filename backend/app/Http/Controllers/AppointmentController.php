@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
 use App\Services\AppointmentSchedulingService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class AppointmentController extends Controller
 {
@@ -16,6 +18,57 @@ class AppointmentController extends Controller
     public function __construct(AppointmentSchedulingService $schedulingService)
     {
         $this->schedulingService = $schedulingService;
+    }
+
+    public function index(Request $request)
+    {
+        $search     = $request->input('search');
+        $dateFrom   = $request->input('date_from');
+        $dateTo     = $request->input('date_to');
+        $sortBy     = $request->input('sort_by', 'created_at');
+        $sortDir    = $request->input('sort_dir', 'desc');
+        $perPage    = $request->input('per_page', 10);
+
+        // Optional: whitelist sortable columns to prevent SQL injection
+        $sortableColumns = [
+            'fullname' => 'pregnancy_trackings.fullname',
+            'appointment_date' => 'appointments.appointment_date',
+            'created_at' => 'appointments.created_at',
+        ];
+
+        if (!array_key_exists($sortBy, $sortableColumns)) {
+            $sortBy = 'created_at';
+        }
+
+        $appointments = Appointment::select('appointments.*')
+            ->join('pregnancy_trackings', 'appointments.pregnancy_tracking_id', '=', 'pregnancy_trackings.id')
+            ->with([
+                'pregnancy_tracking',
+                'pregnancy_tracking.patient',
+            ])
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('pregnancy_trackings.fullname', 'LIKE', "%{$search}%");
+                });
+            })
+            ->when($dateFrom, function ($query, $dateFrom) {
+                $query->whereDate('appointments.created_at', '>=', $dateFrom);
+            })
+            ->when($dateTo, function ($query, $dateTo) {
+                $query->whereDate('appointments.created_at', '<=', $dateTo);
+            })
+            ->orderBy($sortableColumns[$sortBy], $sortDir)
+            ->paginate($perPage);
+
+        return [
+            'data' => AppointmentResource::collection($appointments),
+            'meta' => [
+                'total' => $appointments->total(),
+                'per_page' => $appointments->perPage(),
+                'current_page' => $appointments->currentPage(),
+                'last_page' => $appointments->lastPage(),
+            ],
+        ];
     }
 
     /**
@@ -47,7 +100,7 @@ class AppointmentController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'pregnancy_tracking_id' => 'required|string|max:255',
+            'pregnancy_tracking_id' => 'required|exists:pregnancy_trackings,id',
             'appointment_date' => 'required|date|after:today',
             'priority' => 'required|in:high,medium,low',
             'visit_count' => 'integer|min:1',
@@ -120,18 +173,25 @@ class AppointmentController extends Controller
     public function update(Request $request, $id): JsonResponse
     {
         $request->validate([
-            'priority' => 'sometimes|in:high,medium,low',
-            'notes' => 'sometimes|nullable|string|max:1000'
+            'pregnancy_tracking_id' => 'required|exists:pregnancy_trackings,id',
+            'appointment_date' => 'required|date|after:today',
+            'priority' => 'required|in:high,medium,low',
+            'visit_count' => 'integer|min:1',
+            'notes' => 'nullable|string|max:1000'
         ]);
 
         try {
             $appointment = Appointment::findOrFail($id);
 
             $oldPriority = $appointment->priority;
-            $appointment->update($request->only(['priority', 'notes']));
+            $oldDate = $appointment->appointment_date;
+            $appointment->update($request->only(['priority', 'notes', 'appointment_date', 'pregnancy_tracking_id', 'visit_count']));
 
             // If priority changed, reorganize appointments
-            if ($request->has('priority') && $oldPriority !== $request->priority) {
+            if (($request->has('priority') && $oldPriority !== $request->priority) || ($request->has('appointment_date') && $oldDate !== $request->appointment_date)) {
+                $updated_priority_score = $this->schedulingService->getPriorityScore($request->visit_count, $request->priority);
+
+                $appointment->update(['priority_score' => $updated_priority_score]);
                 $this->schedulingService->reorganizeAppointments($appointment->appointment_date);
                 $appointment = $appointment->fresh();
             }

@@ -19,8 +19,25 @@ import HealthStations from './pages/health_station/HealthStations';
 import Midwives from './pages/midwives/Midwives';
 import BarangayWorkers from './pages/barangay_workers/BarangayWorkers';
 import Nurse from './pages/nurses/Nurse';
+import RoleBasedRoute from './protected_route/RolebasedRoute';
 
 function App() {
+  const permissions = {
+    dashboard: [1, 2, 3],
+    appointments: [1, 3],
+    create_appointment: [1, 3],
+    pregnancy_trackings: [1, 2, 3],
+    create_pregnancy_trackings: [1, 2],
+    outPatients: [1, 3],
+    prenatal_visits: [1, 3],
+    immunization_records: [1, 3],
+    midwives: [1, 2],
+    nurses: [1, 2],
+    health_stations: [1],
+    reports: [1, 3],
+    user_management: [1],
+  };
+
   return (
     <BrowserRouter>
       <Routes>
@@ -43,30 +60,128 @@ function App() {
             </AdminOnlyRoute>
           }
         >
-          <Route index element={<Dashboard />} />
-          <Route path='dashboard' element={<Dashboard />} />
-          <Route path='appointments' element={<Appointments />} />
-          <Route path='appointments/create' element={<CreateAppointment />} />
+          <Route
+            index
+            element={
+              <RoleBasedRoute allowedRoles={permissions.dashboard}>
+                <Dashboard />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='dashboard'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.dashboard}>
+                <Dashboard />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='appointments'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.appointments}>
+                <Appointments />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='appointments/create'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.create_appointment}>
+                <CreateAppointment />
+              </RoleBasedRoute>
+            }
+          />
           <Route
             path='pregnancy-trackings'
-            element={<PregnancyTrackingRecords />}
+            element={
+              <RoleBasedRoute allowedRoles={permissions.pregnancy_trackings}>
+                <PregnancyTrackingRecords />
+              </RoleBasedRoute>
+            }
           />
           <Route
             path='pregnancy-trackings/create'
-            element={<CreatePregnancyTracking />}
+            element={
+              <RoleBasedRoute
+                allowedRoles={permissions.create_pregnancy_trackings}
+              >
+                <CreatePregnancyTracking />
+              </RoleBasedRoute>
+            }
           />
-          <Route path='out-patients' element={<OutPatients />} />
-          <Route path='prenatal-visits' element={<PrenatalVisits />} />
+          <Route
+            path='out-patients'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.outPatients}>
+                <OutPatients />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='prenatal-visits'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.prenatal_visits}>
+                <PrenatalVisits />
+              </RoleBasedRoute>
+            }
+          />
           <Route
             path='immunization-records'
-            element={<ImmunizationRecords />}
+            element={
+              <RoleBasedRoute allowedRoles={permissions.immunization_records}>
+                <ImmunizationRecords />
+              </RoleBasedRoute>
+            }
           />
-          <Route path='midwives' element={<Midwives />} />
-          <Route path='health-stations' element={<HealthStations />} />
-          <Route path='barangay-workers' element={<BarangayWorkers />} />
-          <Route path='nurses' element={<Nurse />} />
-          <Route path='reports' element={<Reports />} />
-          <Route path='users' element={<UserRecords />} />
+          <Route
+            path='midwives'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.midwives}>
+                <Midwives />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='health-stations'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.health_stations}>
+                <HealthStations />
+              </RoleBasedRoute>
+            }
+          />
+          {/* <Route
+            path='barangay-workers'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.}>
+                <Appointments />
+              </RoleBasedRoute>
+            }
+          /> */}
+          <Route
+            path='nurses'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.nurses}>
+                <Nurse />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='reports'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.reports}>
+                <Reports />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='users'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.user_management}>
+                <UserRecords />
+              </RoleBasedRoute>
+            }
+          />
         </Route>
 
         <Route path='*' element={<NotFound />} />

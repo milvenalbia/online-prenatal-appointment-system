@@ -54,34 +54,60 @@ class AppointmentSchedulingService
         })->values()->toArray();
     }
 
+    public function getPriorityScore($visit_count, $priority)
+    {
+        // Visit count priority (higher visits = higher priority)
+        $visitPriority = $visit_count * 1000;
+
+        // Risk priority
+        $riskValues = ['high' => 3, 'medium' => 2, 'low' => 1];
+        $riskPriority = ($riskValues[$priority] ?? 1) * 100;
+
+        // Time priority (earlier bookings get slight priority for ties)
+        $timePriority = - (now()->timestamp / 1000000);
+
+        return $visitPriority + $riskPriority + $timePriority;
+    }
+
     /**
      * Create appointment with priority-based scheduling
      */
     public function createAppointment($data)
     {
         $date = $data['appointment_date'];
+        $visit_count = $data['visit_count'];
+        $priority = $data['priority'];
 
-        // Check if date is fully booked
-        $currentAppointments = Appointment::forDate($date)->scheduled()->count();
-        if ($currentAppointments >= self::MAX_SLOTS_PER_DAY) {
-            throw new Exception('This date is fully booked. Please select another date.');
+        // Check if date is fully booked | Only check if visit count is = 1
+        if ($visit_count === 1) {
+            $currentAppointments = Appointment::forDate($date)->scheduled()->count();
+            if ($currentAppointments >= self::MAX_SLOTS_PER_DAY) {
+                throw new Exception('This date is fully booked. Please select another date.');
+            }
         }
 
-        // Create new appointment
+        // Create new appointment with temporary time slot (will be reassigned based on priority)
+        $timeSlots = $this->generateTimeSlots();
+        $firstAvailableSlot = $timeSlots[0]; // Temporary assignment
+        $priority_score = $this->getPriorityScore($visit_count, $priority);
+
         $newAppointment = new Appointment([
             'pregnancy_tracking_id' => $data['pregnancy_tracking_id'],
             'appointment_date' => $date,
+            'start_time' => $firstAvailableSlot['start_time'],
+            'end_time' => $firstAvailableSlot['end_time'],
             'priority' => $data['priority'],
             'visit_count' => $data['visit_count'],
             'notes' => $data['notes'] ?? null,
             'booking_timestamp' => now(),
-            'status' => 'scheduled'
+            'status' => 'scheduled',
+            'priority_score' => $priority_score,
         ]);
 
-        // Calculate priority score
+        // Save the appointment first
         $newAppointment->save();
 
-        // Reorganize all appointments for this date
+        // Now reorganize all appointments for this date based on priority
         $this->reorganizeAppointments($date);
 
         return $newAppointment->fresh();
@@ -95,10 +121,8 @@ class AppointmentSchedulingService
         // Get all appointments for the date
         $appointments = Appointment::forDate($date)
             ->scheduled()
-            ->get()
-            ->sortByDesc(function ($appointment) {
-                return $appointment->priority_score;
-            });
+            ->orderByDesc('priority_score')
+            ->get();
 
         // Generate time slots
         $timeSlots = $this->generateTimeSlots();

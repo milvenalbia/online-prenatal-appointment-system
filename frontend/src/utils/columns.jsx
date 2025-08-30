@@ -23,14 +23,15 @@ export const pregnancy_tracking_columns = [
   {
     key: 'contact',
     title: 'Contact',
-    sortable: true,
+    sortable: false,
     width: 'w-[10%]',
-  },
-  {
-    key: 'contact',
-    title: 'Contact',
-    sortable: true,
-    width: 'w-[10%]',
+    render: (value) => {
+      if (!value) return '';
+      if (value.startsWith('63')) {
+        return '0' + value.slice(2);
+      }
+      return value;
+    },
   },
   {
     key: 'patient_short_address',
@@ -898,7 +899,7 @@ export const appointment_columns = [
   },
   {
     key: 'fullname',
-    title: 'Full Name',
+    title: 'Fullname',
     sortable: true,
     width: 'w-[10%]',
   },
@@ -907,36 +908,100 @@ export const appointment_columns = [
     title: 'Contact',
     sortable: false,
     width: 'w-[10%]',
+    render: (value) => {
+      if (!value) return '';
+      if (value.startsWith('63')) {
+        return '0' + value.slice(2);
+      }
+      return value;
+    },
   },
   {
-    key: 'date',
+    key: 'appointment_date',
     title: 'Date',
     sortable: false,
     width: 'w-[10%]',
+    render: (value) => new Date(value).toLocaleDateString(),
   },
   {
     key: 'start_time',
     title: 'Start Time',
     sortable: false,
     width: 'w-[10%]',
+    render: (value) =>
+      new Date(value).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
   },
   {
     key: 'end_time',
     title: 'End Time',
     sortable: false,
     width: 'w-[10%]',
+    render: (value) =>
+      new Date(value).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
   },
   {
     key: 'priority',
     title: 'Priority',
     sortable: false,
     width: 'w-[10%]',
+    render: (value) => {
+      let colorClass = '';
+      switch (value) {
+        case 'high':
+          colorClass = 'bg-red-100 text-red-800';
+          break;
+        case 'medium':
+          colorClass = 'bg-yellow-100 text-yellow-800';
+          break;
+        case 'low':
+          colorClass = 'bg-green-100 text-green-800';
+          break;
+        default:
+          colorClass = 'bg-gray-100 text-gray-800';
+      }
+      return (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold ${colorClass}`}
+        >
+          {value}
+        </span>
+      );
+    },
   },
   {
     key: 'status',
     title: 'Status',
     sortable: false,
     width: 'w-[10%]',
+    render: (value) => {
+      let colorClass = '';
+      switch (value) {
+        case 'completed':
+          colorClass = 'bg-green-100 text-green-800';
+          break;
+        case 'scheduled':
+          colorClass = 'bg-blue-100 text-blue-800';
+          break;
+        case 'cancelled':
+          colorClass = 'bg-red-100 text-red-800';
+          break;
+        default:
+          colorClass = 'bg-gray-100 text-gray-800';
+      }
+      return (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold ${colorClass}`}
+        >
+          {value}
+        </span>
+      );
+    },
   },
   {
     key: 'created_at',
@@ -950,7 +1015,15 @@ export const appointment_columns = [
     hidden: true,
   },
   {
-    key: 'pregnancy_id',
+    key: 'pregnancy_tracking_id',
+    hidden: true,
+  },
+  {
+    key: 'visit_count',
+    hidden: true,
+  },
+  {
+    key: 'notes',
     hidden: true,
   },
 ];

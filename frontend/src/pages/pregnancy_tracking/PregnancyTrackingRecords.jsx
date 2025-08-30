@@ -5,10 +5,12 @@ import DataTable from '../../components/ui/Datatable';
 import { pregnancy_tracking_columns } from '../../utils/columns';
 import { pdf } from '@react-pdf/renderer';
 import PregnancyTrackingPDF from '../../components/interfaces/form-wizard/pdf/PregnancyTrackingPDF';
+import { useAuthStore } from '../../store/AuthStore';
 
 const PregnancyTrackingRecords = () => {
   const navigate = useNavigate();
   const dataTableRef = useRef();
+  const { user } = useAuthStore();
 
   const handleEdit = (row) => {
     navigate('create', { state: { row } });
@@ -26,12 +28,12 @@ const PregnancyTrackingRecords = () => {
     const url = URL.createObjectURL(blob);
 
     // ✅ Trigger browser download
-    // const link = document.createElement('a');
-    // link.href = url;
-    // link.download = 'pregnancy-tracking.pdf'; // filename
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'pregnancy-tracking.pdf'; // filename
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
     window.open(url, '_blank');
 
@@ -53,10 +55,10 @@ const PregnancyTrackingRecords = () => {
         showPagination={true}
         showPerPage={true}
         showActions={true}
-        defaultPerPage={8}
-        onAdd={handleAdd}
+        defaultPerPage={10}
+        onAdd={user.role_id === 3 ? '' : handleAdd}
         onDownload={handelDownload}
-        addButton={'Create Pregnancy Tracking'}
+        addButton={user.role_id === 3 ? '' : 'Create Pregnancy Tracking'}
         ref={dataTableRef}
       />
     </Container>
