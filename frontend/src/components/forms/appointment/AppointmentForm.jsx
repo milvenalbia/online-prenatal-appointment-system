@@ -26,6 +26,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
     priority: 'medium',
     visit_count: '',
     note: '',
+    fullname: '',
   });
 
   const steps = [
@@ -198,6 +199,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
       priority: 'medium',
       visit_count: '',
       note: '',
+      fullname: '',
     });
     setCurrentStep(1);
   };
@@ -217,6 +219,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
       status: row.status,
       visit_count: row.visit_count,
       note: row.notes ?? '',
+      fullname: row.fullname ?? '',
     });
     if (type !== 'reschedule') {
       setCurrentStep(2);

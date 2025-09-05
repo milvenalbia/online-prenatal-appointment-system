@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PrenatalVisitResource;
+use App\Models\Appointment;
+use App\Models\PregnancyTracking;
 use App\Models\PrenatalVisit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,10 +27,10 @@ class PrenatalVisitController extends Controller
             'fullname' => 'patients.firstname',
             'date' => 'preantal_visits.date',
             'age' => 'patients.age',
-            'created_at' => 'prenatal_visits.create_at',
+            'created_at' => 'prenatal_visits.created_at',
         ];
 
-        $sortBy = $sortableColumns[$request->input('sort_by')] ?? 'prenatal_visits.create_at';
+        $sortBy = $sortableColumns[$request->input('sort_by')] ?? 'prenatal_visits.created_at';
 
         $prenatal_visits = PrenatalVisit::select('prenatal_visits.*')
             ->join('patients', 'patients.id', '=', 'prenatal_visits.patient_id')
@@ -40,15 +42,15 @@ class PrenatalVisitController extends Controller
             ])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where(DB::raw("CONCAT('firstname', ,' ', 'lastname')"), 'LIKE', "%{$search}%");
+                    $q->where(DB::raw("CONCAT('patients.firstname', ,' ', 'patients.lastname')"), 'LIKE', "%{$search}%");
                     // ->orWhere('pregnancy_tracking_number', 'LIKE', "%{$search}%");
                 });
             })
             ->when($dateFrom, function ($query, $dateFrom) {
-                $query->whereDate('created_at', '>=', $dateFrom);
+                $query->whereDate('prenatal_visits.created_at', '>=', $dateFrom);
             })
             ->when($dateTo, function ($query, $dateTo) {
-                $query->whereDate('created_at', '<=', $dateTo);
+                $query->whereDate('prenatal_visits.created_at', '<=', $dateTo);
             })
             ->orderBy($sortBy, $sortDir)
             ->paginate($perPage);
@@ -70,7 +72,25 @@ class PrenatalVisitController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $fields = $request->validate([
+            'patient_id'  => 'required|exists:patients,id',
+            'date'        => 'required|date',
+            'weight'      => 'required',
+            'bp'          => 'required',
+            'temp'        => 'required',
+            'rr'          => 'required',
+            'pr'          => 'required',
+            'two_sat'     => 'required',
+            'fht'         => 'required',
+            'fh'          => 'required',
+            'aog'         => 'required',
+        ]);
+
+        PrenatalVisit::create($fields);
+
+        return [
+            'message' => 'Prenatal visit created successfully!',
+        ];
     }
 
     /**
@@ -84,9 +104,27 @@ class PrenatalVisitController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PrenatalVisit $prenatalVisit)
+    public function update(Request $request, PrenatalVisit $prenatal_visit)
     {
-        //
+        $fields = $request->validate([
+            'patient_id'  => 'required|exists:patients,id',
+            'date'        => 'required|date',
+            'weight'      => 'required',
+            'bp'          => 'required',
+            'temp'        => 'required',
+            'rr'          => 'required',
+            'pr'          => 'required',
+            'two_sat'     => 'required',
+            'fht'         => 'required',
+            'fh'          => 'required',
+            'aog'         => 'required',
+        ]);
+
+        $prenatal_visit->update($fields);
+
+        return [
+            'message' => 'Prenatal visit updated successfully!',
+        ];
     }
 
     /**

@@ -71,7 +71,28 @@ class OutPatientController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $fields = $request->validate([
+            'patient_id'  => 'required|exists:patients,id',
+            'date'        => 'required|date',
+            'time'        => 'required',
+            'weight'      => 'required',
+            'height'      => 'required',
+            'bp'          => 'required',
+            'temp'        => 'required',
+            'rr'          => 'required',
+            'pr'          => 'required',
+            'two_sat'     => 'required',
+            'fht'         => 'required',
+            'fh'          => 'required',
+            'aog'         => 'required',
+        ]);
+
+        OutPatient::create($fields);
+
+        return [
+            'message' => 'Prenatal visit created successfully!',
+        ];
     }
 
     /**

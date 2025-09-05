@@ -5,7 +5,7 @@ import DataTable from '../../components/ui/Datatable';
 import { pregnancy_tracking_columns } from '../../utils/columns';
 import { pdf } from '@react-pdf/renderer';
 import PregnancyTrackingPDF from '../../components/interfaces/form-wizard/pdf/PregnancyTrackingPDF';
-import { useAuthStore } from '../../store/AuthStore';
+import { useAuthStore } from '../../store/AuthStore.js';
 
 const PregnancyTrackingRecords = () => {
   const navigate = useNavigate();
@@ -58,7 +58,10 @@ const PregnancyTrackingRecords = () => {
         defaultPerPage={10}
         onAdd={user.role_id === 3 ? '' : handleAdd}
         onDownload={handelDownload}
-        addButton={user.role_id === 3 ? '' : 'Create Pregnancy Tracking'}
+        addButton={user.role_id !== 2 ? '' : 'Create Pregnancy Tracking'}
+        hasSortByCategory
+        hasSortByStatus
+        hasAdvanceFilter
         ref={dataTableRef}
       />
     </Container>

@@ -42,6 +42,8 @@ class PrenatalVisitResource extends JsonResource
             'fht' => $this->fht,
             'fh' => $this->fh,
             'aog' => $this->aog,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

@@ -19,7 +19,13 @@ const DateInput = ({
   const [isOpen, setIsOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('days'); // 'days', 'months', 'years'
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: 0,
+    left: 0,
+    right: 'auto',
+  });
   const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
 
   // Handle both single date and date range
   const selectedDate =
@@ -33,6 +39,59 @@ const DateInput = ({
   const selectedStartDate =
     selectsRange && startDate ? new Date(startDate) : null;
   const selectedEndDate = selectsRange && endDate ? new Date(endDate) : null;
+
+  // Calculate optimal dropdown position
+  const calculateDropdownPosition = () => {
+    if (!inputRef.current) return;
+
+    const inputRect = inputRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    const dropdownHeight = 400; // Approximate dropdown height
+    const dropdownWidth = 320; // 80 * 4 = 320px (w-80)
+
+    let top = inputRect.bottom + window.scrollY + 4; // 4px gap
+    let left = inputRect.left + window.scrollX;
+    let right = 'auto';
+
+    // Check if dropdown would go below viewport
+    if (inputRect.bottom + dropdownHeight > viewportHeight) {
+      // Position above input instead
+      top = inputRect.top + window.scrollY - dropdownHeight - 4;
+    }
+
+    // Check if dropdown would go beyond right edge
+    if (inputRect.left + dropdownWidth > viewportWidth) {
+      // Align to right edge of input
+      left = 'auto';
+      right = viewportWidth - inputRect.right - window.scrollX;
+    }
+
+    // Check if dropdown would go beyond left edge
+    if (left < 0) {
+      left = 8; // 8px margin from edge
+    }
+
+    setDropdownPosition({ top, left, right });
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      calculateDropdownPosition();
+
+      // Recalculate on window resize or scroll
+      const handleResize = () => calculateDropdownPosition();
+      const handleScroll = () => calculateDropdownPosition();
+
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('scroll', handleScroll, true);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('scroll', handleScroll, true);
+      };
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -196,14 +255,14 @@ const DateInput = ({
   };
 
   return (
-    <div className='flex flex-col gap-2 mt-4 w-full'>
+    <div className='relative flex flex-col gap-2 mt-4 w-full'>
       {hasLabel && (
         <label className='text-gray-700' htmlFor={id}>
           {label}
         </label>
       )}
-      <div className='relative' ref={dropdownRef}>
-        <div className='relative'>
+      <div className='relative'>
+        <div className='relative' ref={inputRef}>
           <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
             <Calendar className='text-gray-400 w-5 h-5' />
           </div>
@@ -222,7 +281,21 @@ const DateInput = ({
         </div>
 
         {isOpen && (
-          <div className='absolute z-50 mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg'>
+          <div
+            ref={dropdownRef}
+            className='fixed z-[9999] w-80 bg-white border border-gray-200 rounded-lg shadow-lg'
+            style={{
+              top: `${dropdownPosition.top}px`,
+              left:
+                dropdownPosition.left !== 'auto'
+                  ? `${dropdownPosition.left}px`
+                  : 'auto',
+              right:
+                dropdownPosition.right !== 'auto'
+                  ? `${dropdownPosition.right}px`
+                  : 'auto',
+            }}
+          >
             <div className='p-4'>
               {/* Header */}
               <div className='flex items-center justify-between mb-4'>

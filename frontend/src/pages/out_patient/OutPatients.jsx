@@ -7,6 +7,7 @@ import InputGroup from '../../components/ui/InputGroup';
 import { User } from 'lucide-react';
 import SelectReact from '../../components/ui/SelectReact';
 import { useFormSubmit } from '../../utils/functions';
+import { useAuthStore } from '../../store/AuthStore';
 const OutPatients = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -17,7 +18,7 @@ const OutPatients = () => {
   });
   const [outPatientId, setOutPatientId] = useState(0);
   const dataTableRef = useRef();
-
+  const { user } = useAuthStore();
   const { handleSubmit, isSubmitting, error, setError } = useFormSubmit();
 
   const closeModal = () => {
@@ -103,7 +104,7 @@ const OutPatients = () => {
         showActions={true}
         defaultPerPage={10}
         onAdd={handleAdd}
-        addButton={'Create Out Patient'}
+        addButton={user.role_id !== 3 ? '' : 'Create Out Patient'}
         ref={dataTableRef}
       />
       {isOpen && (

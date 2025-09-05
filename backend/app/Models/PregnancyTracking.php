@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PregnancyTracking extends Model
 {
@@ -34,8 +35,19 @@ class PregnancyTracking extends Model
         'phic',
         'barangay_health_station',
         'referral_unit',
+        'status',
         'isDone',
     ];
+
+    public function latestAppointment()
+    {
+        return $this->hasOne(Appointment::class)->latestOfMany();
+    }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
 
     public function patient(): BelongsTo
     {
@@ -65,5 +77,10 @@ class PregnancyTracking extends Model
     public function risk_codes(): HasMany
     {
         return $this->hasMany(RiskCode::class);
+    }
+
+    public function sms_log(): HasMany
+    {
+        return $this->hasMany(SmsLog::class);
     }
 }

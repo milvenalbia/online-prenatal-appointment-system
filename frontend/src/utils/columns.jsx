@@ -40,18 +40,52 @@ export const pregnancy_tracking_columns = [
     width: 'w-[15%]',
   },
   {
-    key: 'bemoc',
-    title: 'BEMOC',
+    key: 'health_station',
+    title: 'Health Station',
     sortable: false,
-    width: 'w-[15%]',
+    width: 'w-[20%]',
   },
   {
-    key: 'cemoc',
-    title: 'CEMOC',
+    key: 'pregnancy_status',
+    title: 'Status',
     sortable: false,
-    width: 'w-[15%]',
+    width: 'w-[10%]',
+    render: (value) => {
+      let colorClass = '';
+      let status = '';
+      switch (value) {
+        case 'completed':
+          colorClass = 'bg-green-100 text-green-800';
+          status = 'Completed';
+          break;
+        case 'first_trimester':
+          colorClass = 'bg-blue-100 text-blue-800';
+          status = '1st Trimester';
+          break;
+        case 'second_trimester':
+          colorClass = 'bg-teal-100 text-teal-800';
+          status = '2nd Trimester';
+          break;
+        case 'third_trimester':
+          colorClass = 'bg-purple-100 text-purple-800';
+          status = '3rd Trimester';
+          break;
+        case 'fourth_trimester':
+          colorClass = 'bg-pink-100 text-pink-800';
+          status = '4th Trimester';
+          break;
+        default:
+          colorClass = 'bg-gray-100 text-gray-800';
+      }
+      return (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold ${colorClass}`}
+        >
+          {status}
+        </span>
+      );
+    },
   },
-
   {
     key: 'created_at',
     title: 'Created',
@@ -62,6 +96,14 @@ export const pregnancy_tracking_columns = [
 
   {
     key: 'id',
+    hidden: true,
+  },
+  {
+    key: 'bemoc',
+    hidden: true,
+  },
+  {
+    key: 'cemoc',
     hidden: true,
   },
   {
@@ -182,10 +224,6 @@ export const pregnancy_tracking_columns = [
   },
   {
     key: 'midwife_name',
-    hidden: true,
-  },
-  {
-    key: 'health_station',
     hidden: true,
   },
   {
@@ -473,7 +511,7 @@ export const prenatal_visit_column = [
     width: 'w-[10%]',
   },
   {
-    key: 'Weight',
+    key: 'weight',
     title: 'Weight',
     sortable: false,
     width: 'w-[5%]',
@@ -901,7 +939,7 @@ export const appointment_columns = [
     key: 'fullname',
     title: 'Fullname',
     sortable: true,
-    width: 'w-[10%]',
+    width: 'w-[12%]',
   },
   {
     key: 'contact',
@@ -923,28 +961,7 @@ export const appointment_columns = [
     width: 'w-[10%]',
     render: (value) => new Date(value).toLocaleDateString(),
   },
-  {
-    key: 'start_time',
-    title: 'Start Time',
-    sortable: false,
-    width: 'w-[10%]',
-    render: (value) =>
-      new Date(value).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-  },
-  {
-    key: 'end_time',
-    title: 'End Time',
-    sortable: false,
-    width: 'w-[10%]',
-    render: (value) =>
-      new Date(value).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-  },
+
   {
     key: 'priority',
     title: 'Priority',
@@ -967,7 +984,7 @@ export const appointment_columns = [
       }
       return (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${colorClass}`}
+          className={`px-2 py-1 rounded-full text-xs font-semibold capitalize ${colorClass}`}
         >
           {value}
         </span>
@@ -996,9 +1013,50 @@ export const appointment_columns = [
       }
       return (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${colorClass}`}
+          className={`px-2 py-1 rounded-full text-xs font-semibold capitalize ${colorClass}`}
         >
           {value}
+        </span>
+      );
+    },
+  },
+  {
+    key: 'pregnancy_status',
+    title: 'Pregnancy Status',
+    sortable: false,
+    width: 'w-[18%]',
+    render: (value) => {
+      let colorClass = '';
+      let status = '';
+      switch (value) {
+        case 'completed':
+          colorClass = 'bg-green-100 text-green-800';
+          status = 'Completed';
+          break;
+        case 'first_trimester':
+          colorClass = 'bg-blue-100 text-blue-800';
+          status = '1st Trimester';
+          break;
+        case 'second_trimester':
+          colorClass = 'bg-teal-100 text-teal-800';
+          status = '2nd Trimester';
+          break;
+        case 'third_trimester':
+          colorClass = 'bg-purple-100 text-purple-800';
+          status = '3rd Trimester';
+          break;
+        case 'fourth_trimester':
+          colorClass = 'bg-pink-100 text-pink-800';
+          status = '4th Trimester';
+          break;
+        default:
+          colorClass = 'bg-gray-100 text-gray-800';
+      }
+      return (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold ${colorClass}`}
+        >
+          {status}
         </span>
       );
     },
@@ -1019,6 +1077,30 @@ export const appointment_columns = [
     hidden: true,
   },
   {
+    key: 'start_time',
+    title: 'Start Time',
+    hidden: true,
+    sortable: false,
+    width: 'w-[10%]',
+    render: (value) =>
+      new Date(value).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+  },
+  {
+    key: 'end_time',
+    title: 'End Time',
+    hidden: true,
+    sortable: false,
+    width: 'w-[10%]',
+    render: (value) =>
+      new Date(value).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+  },
+  {
     key: 'visit_count',
     hidden: true,
   },
@@ -1027,3 +1109,25 @@ export const appointment_columns = [
     hidden: true,
   },
 ];
+
+export const pickerOptions = {
+  mode: 'single',
+  dateFormat: 'Y-m-d',
+};
+
+export const pickerNoWeekendsOptions = {
+  mode: 'single',
+  altInput: true,
+  altFormat: 'F j, Y',
+  dateFormat: 'Y-m-d',
+  disable: [
+    (date) => date.getDay() === 0 || date.getDay() === 6, // disable weekends
+  ],
+};
+
+export const pickerRangeOptions = {
+  mode: 'range',
+  altInput: true,
+  altFormat: 'F j, Y',
+  dateFormat: 'Y-m-d',
+};

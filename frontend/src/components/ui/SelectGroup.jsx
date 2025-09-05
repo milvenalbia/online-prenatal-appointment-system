@@ -37,7 +37,7 @@ const SelectGroup = ({
           className={cn(
             `w-full ${
               icon ? 'pl-10 pr-4' : 'px-2'
-            }  py-3 border text-gray-800 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all`,
+            }  py-3.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all`,
             className
           )}
           id={id}

@@ -14,6 +14,13 @@ const PatientInfoForm = ({ formData, setFormData, priorities }) => (
         placeholder='Choose a patient pregnancy form'
         formData={formData}
         setFormData={setFormData}
+        inputChange={(value, fullname) => {
+          setFormData((prev) => ({
+            ...prev,
+            pregnancy_tracking_id: value,
+            fullname: fullname,
+          }));
+        }}
         labelKey='fullname'
       />
     </div>

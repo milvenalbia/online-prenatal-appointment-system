@@ -1,8 +1,23 @@
-import { Calendar, ChevronRight } from 'lucide-react';
+import {
+  Activity,
+  Baby,
+  Calendar,
+  CalendarCheck,
+  ChevronRight,
+  ClipboardList,
+  HeartPlus,
+  HeartPulse,
+  Hospital,
+  Stethoscope,
+  Syringe,
+  User,
+} from 'lucide-react';
 import { Link } from 'react-router';
 import Card from '../components/interfaces/cards/Card';
+import { useAuthStore } from '../store/authStore.js';
 
 const Dashboard = () => {
+  const { user } = useAuthStore();
   const referrals = [
     {
       id: 1,
@@ -138,21 +153,108 @@ const Dashboard = () => {
     <div className='min-h-screen'>
       <div className='w-full'>
         {/* Statistics Cards - Responsive Grid */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-6'>
-          <Card />
-          <Card />
+        <div
+          className={`grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-6 ${
+            user.role_id !== 2 ? 'lg:grid-cols-3' : 'lg:grid-cols-2'
+          }`}
+        >
+          <Card
+            title='Total Patients'
+            value='200'
+            icon={User}
+            iconBgColor='bg-blue-100'
+            iconColor='text-blue-600'
+          />
+          {user.role_id !== 2 && (
+            <Card
+              title='Total Appointments'
+              value='50'
+              icon={CalendarCheck}
+              iconBgColor='bg-blue-100'
+              iconColor='text-blue-600'
+            />
+          )}
           <div className='sm:col-span-2 lg:col-span-1'>
-            <Card />
+            <Card
+              title='Total Pregnancy Trackings'
+              value='57'
+              icon={Baby}
+              iconBgColor='bg-blue-100'
+              iconColor='text-blue-600'
+            />
           </div>
         </div>
 
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6'>
+          <Card
+            title='1st Trimester'
+            value='20'
+            icon={HeartPulse}
+            iconBgColor='bg-emerald-100'
+            iconColor='text-emerald-600'
+          />
+          <Card
+            title='2nd Trimester'
+            value='25'
+            icon={HeartPlus}
+            iconBgColor='bg-emerald-100'
+            iconColor='text-emerald-600'
+          />
+          <Card
+            title='3rd Trimester'
+            value='17'
+            icon={Stethoscope}
+            iconBgColor='bg-emerald-100'
+            iconColor='text-emerald-600'
+          />
+          <Card
+            title='4th Trimester'
+            value='30'
+            icon={Activity}
+            iconBgColor='bg-emerald-100'
+            iconColor='text-emerald-600'
+          />
+        </div>
+
+        {user.role_id !== 2 && (
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-6'>
+            <Card
+              title='Immunization Records'
+              value='20'
+              icon={Syringe}
+              iconBgColor='bg-blue-100'
+              iconColor='text-blue-600'
+            />
+            <Card
+              title='Prenatal Visit Records'
+              value='47'
+              icon={ClipboardList}
+              iconBgColor='bg-blue-100'
+              iconColor='text-blue-600'
+            />
+            <div className='sm:col-span-2 lg:col-span-1'>
+              <Card
+                title='Total Out Patients'
+                value='28'
+                icon={Hospital}
+                iconBgColor='bg-blue-100'
+                iconColor='text-blue-600'
+              />
+            </div>
+          </div>
+        )}
+
         {/* Main Content Grid - Responsive Layout */}
-        <div className='grid grid-cols-1 xl:grid-cols-3 gap-6'>
+        <div
+          className={`grid grid-cols-1 gap-6 ${
+            user.role_id !== 2 ? 'xl:grid-cols-3' : 'xl:grid-cols-2'
+          }`}
+        >
           {/* Recent Referrals Table */}
           <div className='xl:col-span-2 bg-white rounded-lg shadow-md order-2 xl:order-1'>
             <div className='p-4 sm:p-6'>
               <h2 className='text-lg sm:text-xl font-semibold text-gray-900 mb-4'>
-                Recent Referrals
+                Recent Pregnancy Tracking
               </h2>
 
               {/* Mobile Card View */}
@@ -258,52 +360,54 @@ const Dashboard = () => {
           </div>
 
           {/* Upcoming Appointments List */}
-          <div className='bg-white rounded-lg shadow-md order-1 xl:order-2'>
-            <div className='p-4 sm:p-6'>
-              <h2 className='text-lg sm:text-xl font-semibold text-gray-900 mb-4'>
-                Upcoming Appointments
-              </h2>
-              <div className='space-y-3 h-90 overflow-y-hidden hover:overflow-y-auto'>
-                {upcomingAppointments.map((appointment) => (
-                  <div
-                    key={appointment.id}
-                    className='flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors'
-                  >
-                    <div className='flex items-center space-x-3'>
-                      <div className='p-2 bg-blue-100 rounded-full flex-shrink-0'>
-                        <Calendar className='h-4 w-4 text-blue-600' />
+          {user.role_id !== 2 && (
+            <div className='bg-white rounded-lg shadow-md order-1 xl:order-2'>
+              <div className='p-4 sm:p-6'>
+                <h2 className='text-lg sm:text-xl font-semibold text-gray-900 mb-4'>
+                  Upcoming Appointments
+                </h2>
+                <div className='space-y-3 h-90 overflow-y-hidden hover:overflow-y-auto'>
+                  {upcomingAppointments.map((appointment) => (
+                    <div
+                      key={appointment.id}
+                      className='flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors'
+                    >
+                      <div className='flex items-center space-x-3'>
+                        <div className='p-2 bg-blue-100 rounded-full flex-shrink-0'>
+                          <Calendar className='h-4 w-4 text-blue-600' />
+                        </div>
+                        <div className='min-w-0 flex-1'>
+                          <p className='text-sm font-medium text-gray-900 truncate'>
+                            {appointment.patientName}
+                          </p>
+                          <p className='text-xs text-gray-500'>
+                            {appointment.type}
+                          </p>
+                        </div>
                       </div>
-                      <div className='min-w-0 flex-1'>
-                        <p className='text-sm font-medium text-gray-900 truncate'>
-                          {appointment.patientName}
+                      <div className='text-right flex-shrink-0'>
+                        <p className='text-sm font-medium text-gray-900'>
+                          {appointment.time}
                         </p>
                         <p className='text-xs text-gray-500'>
-                          {appointment.type}
+                          {appointment.date}
                         </p>
                       </div>
                     </div>
-                    <div className='text-right flex-shrink-0'>
-                      <p className='text-sm font-medium text-gray-900'>
-                        {appointment.time}
-                      </p>
-                      <p className='text-xs text-gray-500'>
-                        {appointment.date}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className='mt-4 pt-4 border-t border-gray-200'>
-                <Link
-                  to={'appointments'}
-                  className='w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors'
-                >
-                  View All Appointments
-                  <ChevronRight className='ml-1 h-4 w-4' />
-                </Link>
+                  ))}
+                </div>
+                <div className='mt-4 pt-4 border-t border-gray-200'>
+                  <Link
+                    to={'/admin/appointments'}
+                    className='w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors'
+                  >
+                    View All Appointments
+                    <ChevronRight className='ml-1 h-4 w-4' />
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

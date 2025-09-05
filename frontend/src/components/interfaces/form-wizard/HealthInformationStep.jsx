@@ -4,6 +4,8 @@ import HealthcareFacilities from './HealthcareFacilities';
 import HealthcareProviders from './HealthcareProviders';
 import InputGroup from '../../ui/InputGroup';
 import DateInput from '../../ui/DateInput';
+import DatePicker from '../../ui/DatePicker';
+import { pickerOptions } from '../../../utils/columns';
 
 const HealthInformationStep = ({
   formData,
@@ -68,11 +70,12 @@ const HealthInformationStep = ({
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         <div className='w-full'>
-          <DateInput
+          <DatePicker
+            options={pickerOptions}
             name='lmp'
             id='lmp'
             value={formData.lmp}
-            onChange={(e) =>
+            onChange={(e) => {
               setFormData((prev) => {
                 const lmp = e.target.value;
                 const [y, m, d] = lmp.split('-').map(Number);
@@ -89,8 +92,8 @@ const HealthInformationStep = ({
                   lmp,
                   edc,
                 };
-              })
-            }
+              });
+            }}
             placeholder='Last Menstrual Period'
             hasLabel
             label='Last Menstrual Period (LMP)'
@@ -98,7 +101,8 @@ const HealthInformationStep = ({
           {error.lmp && <p className='error mt-1'>{error.lmp[0]}</p>}
         </div>
         <div className='w-full'>
-          <DateInput
+          <DatePicker
+            options={pickerOptions}
             name='edc'
             id='edc'
             value={formData.edc}

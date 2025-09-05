@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { fetchOptions } from '../../utils/functions';
-import { useAuthStore } from '../../store/AuthStore';
 
 const SelectReact = ({
   label,
@@ -18,6 +17,7 @@ const SelectReact = ({
   isMenuOpen = undefined,
   isSearchable = true,
   onChange,
+  inputChange,
 }) => {
   const [options, setOptions] = useState([]);
 
@@ -36,6 +36,11 @@ const SelectReact = ({
   const handleChange = (selected) => {
     if (onChange) {
       onChange(selected ? selected.value : 0);
+    } else if (inputChange) {
+      inputChange(
+        selected ? selected.value : 0,
+        selected ? selected.label : ''
+      );
     } else {
       setFormData((prev) => ({
         ...prev,

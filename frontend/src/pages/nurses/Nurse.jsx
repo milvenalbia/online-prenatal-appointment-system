@@ -113,7 +113,7 @@ const Nurse = () => {
         showActions={true}
         defaultPerPage={10}
         onAdd={handleAdd}
-        addButton={'Add Nurse'}
+        addButton={user.role_id !== 2 ? '' : 'Add Nurse'}
         ref={dataTableRef}
       />
       {isOpen && (

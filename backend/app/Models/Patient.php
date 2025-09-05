@@ -94,6 +94,11 @@ class Patient extends Model
         return trim("{$barangay}, {$municipality}");
     }
 
+    public function sms_log(): HasMany
+    {
+        return $this->hasMany(SmsLog::class);
+    }
+
     public function getShortAddressAttribute()
     {
         $barangay = $this->barangays?->name ?? '';

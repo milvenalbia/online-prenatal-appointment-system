@@ -52,6 +52,7 @@ class PregnancyTrackingResource extends JsonResource
             'abortion' => $this->abortion,
             'lmp' => $this->lmp,
             'edc' => $this->edc,
+            'pregnancy_status' => optional($this->latestAppointment)->pregnancy_status,
             'bemoc' => $this->bemoc,
             'bemoc_address' => $this->bemoc_address,
             'cemoc' => $this->cemoc,

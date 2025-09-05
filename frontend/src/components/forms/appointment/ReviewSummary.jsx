@@ -14,14 +14,14 @@ const ReviewSummary = ({ formData, priorities, selectedDate }) => (
         </span>
       </div>
 
-      <div className='flex justify-between items-center'>
+      {/* <div className='flex justify-between items-center'>
         <span className='font-medium text-gray-700'>Time:</span>
         <span className='text-gray-900'>Automatic based on priority.</span>
-      </div>
+      </div> */}
 
       <div className='flex justify-between items-center'>
-        <span className='font-medium text-gray-700'>Tracking ID:</span>
-        <span className='text-gray-900'>{formData.pregnancy_tracking_id}</span>
+        <span className='font-medium text-gray-700'>Patient Name:</span>
+        <span className='text-gray-900'>{formData.fullname}</span>
       </div>
 
       <div className='flex justify-between items-center'>

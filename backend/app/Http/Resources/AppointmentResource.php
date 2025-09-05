@@ -26,6 +26,7 @@ class AppointmentResource extends JsonResource
             'visit_count' => $this->visit_count,
             'notes' => $this->notes,
             'contact' => $this->pregnancy_tracking->patient->contact ?? '',
+            'pregnancy_status' => $this->pregnancy_status ?? '',
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

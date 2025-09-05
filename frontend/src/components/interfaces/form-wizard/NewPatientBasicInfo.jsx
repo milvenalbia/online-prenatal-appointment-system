@@ -3,8 +3,10 @@ import { User, Calendar, Phone } from 'lucide-react';
 import InputGroup from '../../ui/InputGroup';
 import PhoneNumberField from '../../ui/PhoneNumberField';
 import DateInput from '../../ui/DateInput';
+import DatePicker from '../../ui/DatePicker';
+import { pickerOptions } from '../../../utils/columns';
 
-const NewPatientBasicInfo = ({ formData, inputChange, error }) => {
+const NewPatientBasicInfo = ({ formData, inputChange, error, setFormData }) => {
   return (
     <div className='flex flex-col gap-6'>
       {/* Row 1: Fname, Lname, Mname */}
@@ -60,7 +62,8 @@ const NewPatientBasicInfo = ({ formData, inputChange, error }) => {
       {/* Row 2: Age, Contact */}
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         <div className='w-full'>
-          <DateInput
+          <DatePicker
+            options={pickerOptions}
             name='birth_date'
             id='birth_date'
             value={formData.birth_date}

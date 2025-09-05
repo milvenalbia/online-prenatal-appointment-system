@@ -44,7 +44,7 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
         {/* Right side - Actions */}
         <div className='flex gap-4 sm:gap-6 items-center'>
           {/* Make Appointment Button - Hidden on mobile, different sizes */}
-          {user.role_id !== 2 && (
+          {user.role_id === 3 && (
             <>
               <Link
                 to={'appointments/create'}

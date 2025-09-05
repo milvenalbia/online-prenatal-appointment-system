@@ -41,6 +41,10 @@ const Appointments = () => {
         showPerPage={true}
         showActions={true}
         defaultPerPage={10}
+        hasSortByPregnancyStatus
+        hasSortByStatus
+        hasSortByPriority
+        hasAdvanceFilter
         ref={dataTableRef}
       />
 

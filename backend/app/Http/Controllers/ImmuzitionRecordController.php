@@ -42,15 +42,15 @@ class ImmuzitionRecordController extends Controller
             ])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where(DB::raw("CONCAT('firstname', ,' ', 'lastname')"), 'LIKE', "%{$search}%");
+                    $q->where(DB::raw("CONCAT('patients.firstname', ,' ', 'patients.lastname')"), 'LIKE', "%{$search}%");
                     // ->orWhere('pregnancy_tracking_number', 'LIKE', "%{$search}%");
                 });
             })
             ->when($dateFrom, function ($query, $dateFrom) {
-                $query->whereDate('created_at', '>=', $dateFrom);
+                $query->whereDate('immuzition_records.created_at', '>=', $dateFrom);
             })
             ->when($dateTo, function ($query, $dateTo) {
-                $query->whereDate('created_at', '<=', $dateTo);
+                $query->whereDate('immuzition_records.created_at', '<=', $dateTo);
             })
             ->orderBy($sortBy, $sortDir)
             ->paginate($perPage);

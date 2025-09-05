@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePregnancyTrackingRequest;
 use App\Http\Resources\PregnancyTrackingResource;
+use App\Models\Appointment;
 use App\Models\BarangayCenter;
 use App\Models\Patient;
 use App\Models\PregnancyTracking;
@@ -21,6 +22,8 @@ class PregnancyTrackingController extends Controller
     {
         $search     = $request->input('search');
         $dateFrom   = $request->input('date_from');
+        $category   = $request->input('category');
+        $status     = $request->input('status');
         $dateTo     = $request->input('date_to');
         $sortBy     = $request->input('sort_by', 'created_at');
         $sortDir    = $request->input('sort_dir', 'desc');
@@ -28,9 +31,9 @@ class PregnancyTrackingController extends Controller
 
         // Optional: whitelist sortable columns to prevent SQL injection
         $sortableColumns = [
-            'fullname' => 'fullname',
-            'age' => 'age',
-            'created_at' => 'created_at',
+            'fullname' => 'pregnancy_trackings.fullname',
+            'age' => 'pregnancy_trackings.age',
+            'created_at' => 'pregnancy_trackings.created_at',
         ];
 
         if (!array_key_exists($sortBy, $sortableColumns)) {
@@ -40,6 +43,7 @@ class PregnancyTrackingController extends Controller
         $user = Auth::user();
 
         $pregnancy_trackings = PregnancyTracking::with([
+            'latestAppointment',   // only one appointment
             'patient',
             'patient.barangays',
             'patient.municipalities',
@@ -50,22 +54,31 @@ class PregnancyTrackingController extends Controller
             'barangay_center'
         ])
             ->when($user->role_id === 2, function ($query) use ($user) {
-                $query->where('barangay_center_id', $user->barangay_center_id);
+                $query->where('pregnancy_trackings.barangay_center_id', $user->barangay_center_id);
             })
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('fullname', 'LIKE', "%{$search}%");
-                    // ->orWhere('pregnancy_tracking_number', 'LIKE', "%{$search}%");
+                    $q->where('pregnancy_trackings.fullname', 'LIKE', "%{$search}%");
+                });
+            })
+            ->when($category, function ($query, $category) {
+                $query->where('pregnancy_trackings.barangay_center_id', $category);
+            })
+            ->when($status, function ($query, $status) {
+                // filter using latest appointment’s visit_count
+                $query->whereHas('latestAppointment', function ($q) use ($status) {
+                    $q->where('visit_count', $status);
                 });
             })
             ->when($dateFrom, function ($query, $dateFrom) {
-                $query->whereDate('created_at', '>=', $dateFrom);
+                $query->whereDate('pregnancy_trackings.created_at', '>=', $dateFrom);
             })
             ->when($dateTo, function ($query, $dateTo) {
-                $query->whereDate('created_at', '<=', $dateTo);
+                $query->whereDate('pregnancy_trackings.created_at', '<=', $dateTo);
             })
             ->orderBy($sortableColumns[$sortBy], $sortDir)
             ->paginate($perPage);
+
 
 
         return [

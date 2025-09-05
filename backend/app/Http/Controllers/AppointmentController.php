@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
+use App\Models\PregnancyTracking;
 use App\Services\AppointmentSchedulingService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
@@ -23,6 +25,9 @@ class AppointmentController extends Controller
     public function index(Request $request)
     {
         $search     = $request->input('search');
+        $status     = $request->input('status');
+        $priority   = $request->input('priority');
+        $visit_count   = $request->input('visit_count');
         $dateFrom   = $request->input('date_from');
         $dateTo     = $request->input('date_to');
         $sortBy     = $request->input('sort_by', 'created_at');
@@ -50,6 +55,15 @@ class AppointmentController extends Controller
                 $query->where(function ($q) use ($search) {
                     $q->where('pregnancy_trackings.fullname', 'LIKE', "%{$search}%");
                 });
+            })
+            ->when($status, function ($query, $status) {
+                $query->where('appointments.status', $status);
+            })
+            ->when($visit_count, function ($query, $visit_count) {
+                $query->where('appointments.visit_count', $visit_count);
+            })
+            ->when($priority, function ($query, $priority) {
+                $query->where('appointments.priority', $priority);
             })
             ->when($dateFrom, function ($query, $dateFrom) {
                 $query->whereDate('appointments.created_at', '>=', $dateFrom);
@@ -170,11 +184,47 @@ class AppointmentController extends Controller
     /**
      * Update appointment (limited to notes and priority)
      */
+    // public function update(Request $request, $id): JsonResponse
+    // {
+    //     $request->validate([
+    //         'pregnancy_tracking_id' => 'required|exists:pregnancy_trackings,id',
+    //         'appointment_date' => 'required|date|after_or_equal:today',
+    //         'priority' => 'required|in:high,medium,low',
+    //         'visit_count' => 'integer|min:1',
+    //         'notes' => 'nullable|string|max:1000'
+    //     ]);
+
+    //     try {
+    //         $appointment = Appointment::findOrFail($id);
+
+    //         $old_date = $appointment->appointment_date;
+    //         $oldPriority = $appointment->priority;
+    //         $oldDate = $appointment->appointment_date;
+    //         $appointment->update($request->only(['priority', 'notes', 'appointment_date', 'pregnancy_tracking_id', 'visit_count']));
+
+    //         // If priority changed, reorganize appointments
+    //         if (($request->has('priority') && $oldPriority !== $request->priority) || ($request->has('appointment_date') && $oldDate !== $request->appointment_date)) {
+    //             $updated_priority_score = $this->schedulingService->getPriorityScore($request->visit_count, $request->priority);
+
+    //             $appointment->update(['priority_score' => $updated_priority_score]);
+    //             $this->schedulingService->reorganizeAppointments($appointment->appointment_date, $old_date);
+    //             $appointment = $appointment->fresh();
+    //         }
+
+    //         return response()->json([
+    //             'message' => 'Appointment updated successfully',
+    //             'appointment' => $appointment
+    //         ]);
+    //     } catch (Exception $e) {
+    //         return response()->json(['error' => $e->getMessage()], 400);
+    //     }
+    // }
+
     public function update(Request $request, $id): JsonResponse
     {
         $request->validate([
             'pregnancy_tracking_id' => 'required|exists:pregnancy_trackings,id',
-            'appointment_date' => 'required|date|after:today',
+            'appointment_date' => 'required|date|after_or_equal:today',
             'priority' => 'required|in:high,medium,low',
             'visit_count' => 'integer|min:1',
             'notes' => 'nullable|string|max:1000'
@@ -183,26 +233,215 @@ class AppointmentController extends Controller
         try {
             $appointment = Appointment::findOrFail($id);
 
-            $oldPriority = $appointment->priority;
+            // Store original values for comparison
             $oldDate = $appointment->appointment_date;
-            $appointment->update($request->only(['priority', 'notes', 'appointment_date', 'pregnancy_tracking_id', 'visit_count']));
+            $oldPriority = $appointment->priority;
+            $oldVisitCount = $appointment->visit_count;
 
-            // If priority changed, reorganize appointments
-            if (($request->has('priority') && $oldPriority !== $request->priority) || ($request->has('appointment_date') && $oldDate !== $request->appointment_date)) {
-                $updated_priority_score = $this->schedulingService->getPriorityScore($request->visit_count, $request->priority);
+            $newDate = $request->appointment_date;
+            $newPriority = $request->priority;
+            $newVisitCount = $request->visit_count;
 
-                $appointment->update(['priority_score' => $updated_priority_score]);
-                $this->schedulingService->reorganizeAppointments($appointment->appointment_date);
-                $appointment = $appointment->fresh();
+            // Calculate new priority score
+            $newPriorityScore = $this->schedulingService->getPriorityScore($newVisitCount, $newPriority, $appointment->booking_timestamp);
+
+            $hasDateChanged = $oldDate !== $newDate;
+            $hasPriorityChanged = $oldPriority !== $newPriority || $oldVisitCount !== $newVisitCount;
+
+            // Handle different update scenarios
+            if ($hasDateChanged) {
+                // Date is changing - check if target date is full
+                $this->handleDateChange($appointment, $request, $oldDate, $newDate, $newPriorityScore);
+            } else if ($hasPriorityChanged) {
+                // Same date, priority changed - update and reorganize
+                $appointment->update([
+                    'pregnancy_tracking_id' => $request->pregnancy_tracking_id,
+                    'priority' => $newPriority,
+                    'visit_count' => $newVisitCount,
+                    'notes' => $request->notes,
+                    'priority_score' => $newPriorityScore
+                ]);
+
+                $this->schedulingService->reorganizeAppointments($oldDate);
+            } else {
+                // Only notes or pregnancy_tracking_id changed
+                $appointment->update($request->only(['pregnancy_tracking_id', 'notes']));
             }
+
+            $appointment = $appointment->fresh();
 
             return response()->json([
                 'message' => 'Appointment updated successfully',
-                'appointment' => $appointment
+                'appointment' => $appointment,
+                'changes' => [
+                    'date_changed' => $hasDateChanged,
+                    'priority_changed' => $hasPriorityChanged
+                ]
             ]);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
+    }
+
+    /**
+     * Handle appointment date change with rescheduling logic
+     */
+    private function handleDateChange($appointment, $request, $oldDate, $newDate, $newPriorityScore)
+    {
+        // Check if new date is available (excluding current appointment)
+        $currentAppointmentsOnNewDate = Appointment::forDate($newDate)
+            ->where('id', '!=', $appointment->id)
+            ->scheduled()
+            ->count();
+
+        // If new date is not full, proceed normally
+        if ($currentAppointmentsOnNewDate < $this->schedulingService::MAX_SLOTS_PER_DAY) {
+            $appointment->update([
+                'pregnancy_tracking_id' => $request->pregnancy_tracking_id,
+                'appointment_date' => $newDate,
+                'priority' => $request->priority,
+                'visit_count' => $request->visit_count,
+                'notes' => $request->notes,
+                'priority_score' => $newPriorityScore
+            ]);
+
+            // Reorganize both old and new dates
+            $this->schedulingService->reorganizeAppointments($newDate);
+            if ($oldDate !== $newDate) {
+                $this->schedulingService->reorganizeAppointments($oldDate);
+            }
+            return;
+        }
+
+        // New date is full - handle rescheduling
+        $this->handleFullDateUpdate($appointment, $request, $oldDate, $newDate, $newPriorityScore);
+    }
+
+    /**
+     * Handle updating to a full date with automatic rescheduling
+     */
+    private function handleFullDateUpdate($appointment, $request, $oldDate, $newDate, $newPriorityScore)
+    {
+        // Get the lowest priority appointment on the target date (excluding current appointment)
+        $lowestPriorityAppointment = Appointment::forDate($newDate)
+            ->where('id', '!=', $appointment->id)
+            ->scheduled()
+            ->orderBy('priority_score')
+            ->orderByDesc('booking_timestamp') // For same priority, later bookings get moved first
+            ->first();
+
+        Log::info("Get Lowest Priority Appointment Id: {$lowestPriorityAppointment->id}");
+
+        Log::info("Priority Score Comparison: {$newPriorityScore} compare to {$lowestPriorityAppointment->priority_score}");
+        // Compare priorities
+        if ($newPriorityScore > $lowestPriorityAppointment->priority_score) {
+            // New appointment has higher priority - reschedule the lowest priority one
+            $this->rescheduleLowestPriorityAndUpdate($appointment, $request, $lowestPriorityAppointment, $oldDate, $newDate, $newPriorityScore);
+        } else if ($newPriorityScore === $lowestPriorityAppointment->priority_score) {
+            // Same priority - check booking_timestamp (who booked first gets preference)
+            $updatedBookingTime = $appointment->booking_timestamp;
+            $existingBookingTime = $lowestPriorityAppointment->booking_timestamp;
+
+            Log::info("Bookign Timestamp Comparison: {$updatedBookingTime} compare to {$existingBookingTime}");
+
+            if ($updatedBookingTime < $existingBookingTime) {
+                // Updated appointment was booked earlier, so it gets the slot
+                $this->rescheduleLowestPriorityAndUpdate($appointment, $request, $lowestPriorityAppointment, $oldDate, $newDate, $newPriorityScore);
+            } else {
+                // Updated appointment was booked later - find alternative for it
+                $this->findAlternativeDateForUpdate($appointment, $request, $oldDate, $newDate, $newPriorityScore);
+            }
+        } else {
+            // New appointment has lower priority - find alternative for it
+            $this->findAlternativeDateForUpdate($appointment, $request, $oldDate, $newDate, $newPriorityScore);
+        }
+    }
+
+    /**
+     * Reschedule lowest priority appointment and update current one to target date
+     */
+    private function rescheduleLowestPriorityAndUpdate($appointment, $request, $lowestPriorityAppointment, $oldDate, $newDate, $newPriorityScore)
+    {
+        // Find nearest available date for the lowest priority appointment
+        $nearestDate = $this->schedulingService->findNearestAvailableDate($newDate);
+
+
+        if (!$nearestDate) {
+            // Try including old date as fallback
+            $nearestDate = $this->schedulingService->findNearestAvailableDate($newDate, [$oldDate]);
+        }
+
+        if (!$nearestDate) {
+            throw new Exception('Cannot update appointment: No available dates found for rescheduling existing appointments.');
+        }
+
+        // Move the lowest priority appointment
+        $lowestPriorityAppointment->update([
+            'appointment_date' => $nearestDate
+        ]);
+
+        // Update the current appointment to the target date
+        $appointment->update([
+            'pregnancy_tracking_id' => $request->pregnancy_tracking_id,
+            'appointment_date' => $newDate,
+            'priority' => $request->priority,
+            'visit_count' => $request->visit_count,
+            'notes' => $request->notes,
+            'priority_score' => $newPriorityScore
+        ]);
+
+        // Reorganize all affected dates
+        $this->schedulingService->reorganizeAppointments($newDate);
+        $this->schedulingService->reorganizeAppointments($nearestDate);
+        if ($oldDate !== $newDate && $oldDate !== $nearestDate) {
+            $this->schedulingService->reorganizeAppointments($oldDate);
+        }
+
+        // Log the rescheduling
+        Log::info("Update: Appointment ID {$lowestPriorityAppointment->id} rescheduled from {$newDate} to {$nearestDate} due to higher priority update");
+    }
+
+    /**
+     * Find alternative date for the updated appointment
+     */
+    private function findAlternativeDateForUpdate($appointment, $request, $oldDate, $newDate, $newPriorityScore)
+    {
+        // Find nearest available date for the updated appointment
+        $nearestDate = $this->schedulingService->findNearestAvailableDate($newDate, [$oldDate]);
+
+        if (!$nearestDate) {
+            // No alternative found - keep on original date but update other fields
+            $appointment->update([
+                'pregnancy_tracking_id' => $request->pregnancy_tracking_id,
+                'priority' => $request->priority,
+                'visit_count' => $request->visit_count,
+                'notes' => $request->notes,
+                'priority_score' => $newPriorityScore
+                // appointment_date remains unchanged
+            ]);
+
+            $this->schedulingService->reorganizeAppointments($oldDate);
+
+            throw new Exception("The selected date ({$newDate}) is fully booked with higher priority appointments. Appointment details updated but date remains {$oldDate}.");
+        }
+
+        // Update appointment to the nearest available date
+        $appointment->update([
+            'pregnancy_tracking_id' => $request->pregnancy_tracking_id,
+            'appointment_date' => $nearestDate,
+            'priority' => $request->priority,
+            'visit_count' => $request->visit_count,
+            'notes' => $request->notes,
+            'priority_score' => $newPriorityScore
+        ]);
+
+        // Reorganize both dates
+        $this->schedulingService->reorganizeAppointments($nearestDate);
+        if ($oldDate !== $nearestDate) {
+            $this->schedulingService->reorganizeAppointments($oldDate);
+        }
+
+        throw new Exception("The selected date ({$newDate}) was full. Your appointment has been updated and moved to {$nearestDate} instead.");
     }
 
     /**

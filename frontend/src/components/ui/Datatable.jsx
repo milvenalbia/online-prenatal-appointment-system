@@ -1,32 +1,36 @@
-import React, {
-  useState,
-  useEffect,
-  forwardRef,
-  useImperativeHandle,
-} from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
   Search,
   ChevronLeft,
   ChevronRight,
-  Calendar,
   Edit,
   Trash2,
   MoreHorizontal,
-  Plus,
   Eye,
   PlusCircle,
   FileDown,
+  Filter,
+  X,
 } from 'lucide-react';
 import api from '../../api/axios';
 import SmallLoading from './SmallLoading';
 import DateInput from './DateInput';
 import Tooltip from '../Tooltip';
+import SelectReact from './SelectReact';
+import { useAuthStore } from '../../store/AuthStore.js';
+import { pickerRangeOptions } from '../../utils/columns.jsx';
+import DatePicker from './DatePicker.jsx';
 
 const DataTable = forwardRef((props, ref) => {
   const {
     columns = [],
     apiEndpoint = '/api/users',
     title = 'Data Table',
+    hasSortByCategory = false,
+    hasSortByStatus = false,
+    hasSortByPregnancyStatus = false,
+    hasSortByPriority = false,
+    hasAdvanceFilter = false,
     showDateFilter = true,
     showSearch = true,
     showPagination = true,
@@ -54,6 +58,72 @@ const DataTable = forwardRef((props, ref) => {
   const [sortField, setSortField] = useState('');
   const [sortDirection, setSortDirection] = useState('asc');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+  const [openAdvanceFilter, setOpenAdvanceFilter] = useState(false);
+  const [range, setRange] = useState([]);
+  const [formData, setFormData] = useState({
+    category: '',
+    status: '',
+    visit_count: '',
+    priority: '',
+  });
+
+  const { user } = useAuthStore();
+
+  const statusOptions = [
+    { name: 'Scheduled', value: 'scheduled', show: ['Appointments'] },
+    {
+      name: 'Completed',
+      value: title === 'Pregnancy Tracking' ? 5 : 'completed',
+      show: ['Pregnancy Tracking', 'Appointments'],
+    },
+    { name: 'Cancelled', value: 'cancelled', show: ['Appointments'] },
+    {
+      name: '1st Trimester',
+      value: 1,
+      show: ['Pregnancy Tracking'],
+    },
+    {
+      name: '2nd Trimester',
+      value: 2,
+      show: ['Pregnancy Tracking'],
+    },
+    {
+      name: '3rd Trimester',
+      value: 3,
+      show: ['Pregnancy Tracking'],
+    },
+    {
+      name: '4th Trimester',
+      value: 4,
+      show: ['Pregnancy Tracking'],
+    },
+  ];
+
+  const pregnancyStatusOptions = [
+    {
+      name: '1st Trimester',
+      value: 1,
+    },
+    {
+      name: '2nd Trimester',
+      value: 2,
+    },
+    {
+      name: '3rd Trimester',
+      value: 3,
+    },
+    {
+      name: '4th Trimester',
+      value: 4,
+    },
+    { name: 'Completed', value: 5 },
+  ];
+
+  const priorityOptions = [
+    { name: 'High', value: 'high' },
+    { name: 'Medium', value: 'medium' },
+    { name: 'Low', value: 'low' },
+  ];
 
   const fetchData = async ({ status = false } = {}) => {
     if (!status) {
@@ -66,6 +136,10 @@ const DataTable = forwardRef((props, ref) => {
         search: debouncedSearchTerm,
         sort_by: sortField,
         sort_dir: sortDirection,
+        category: formData.category,
+        status: formData.status,
+        visit_count: formData.visit_count,
+        priority: formData.priority,
         date_from: dateFrom
           ? dateFrom.toLocaleDateString('en-CA') // → "2025-08-24"
           : undefined,
@@ -113,6 +187,7 @@ const DataTable = forwardRef((props, ref) => {
     sortDirection,
     dateFrom,
     dateTo,
+    formData,
   ]);
 
   useImperativeHandle(ref, () => ({
@@ -156,6 +231,16 @@ const DataTable = forwardRef((props, ref) => {
     setDateFrom('');
     setDateTo('');
     setSortField('');
+    setRange([]);
+    setFormData({
+      category: '',
+      status: '',
+      visti_count: '',
+      priority: '',
+    });
+    if (openAdvanceFilter) {
+      setOpenAdvanceFilter(false);
+    }
     setSortDirection('asc');
     setCurrentPage(1);
   };
@@ -193,6 +278,30 @@ const DataTable = forwardRef((props, ref) => {
       ) {
         onDelete(row);
       }
+    }
+  };
+
+  const handleOpenAdvanceFilter = () => {
+    setOpenAdvanceFilter((prev) => !prev);
+  };
+
+  const handleFormData = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleAdvanceFilter = () => {
+    fetchData;
+  };
+
+  const handleSelectedDates = (selectedDates) => {
+    if (selectedDates.length > 1) {
+      setRange(selectedDates);
+      setDateFrom(selectedDates[0]);
+      setDateTo(selectedDates[1]);
     }
   };
 
@@ -395,6 +504,125 @@ const DataTable = forwardRef((props, ref) => {
                 <span>{addButton}</span>
               </button>
             )}
+            {hasAdvanceFilter && (
+              <div className='relative'>
+                <button
+                  onClick={handleOpenAdvanceFilter}
+                  className='inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors'
+                >
+                  <Filter size={16} />
+                  <span>More Filters</span>
+                </button>
+
+                {openAdvanceFilter && (
+                  <div className='absolute mt-0.25 top-full left-0 w-full md:w-[250px] p-3 bg-gray-50 border border-gray-300 shadow-md rounded-md z-10'>
+                    <div className='flex justify-between items-center mb-2'>
+                      <h3 className='font-semibold text-gray-600'>Filters</h3>
+                      <X
+                        className='text-gray-500 hover:text-red-400 text-sm'
+                        onClick={handleOpenAdvanceFilter}
+                      />
+                    </div>
+                    {hasSortByCategory && user.role_id !== 2 && (
+                      <div className='w-full'>
+                        <label
+                          className='text-sm text-gray-600'
+                          htmlFor='status'
+                        >
+                          Sort by Health Station
+                        </label>
+                        <SelectReact
+                          id='category'
+                          name='category'
+                          endpoint='/api/barangay-centers'
+                          placeholder='Sort by health station'
+                          formData={formData}
+                          setFormData={setFormData}
+                          labelKey='health_station'
+                        />
+                      </div>
+                    )}
+
+                    {hasSortByStatus && (
+                      <div className='w-full mt-4'>
+                        <label
+                          className='text-sm text-gray-600'
+                          htmlFor='status'
+                        >
+                          Sort by Status
+                        </label>
+                        <select
+                          id='status'
+                          value={formData.status}
+                          name='status'
+                          onChange={(e) => handleFormData(e)}
+                          className='w-full px-3 py-2.25 border border-gray-300 rounded-md outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm mt-2'
+                        >
+                          <option value=''>Sort by status</option>
+                          {statusOptions
+                            .filter((status) => status.show.includes(title))
+                            .map((status) => (
+                              <option key={status.value} value={status.value}>
+                                {status.name}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {hasSortByPregnancyStatus && (
+                      <div className='w-full mt-4'>
+                        <label
+                          className='text-sm text-gray-600'
+                          htmlFor='visit_count'
+                        >
+                          Sort by Pregnancy Status
+                        </label>
+                        <select
+                          id='visit_count'
+                          value={formData.visit_count}
+                          name='visit_count'
+                          onChange={(e) => handleFormData(e)}
+                          className='w-full px-3 py-2.25 border border-gray-300 rounded-md outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm mt-2'
+                        >
+                          <option value=''>Sort by pregnancy status</option>
+                          {pregnancyStatusOptions.map((status) => (
+                            <option key={status.value} value={status.value}>
+                              {status.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {hasSortByPriority && (
+                      <div className='w-full mt-4'>
+                        <label
+                          className='text-sm text-gray-600'
+                          htmlFor='priority'
+                        >
+                          Sort by Priority
+                        </label>
+                        <select
+                          id='priority'
+                          value={formData.priority}
+                          name='priority'
+                          onChange={(e) => handleFormData(e)}
+                          className='w-full px-3 py-2.25 border border-gray-300 rounded-md outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm mt-2'
+                        >
+                          <option value=''>Sort by priority</option>
+                          {priorityOptions.map((priority) => (
+                            <option key={priority.value} value={priority.value}>
+                              {priority.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
             <button
               onClick={clearFilters}
               className='px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors'
@@ -427,19 +655,27 @@ const DataTable = forwardRef((props, ref) => {
           {/* Date Filters */}
           {showDateFilter && (
             <div className='relative -mt-4'>
-              <DateInput
-                className='w-full pl-10 pr-4 py-2 border border-gray-300 outline-none rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all'
-                selectsRange
-                startDate={dateFrom}
-                endDate={dateTo}
-                onChange={([start, end]) => {
-                  setDateFrom(start);
-                  setDateTo(end);
-                }}
+              <DatePicker
+                value={range}
+                onChange={(selectedDates) => handleSelectedDates(selectedDates)}
                 placeholdertext='Select date range'
-                dateformat='yyyy-MM-dd'
+                className='w-full pl-10 pr-4 py-2 border border-gray-300 outline-none rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all'
               />
             </div>
+            // <div className='relative -mt-4'>
+            //   <DateInput
+            //     className='w-full pl-10 pr-4 py-2 border border-gray-300 outline-none rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all'
+            //     selectsRange
+            //     startDate={dateFrom}
+            //     endDate={dateTo}
+            //     onChange={([start, end]) => {
+            //       setDateFrom(start);
+            //       setDateTo(end);
+            //     }}
+            //     placeholdertext='Select date range'
+            //     dateformat='yyyy-MM-dd'
+            //   />
+            // </div>
           )}
 
           {/* Per Page */}

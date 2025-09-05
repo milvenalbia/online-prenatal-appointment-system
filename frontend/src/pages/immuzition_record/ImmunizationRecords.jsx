@@ -5,8 +5,10 @@ import { immunization_records_columns } from '../../utils/columns';
 import FormModal from '../../components/ui/FormModal';
 import { useFormSubmit } from '../../utils/functions';
 import ImmunizationForm from '../../components/forms/ImmunizationForm';
+import { useAuthStore } from '../../store/AuthStore';
 
 const ImmunizationRecords = () => {
+  const { user } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [formData, setFormData] = useState();
@@ -180,7 +182,7 @@ const ImmunizationRecords = () => {
         showActions={true}
         defaultPerPage={10}
         onAdd={handleAdd}
-        addButton={'Add Immunization Record'}
+        addButton={user.role_id !== 3 ? '' : 'Add Immunization Record'}
         ref={dataTableRef}
       />
       {isOpen && (

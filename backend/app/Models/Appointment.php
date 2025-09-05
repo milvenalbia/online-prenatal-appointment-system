@@ -17,6 +17,7 @@ class Appointment extends Model
         'status',
         'notes',
         'booking_timestamp',
+        'sms_status',
         'priority_score',
     ];
 
@@ -47,6 +48,36 @@ class Appointment extends Model
         $timePriority = - ($this->booking_timestamp->timestamp / 1000000);
 
         return $visitPriority + $riskPriority + $timePriority;
+    }
+
+    public function getPregnancyStatusAttribute()
+    {
+        $appointment_count = $this->visit_count;
+
+        $status = '';
+        switch ($appointment_count) {
+            case 1:
+                $status = 'first_trimester';
+                break;
+            case 2:
+                $status = 'second_trimester';
+                break;
+            case 3:
+                $status = 'third_trimester';
+                break;
+            case 4:
+                $status = 'fourth_trimester';
+                break;
+            case 5:
+                $status = 'completed';
+                break;
+            default:
+                $status = 'first_trimester';
+                break;
+        }
+
+
+        return $status;
     }
 
     /**

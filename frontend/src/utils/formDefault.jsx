@@ -98,3 +98,63 @@ export const pregnancyEditFormData = (data = {}) => ({
   phic: '',
   ...data,
 });
+
+export const prenatalVisitFormData = {
+  patient_id: '',
+  date: '',
+  weight: '',
+  bp: '',
+  temp: '',
+  rr: '',
+  pr: '',
+  two_sat: '',
+  fht: '',
+  fh: '',
+  aog: '',
+};
+
+export const prenatalVisitEditFormData = (data = {}) => ({
+  patient_id: '',
+  date: '',
+  weight: '',
+  bp: '',
+  temp: '',
+  rr: '',
+  pr: '',
+  two_sat: '',
+  fht: '',
+  fh: '',
+  aog: '',
+  ...data,
+});
+
+export const outPatientFormData = {
+  patient_id: '',
+  file_number: '',
+  phic: '',
+  date: '',
+  time: '',
+  height: '',
+  weight: '',
+  bp: '',
+  temp: '',
+  rr: '',
+  pr: '',
+  two_sat: '',
+};
+
+export const outPatientEditFormData = (data = {}) => ({
+  patient_id: '',
+  file_number: '',
+  phic: '',
+  date: '',
+  time: '',
+  height: '',
+  weight: '',
+  bp: '',
+  temp: '',
+  rr: '',
+  pr: '',
+  two_sat: '',
+  ...data,
+});

@@ -100,6 +100,7 @@ const PatientTypeStep = ({
           formData={formData}
           inputChange={inputChange}
           error={error}
+          setFormData={setFormData}
         />
       )}
     </div>

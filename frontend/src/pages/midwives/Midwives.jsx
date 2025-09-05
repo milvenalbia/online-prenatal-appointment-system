@@ -113,7 +113,7 @@ const Midwives = () => {
         showActions={true}
         defaultPerPage={10}
         onAdd={handleAdd}
-        addButton={'Add Midwife'}
+        addButton={user.role_id !== 2 ? '' : 'Add Midwife'}
         ref={dataTableRef}
       />
       {isOpen && (
