@@ -30,3 +30,30 @@ html {
   font-family: 'Poppins', sans-serif;
   overflow-x: hidden;
 }
+
+
+.flatpickr-input {
+    display: none;
+}
+
+.fc-day-today{
+    background-color: #155dfc !important;
+    color: white !important;
+}
+
+/* Mobile toolbar adjustments */
+@media (max-width: 768px) {
+    .fc .fc-toolbar {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1rem;
+    }
+
+    .fc .fc-button {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+}

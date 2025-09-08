@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PrenatalVisitResource;
-use App\Models\Appointment;
-use App\Models\PregnancyTracking;
 use App\Models\PrenatalVisit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

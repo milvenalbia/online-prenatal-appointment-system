@@ -16,6 +16,11 @@ const DatePicker = ({
   hasLabel = false,
   placeholder = 'Select Date',
   disabled = false,
+  mode = 'single',
+  disable_weekends = false,
+  dateFormat = 'Y-m-d',
+  enableTime = false,
+  noCalendar = false,
   className,
 }) => {
   const [range, setRange] = useState([]);
@@ -59,6 +64,25 @@ const DatePicker = ({
     }
   };
 
+  let picker_options = {
+    mode: mode,
+    altInput: true,
+    altFormat: 'M j, Y',
+    dateFormat: dateFormat,
+  };
+
+  if (disable_weekends) {
+    picker_options.disable = [
+      (date) => date.getDay() === 0 || date.getDay() === 6,
+    ];
+  }
+
+  if (enableTime && noCalendar) {
+    picker_options.enableTime = true;
+    picker_options.noCalendar = true;
+    picker_options.altFormat = 'H:i';
+  }
+
   return (
     <div className='flex flex-col gap-2 mt-4 w-full' ref={pickerRef}>
       {hasLabel && (
@@ -77,14 +101,7 @@ const DatePicker = ({
           onChange={(selectedDates, dateStr, instance) =>
             handleChange(selectedDates, dateStr, instance)
           }
-          options={
-            options ?? {
-              mode: 'range',
-              altInput: true,
-              altFormat: 'M j, Y',
-              dateFormat: 'Y-m-d',
-            }
-          }
+          options={picker_options}
           className={cn(
             'w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all cursor-pointer',
             disabled && 'bg-gray-50 cursor-not-allowed',

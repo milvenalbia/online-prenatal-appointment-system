@@ -6,7 +6,6 @@ import HealthInformationStep from './form-wizard/HealthInformationStep';
 import PregnancyReviewInterface from './form-wizard/PregnancyTrackingReviewIternface';
 import StepIndicator from './form-wizard/StepIndicator';
 import NavigationButtons from './form-wizard/NavigationButtons';
-import { printPdf } from './form-wizard/pdf/PrintToPdf.js';
 import {
   pregnancyEditFormData,
   pregnancyFormData,
@@ -31,10 +30,10 @@ const FormWizard = ({ row = null }) => {
   // With Value FormData for testing
   const [formData, setFormData] = useState({
     age: '',
-    barangay: 32991,
+    barangay: '',
     barangay_center_id: '',
     barangay_health_station: '',
-    nurse_id: 3,
+    nurse_id: '',
     birth_date: '2002-08-06',
     birth_place: 'Tagoloan Misamis Oriental',
     bemoc: 'St. Paul Hospital',
@@ -49,8 +48,8 @@ const FormWizard = ({ row = null }) => {
     lastname: 'Pragas',
     lmp: '2025-06-08',
     middlename: 'Ando',
-    midwife_id: 1,
-    municipality: 1250,
+    midwife_id: '',
+    municipality: 1248,
     parity: '1',
     patient_id: '',
     patient_type: 'new',
@@ -96,8 +95,6 @@ const FormWizard = ({ row = null }) => {
       description: 'Please review all information before submitting',
     },
   ];
-
-  //   const { handlePrint } = printPdf(formData, patientType);
 
   const handleNewRecord = () => {
     if (isEdit) {

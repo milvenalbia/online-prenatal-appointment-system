@@ -4,14 +4,20 @@ import Container from '../../components/ui/Container';
 import { immunization_records_columns } from '../../utils/columns';
 import FormModal from '../../components/ui/FormModal';
 import { useFormSubmit } from '../../utils/functions';
-import ImmunizationForm from '../../components/forms/ImmunizationForm';
+import ImmunizationForm from '../../components/forms/immunizations/ImmunizationForm';
 import { useAuthStore } from '../../store/AuthStore';
+import {
+  immunizationEditFormData,
+  immunizationFormData,
+} from '../../utils/formDefault';
+import ImmunizationPDF from '../../components/interfaces/pdf/ImmunizationPDF';
+import { pdf } from '@react-pdf/renderer';
 
 const ImmunizationRecords = () => {
   const { user } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [formData, setFormData] = useState();
+  const [formData, setFormData] = useState(immunizationFormData);
   const [immunizationId, setImmunizationId] = useState(0);
   const dataTableRef = useRef();
 
@@ -23,19 +29,6 @@ const ImmunizationRecords = () => {
     other: ['first', 'second', 'third', 'fourth', 'fifth'],
   };
 
-  const buildDefaults = () => {
-    let defaults = { patient_id: '', other_vaccine_name: '' };
-
-    Object.entries(vaccineFields).forEach(([prefix, doses]) => {
-      doses.forEach((dose) => {
-        defaults[`${prefix}_${dose}_given`] = '';
-        defaults[`${prefix}_${dose}_comeback`] = '';
-      });
-    });
-
-    return defaults;
-  };
-
   const closeModal = () => {
     setIsOpen(false);
     if (isEdit) {
@@ -44,61 +37,40 @@ const ImmunizationRecords = () => {
     }
 
     setError({});
-    setFormData({
-      patient_id: '',
-
-      tetanus_first_given: '',
-      tetanus_second_given: '',
-      tetanus_third_given: '',
-      tetanus_fourth_given: '',
-      tetanus_fifth_given: '',
-
-      tetanus_first_comeback: '',
-      tetanus_second_comeback: '',
-      tetanus_third_comeback: '',
-      tetanus_fourth_comeback: '',
-      tetanus_fifth_comeback: '',
-
-      covid_first_given: '',
-      covid_second_given: '',
-      covid_booster_given: '',
-
-      covid_first_comeback: '',
-      covid_second_comeback: '',
-      covid_booster_comeback: '',
-
-      other_vaccine_name: 'H',
-      other_first_given: '',
-      other_second_given: '',
-      other_third_given: '',
-      other_fourth_given: '',
-      other_fifth_given: '',
-
-      other_first_comeback: '',
-      other_second_comeback: '',
-      other_third_comeback: '',
-      other_fourth_comeback: '',
-      other_fifth_comeback: '',
-    });
+    setFormData(immunizationFormData);
   };
 
   const handleEdit = (row) => {
     setIsEdit(true);
 
     setImmunizationId(row.id);
-    setFormData((prev) => ({
-      ...buildDefaults(),
-      ...row,
-    }));
+    setFormData(immunizationEditFormData(row));
 
     setIsOpen(true);
+  };
+
+  const handelDownload = async (row) => {
+    const blob = await pdf(<ImmunizationPDF formData={row} />).toBlob();
+
+    const url = URL.createObjectURL(blob);
+
+    // ✅ Trigger browser download
+    // const link = document.createElement('a');
+    // link.href = url;
+    // link.download = 'pregnancy-tracking.pdf'; // filename
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+
+    window.open(url, '_blank');
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const handleAdd = () => {
     setIsEdit(false);
     setIsOpen(true);
-    setFormData(buildDefaults());
-    console.log(formData);
+    setFormData(immunizationFormData);
   };
 
   const onSubmit = (e) => {
@@ -111,42 +83,7 @@ const ImmunizationRecords = () => {
       formData,
       onSuccess: () => dataTableRef.current?.fetchData(),
       onReset: () => {
-        setFormData({
-          patient_id: '',
-
-          tetanus_first_given: '',
-          tetanus_second_given: '',
-          tetanus_third_given: '',
-          tetanus_fourth_given: '',
-          tetanus_fifth_given: '',
-
-          tetanus_first_comeback: '',
-          tetanus_second_comeback: '',
-          tetanus_third_comeback: '',
-          tetanus_fourth_comeback: '',
-          tetanus_fifth_comeback: '',
-
-          covid_first_given: '',
-          covid_second_given: '',
-          covid_booster_given: '',
-
-          covid_first_comeback: '',
-          covid_second_comeback: '',
-          covid_booster_comeback: '',
-
-          other_vaccine_name: 'H',
-          other_first_given: '',
-          other_second_given: '',
-          other_third_given: '',
-          other_fourth_given: '',
-          other_fifth_given: '',
-
-          other_first_comeback: '',
-          other_second_comeback: '',
-          other_third_comeback: '',
-          other_fourth_comeback: '',
-          other_fifth_comeback: '',
-        });
+        setFormData(immunizationFormData);
         setError({});
         setIsOpen(false);
         if (isEdit) {
@@ -174,6 +111,7 @@ const ImmunizationRecords = () => {
         apiEndpoint='/api/immunization-records'
         columns={columns}
         onEdit={handleEdit}
+        onDownload={handelDownload}
         customActions={false}
         showDateFilter={true}
         showSearch={true}

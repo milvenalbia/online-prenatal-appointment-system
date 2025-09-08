@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\OutPatientResource;
 use App\Models\OutPatient;
+use App\Models\PregnancyTracking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -26,10 +27,10 @@ class OutPatientController extends Controller
             'date' => 'out_patients.date',
             'time' => 'out_patients.time',
             'age' => 'patients.age',
-            'created_at' => 'out_patients.create_at',
+            'created_at' => 'out_patients.created_at',
         ];
 
-        $sortBy = $sortableColumns[$request->input('sort_by')] ?? 'out_patients.create_at';
+        $sortBy = $sortableColumns[$request->input('sort_by')] ?? 'out_patients.created_at';
 
         $out_patients = OutPatient::select('out_patients.*')
             ->join('patients', 'patients.id', '=', 'out_patients.patient_id')
@@ -41,15 +42,15 @@ class OutPatientController extends Controller
             ])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where(DB::raw("CONCAT('firstname', ,' ', 'lastname')"), 'LIKE', "%{$search}%");
+                    $q->where(DB::raw("CONCAT('patients.firstname', ,' ', 'patients.lastname')"), 'LIKE', "%{$search}%");
                     // ->orWhere('pregnancy_tracking_number', 'LIKE', "%{$search}%");
                 });
             })
             ->when($dateFrom, function ($query, $dateFrom) {
-                $query->whereDate('created_at', '>=', $dateFrom);
+                $query->whereDate('out_patients.created_at', '>=', $dateFrom);
             })
             ->when($dateTo, function ($query, $dateTo) {
-                $query->whereDate('created_at', '<=', $dateTo);
+                $query->whereDate('out_patients.created_at', '<=', $dateTo);
             })
             ->orderBy($sortBy, $sortDir)
             ->paginate($perPage);
@@ -83,15 +84,33 @@ class OutPatientController extends Controller
             'rr'          => 'required',
             'pr'          => 'required',
             'two_sat'     => 'required',
-            'fht'         => 'required',
-            'fh'          => 'required',
-            'aog'         => 'required',
         ]);
 
-        OutPatient::create($fields);
+
+        DB::transaction(function () use ($fields) {
+
+            $pregnancy_tracking = PregnancyTracking::where('patient_id', $fields['patient_id'])
+                ->where('isDone', false)
+                ->first();
+
+            $outpatient = OutPatient::create($fields);
+
+            $dailyCount = OutPatient::whereDate('created_at', now())->count();
+
+            $fileNumber = now()->format('Y')
+                . str_pad($dailyCount, 2, '0', STR_PAD_LEFT)
+                . str_pad($outpatient->id, 3, '0', STR_PAD_LEFT);
+
+            $outpatient->update([
+                'file_number' => $fileNumber,
+                'phic' => $pregnancy_tracking->phic ? 'yes' : 'no',
+            ]);
+        });
+
+
 
         return [
-            'message' => 'Prenatal visit created successfully!',
+            'message' => 'Out Patient created successfully!',
         ];
     }
 

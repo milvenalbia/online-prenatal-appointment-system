@@ -10,7 +10,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { pdf, PDFViewer } from '@react-pdf/renderer';
-import PregnancyTrackingPDF from './pdf/PregnancyTrackingPDF';
+import PregnancyTrackingPDF from '../pdf/PregnancyTrackingPDF';
 
 const PregnancyReviewInterface = ({
   pregnancyTrackingData,

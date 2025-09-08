@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { pdf } from '@react-pdf/renderer';
 import DataTable from '../../components/ui/Datatable';
 import Container from '../../components/ui/Container';
 import { prenatal_visit_column } from '../../utils/columns';
@@ -10,6 +11,7 @@ import {
   prenatalVisitEditFormData,
   prenatalVisitFormData,
 } from '../../utils/formDefault';
+import PrenatalVisitPDF from '../../components/interfaces/pdf/PrentalVisitPDF';
 
 const PrenatalVisits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -75,6 +77,24 @@ const PrenatalVisits = () => {
     }));
   };
 
+  const handelDownload = async (row) => {
+    const blob = await pdf(<PrenatalVisitPDF formData={row} />).toBlob();
+
+    const url = URL.createObjectURL(blob);
+
+    // ✅ Trigger browser download
+    // const link = document.createElement('a');
+    // link.href = url;
+    // link.download = 'pregnancy-tracking.pdf'; // filename
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+
+    window.open(url, '_blank');
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
   const columns = prenatal_visit_column;
 
   return (
@@ -84,6 +104,7 @@ const PrenatalVisits = () => {
         apiEndpoint='/api/prenatal-visits'
         columns={columns}
         onEdit={handleEdit}
+        onDownload={handelDownload}
         customActions={false}
         showDateFilter={true}
         showSearch={true}

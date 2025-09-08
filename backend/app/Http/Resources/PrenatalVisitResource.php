@@ -25,6 +25,7 @@ class PrenatalVisitResource extends JsonResource
             'age' => $this->patient->age,
             'birth_date' => $this->patient->birth_date,
             'barangay' => $this->patient->barangays->name,
+            'zone' => $this->patient->zone,
             'municipality' => $this->patient->municipalities->name,
             'province' => $this->patient->provinces->name,
             'contact' => $this->patient->contact,
@@ -42,6 +43,9 @@ class PrenatalVisitResource extends JsonResource
             'fht' => $this->fht,
             'fh' => $this->fh,
             'aog' => $this->aog,
+            'lmp' => $this->patient->pregnancy_tracking->lmp,
+            'edc' => $this->patient->pregnancy_tracking->edc,
+            'attended_by' => $this->patient->pregnancy_tracking->attende_by,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

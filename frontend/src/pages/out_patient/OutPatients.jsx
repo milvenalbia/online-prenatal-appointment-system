@@ -3,19 +3,19 @@ import DataTable from '../../components/ui/Datatable';
 import Container from '../../components/ui/Container';
 import { out_patient_column } from '../../utils/columns';
 import FormModal from '../../components/ui/FormModal';
-import InputGroup from '../../components/ui/InputGroup';
-import { User } from 'lucide-react';
-import SelectReact from '../../components/ui/SelectReact';
 import { useFormSubmit } from '../../utils/functions';
 import { useAuthStore } from '../../store/AuthStore';
+import OutPatientsForm from '../../components/forms/outpatients/OutPatientsForm';
+import {
+  outPatientEditFormData,
+  outPatientFormData,
+} from '../../utils/formDefault';
+import OutPatientPDF from '../../components/interfaces/pdf/OutPatientPDF';
+import { pdf } from '@react-pdf/renderer';
 const OutPatients = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
-    barangay_center_id: 0,
-  });
+  const [formData, setFormData] = useState(outPatientFormData);
   const [outPatientId, setOutPatientId] = useState(0);
   const dataTableRef = useRef();
   const { user } = useAuthStore();
@@ -29,22 +29,14 @@ const OutPatients = () => {
     }
 
     setError({});
-    setFormData({
-      firstname: '',
-      lastname: '',
-      barangay_center_id: 0,
-    });
+    setFormData(outPatientFormData);
   };
 
   const handleEdit = (row) => {
     setIsEdit(true);
 
     setOutPatientId(row.id);
-    setFormData({
-      firstname: row.firstname,
-      lastname: row.lastname,
-      barangay_center_id: row.barangay_center_id,
-    });
+    setFormData(outPatientEditFormData(row));
 
     setIsOpen(true);
   };
@@ -58,17 +50,11 @@ const OutPatients = () => {
     handleSubmit({
       e,
       isEdit,
-      url: isEdit
-        ? `/api/prenatal-visits/${outPatientId}`
-        : '/api/prenatal-visits',
+      url: isEdit ? `/api/out-patients/${outPatientId}` : '/api/out-patients',
       formData,
       onSuccess: () => dataTableRef.current?.fetchData(),
       onReset: () => {
-        setFormData({
-          firstname: '',
-          lastname: '',
-          barangay_center_id: 0,
-        });
+        setFormData(outPatientFormData);
         setError({});
         setIsOpen(false);
         if (isEdit) {
@@ -87,6 +73,24 @@ const OutPatients = () => {
     }));
   };
 
+  const handelDownload = async (row) => {
+    const blob = await pdf(<OutPatientPDF formData={row} />).toBlob();
+
+    const url = URL.createObjectURL(blob);
+
+    // ✅ Trigger browser download
+    // const link = document.createElement('a');
+    // link.href = url;
+    // link.download = 'pregnancy-tracking.pdf'; // filename
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+
+    window.open(url, '_blank');
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
   const columns = out_patient_column;
 
   return (
@@ -96,6 +100,7 @@ const OutPatients = () => {
         apiEndpoint='/api/out-patients'
         columns={columns}
         onEdit={handleEdit}
+        onDownload={handelDownload}
         customActions={false}
         showDateFilter={true}
         showSearch={true}
@@ -113,76 +118,15 @@ const OutPatients = () => {
           isEdit={isEdit}
           title={'Out Patient'}
         >
-          <form onSubmit={onSubmit}>
-            <div className='space-y-6 sm:w-auto'>
-              <div className='flex justify-between gap-2 -mt-2'>
-                <div className='w-full'>
-                  <InputGroup
-                    type='text'
-                    name='firstname'
-                    value={formData.firstname}
-                    onChange={inputChange}
-                    placeholder='Firstname'
-                    icon={<User className='h-5 w-5 text-gray-400' />}
-                    id={'firstname'}
-                    hasLabel
-                    label={'Firstname'}
-                  />
-                  {error.firstname && (
-                    <p className='error -mt-4'>{error.firstname[0]}</p>
-                  )}
-                </div>
-                <div className='w-full'>
-                  <InputGroup
-                    type='text'
-                    name='lastname'
-                    value={formData.lastname}
-                    onChange={inputChange}
-                    placeholder='Lastname'
-                    icon={<User className='h-5 w-5 text-gray-400' />}
-                    id={'lastname'}
-                    hasLabel
-                    label={'Lastname'}
-                  />
-                  {error.lastname && (
-                    <p className='error -mt-4'>{error.lastname[0]}</p>
-                  )}
-                </div>
-              </div>
-
-              <SelectReact
-                label='Heath Station'
-                id='barangay_id'
-                name='barangay_center_id'
-                endpoint='/api/barangay-centers'
-                placeholder='Choose a health station'
-                formData={formData}
-                setFormData={setFormData}
-                labelKey={'health_station'}
-              />
-              {error.barangay_center_id && (
-                <p className='error -mt-4'>{error.barangay_center_id[0]}</p>
-              )}
-
-              <button
-                disabled={isSubmitting}
-                className={`w-full bg-gradient-to-r text-white py-3 rounded-lg font-semibold transform hover:scale-105 transition-all duration-200 shadow-lg 
-                ${
-                  isSubmitting
-                    ? 'from-purple-300 to-pink-300 cursor-not-allowed'
-                    : 'from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
-                }`}
-              >
-                {isSubmitting
-                  ? isEdit
-                    ? 'Updating ...'
-                    : 'Creating ...'
-                  : isEdit
-                  ? 'Update'
-                  : 'Create'}
-              </button>
-            </div>
-          </form>
+          <OutPatientsForm
+            onSubmit={onSubmit}
+            inputChange={inputChange}
+            formData={formData}
+            setFormData={setFormData}
+            error={error}
+            isSubmitting={isSubmitting}
+            isEdit={isEdit}
+          />
         </FormModal>
       )}
     </Container>

@@ -40,11 +40,18 @@ class ImmuzinationRecordResource extends JsonResource
             $this->other_vaccine->fifth_given ?? null,
         ])->filter();
 
-        $tetanus = $tetanusLastVaccination->max() ?? null;
 
-        $covid = $covidLastVaccination->max() ?? null;
+        $tetanus = $tetanusLastVaccination->max();
+        $covid   = $covidLastVaccination->max();
+        $other   = $otherLastVaccination->max();
 
-        $other = $otherLastVaccination->max() ?? null;
+        $combineWithTime = function ($date, $timeSource) {
+            return $date ? Carbon::parse($date . ' ' . $timeSource->format('H:i:s')) : null;
+        };
+
+        $tetanusDateTime = $combineWithTime($tetanus, $this->updated_at);
+        $covidDateTime   = $combineWithTime($covid, $this->updated_at);
+        $otherDateTime   = $combineWithTime($other, $this->updated_at);
 
         return [
             'id' => $this->id,
@@ -60,14 +67,14 @@ class ImmuzinationRecordResource extends JsonResource
             'age' => $this->patient->age,
 
             // ✅ computed fields
-            'tetanus_last_vaccine' => $tetanus
-                ? Carbon::parse($tetanus)->diffForHumans()
+            'tetanus_last_vaccine' => $tetanusDateTime
+                ? $tetanusDateTime->diffForHumans()
                 : 'No vaccination',
-            'covid_last_vaccine' => $covid
-                ? Carbon::parse($covid)->diffForHumans()
+            'covid_last_vaccine' => $covidDateTime
+                ? $covidDateTime->diffForHumans()
                 : 'No vaccination',
-            'other_last_vaccine' => $other
-                ? Carbon::parse($other)->diffForHumans()
+            'other_last_vaccine' => $otherDateTime
+                ? $otherDateTime->diffForHumans()
                 : 'No vaccination',
 
             // ✅ tetanus fields

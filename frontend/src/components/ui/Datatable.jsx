@@ -658,6 +658,7 @@ const DataTable = forwardRef((props, ref) => {
               <DatePicker
                 value={range}
                 onChange={(selectedDates) => handleSelectedDates(selectedDates)}
+                mode='range'
                 placeholdertext='Select date range'
                 className='w-full pl-10 pr-4 py-2 border border-gray-300 outline-none rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all'
               />

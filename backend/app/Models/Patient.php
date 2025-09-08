@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 
 class Patient extends Model
@@ -43,6 +44,11 @@ class Patient extends Model
     public function pregnancy_trackings(): HasMany
     {
         return $this->hasMany(PregnancyTracking::class);
+    }
+
+    public function pregnancy_tracking(): HasOne
+    {
+        return $this->hasOne(PregnancyTracking::class)->where('isDone', false);
     }
 
     public function out_patients(): HasMany

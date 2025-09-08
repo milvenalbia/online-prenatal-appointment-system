@@ -75,13 +75,13 @@ export const pregnancy_tracking_columns = [
           status = '4th Trimester';
           break;
         default:
-          colorClass = 'bg-gray-100 text-gray-800';
+          colorClass = 'bg-gray-200 text-gray-800';
       }
       return (
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold ${colorClass}`}
         >
-          {status}
+          {status ? status : 'Refferal'}
         </span>
       );
     },
@@ -244,6 +244,22 @@ export const pregnancy_tracking_columns = [
   },
   {
     key: 'center_barangay',
+    hidden: true,
+  },
+  {
+    key: 'barangay_name',
+    hidden: true,
+  },
+  {
+    key: 'municipality_name',
+    hidden: true,
+  },
+  {
+    key: 'province_name',
+    hidden: true,
+  },
+  {
+    key: 'region_name',
     hidden: true,
   },
 ];
@@ -596,6 +612,10 @@ export const prenatal_visit_column = [
     hidden: true,
   },
   {
+    key: 'zone',
+    hidden: true,
+  },
+  {
     key: 'rr',
     hidden: true,
   },
@@ -617,6 +637,18 @@ export const prenatal_visit_column = [
   },
   {
     key: 'aog',
+    hidden: true,
+  },
+  {
+    key: 'lmp',
+    hidden: true,
+  },
+  {
+    key: 'edc',
+    hidden: true,
+  },
+  {
+    key: 'attended_by',
     hidden: true,
   },
 ];
@@ -654,12 +686,36 @@ export const out_patient_column = [
     title: 'Time',
     sortable: true,
     width: 'w-[10%]',
+    render: (value) => {
+      function formatTime(timeString) {
+        const [hours, minutes] = timeString.split(':');
+        const date = new Date();
+        date.setHours(hours, minutes);
+        return date.toLocaleTimeString([], {
+          hour: 'numeric',
+          minute: '2-digit',
+        });
+      }
+      return <span>{formatTime(value)}</span>;
+    },
   },
   {
-    key: 'Weight',
+    key: 'height',
+    title: 'Height',
+    sortable: false,
+    width: 'w-[5%]',
+    render: (value) => {
+      return <span>{value} cm</span>;
+    },
+  },
+  {
+    key: 'weight',
     title: 'Weight',
     sortable: false,
     width: 'w-[5%]',
+    render: (value) => {
+      return <span>{value} kg</span>;
+    },
   },
   {
     key: 'bp',
@@ -678,7 +734,7 @@ export const out_patient_column = [
     key: 'patient_address',
     title: 'Address',
     sortable: false,
-    width: 'w-[20%]',
+    width: 'w-[15%]',
   },
   {
     key: 'id',
@@ -725,6 +781,19 @@ export const out_patient_column = [
     hidden: true,
   },
   {
+    key: 'zone',
+    hidden: true,
+  },
+  {
+    key: 'sex',
+    hidden: true,
+  },
+  {
+    key: 'full_address',
+    hidden: true,
+  },
+
+  {
     key: 'rr',
     hidden: true,
   },
@@ -742,10 +811,6 @@ export const out_patient_column = [
   },
   {
     key: 'religion',
-    hidden: true,
-  },
-  {
-    key: 'height',
     hidden: true,
   },
 ];
@@ -1113,6 +1178,7 @@ export const appointment_columns = [
 export const pickerOptions = {
   mode: 'single',
   dateFormat: 'Y-m-d',
+  altInput: true,
 };
 
 export const pickerNoWeekendsOptions = {

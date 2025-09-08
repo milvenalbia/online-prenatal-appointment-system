@@ -76,23 +76,21 @@ const HealthInformationStep = ({
             id='lmp'
             value={formData.lmp}
             onChange={(e) => {
-              setFormData((prev) => {
-                const lmp = e.target.value;
-                const [y, m, d] = lmp.split('-').map(Number);
-                const date = new Date(y, m - 1, d);
-                date.setMonth(date.getMonth() + 9);
+              const lmp = e.target.value;
+              const [y, m, d] = lmp.split('-').map(Number);
+              const date = new Date(y, m - 1, d);
+              date.setMonth(date.getMonth() + 9);
 
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                const edc = `${year}-${month}-${day}`;
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const day = String(date.getDate()).padStart(2, '0');
+              const edc = `${year}-${month}-${day}`;
 
-                return {
-                  ...prev,
-                  lmp,
-                  edc,
-                };
-              });
+              setFormData((prev) => ({
+                ...prev,
+                lmp,
+                edc,
+              }));
             }}
             placeholder='Last Menstrual Period'
             hasLabel
@@ -102,7 +100,6 @@ const HealthInformationStep = ({
         </div>
         <div className='w-full'>
           <DatePicker
-            options={pickerOptions}
             name='edc'
             id='edc'
             value={formData.edc}
@@ -110,6 +107,7 @@ const HealthInformationStep = ({
             placeholder='Expected Date of Confinement'
             hasLabel
             label='Expected Date of Confinement (EDC)'
+            mode='single'
             disabled={true}
           />
           {error.edc && <p className='error mt-1'>{error.edc[0]}</p>}

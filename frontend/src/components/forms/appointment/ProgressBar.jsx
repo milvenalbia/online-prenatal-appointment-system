@@ -3,7 +3,7 @@ import { CheckCircle } from 'lucide-react';
 // Progress Bar Component
 const ProgressBar = ({ steps, currentStep }) => (
   <div className='bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 mb-8'>
-    <div className='flex items-center justify-between'>
+    <div className='flex items-center justify-center'>
       {steps.map((step, index) => {
         const Icon = step.icon;
         const isActive = currentStep === step.id;

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
-use App\Models\PregnancyTracking;
 use App\Services\AppointmentSchedulingService;
 use Carbon\Carbon;
 use Exception;
@@ -108,6 +107,8 @@ class AppointmentController extends Controller
         }
     }
 
+    public function show(Appointment $qppointment) {}
+
     /**
      * Create a new appointment
      */
@@ -180,6 +181,31 @@ class AppointmentController extends Controller
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
+
+    public function getAvailabilityByRange(Request $request): JsonResponse
+    {
+        $start = $request->input('start'); // YYYY-MM-DD
+        $end = $request->input('end');     // YYYY-MM-DD
+        $maxSlots = 5;
+
+        $appointments = Appointment::selectRaw('DATE(appointment_date) as date, COUNT(*) as count')
+            ->whereBetween('appointment_date', [$start, $end])
+            ->groupBy('date')
+            ->get();
+
+        $availability = [];
+        foreach ($appointments as $day) {
+            $remaining = max($maxSlots - $day->count, 0);
+            $availability[$day->date] = [
+                'appointments_count' => $day->count,
+                'remaining_slots' => $remaining,
+                'is_fully_booked' => $remaining === 0,
+            ];
+        }
+
+        return response()->json($availability);
+    }
+
 
     /**
      * Update appointment (limited to notes and priority)

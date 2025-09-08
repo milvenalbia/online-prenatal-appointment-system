@@ -1,7 +1,5 @@
 import {
   Activity,
-  Baby,
-  CalendarDays,
   Droplet,
   HeartPulse,
   Ruler,
@@ -13,7 +11,7 @@ import SelectReact from '../../ui/SelectReact';
 import InputGroup from '../../ui/InputGroup';
 import DatePicker from '../../ui/DatePicker';
 
-const PrenatalVisitForm = ({
+const OutPatientsForm = ({
   onSubmit,
   inputChange,
   formData,
@@ -22,21 +20,6 @@ const PrenatalVisitForm = ({
   isSubmitting,
   isEdit,
 }) => {
-  const trimesterOptions = [
-    {
-      name: '1st Trimester',
-      value: 'first_trimester',
-    },
-    {
-      name: '2nd Trimester',
-      value: 'second_trimester',
-    },
-    {
-      name: '3rd Trimester',
-      value: 'third_trimester',
-    },
-  ];
-
   return (
     <form onSubmit={onSubmit}>
       <div className='space-y-6 sm:w-auto'>
@@ -58,60 +41,69 @@ const PrenatalVisitForm = ({
           )}
         </div>
 
-        <div className='flex-1'>
-          <DatePicker
-            disable_weekends
-            hasLabel
-            label='Visit Date'
-            value={formData.date}
-            setFormData={setFormData}
-            id='date'
-            name='date'
-          />
-          {error.date && <p className='error mt-1'>{error.date[0]}</p>}
-        </div>
-
-        {/* <div className='relative flex-1'>
-          <DateInput
-            hasLabel
-            label='Visit Date'
-            value={formData.date}
-            onChange={inputChange}
-            id='date'
-            name='date'
-          />
-          {error.date && <p className='error mt-1'>{error.date[0]}</p>}
-        </div> */}
-
-        {/* <div className='flex items-center justify-between gap-4'>
-          <div className='relative flex-1'>
-            <DateInput
+        <div className='flex flex-col sm:flex-row items-center justify-between gap-4'>
+          <div className='flex-1'>
+            <DatePicker
+              disable_weekends
               hasLabel
-              label='Visit Date'
+              label='Select Date'
               value={formData.date}
-              onChange={inputChange}
+              setFormData={setFormData}
               id='date'
               name='date'
             />
             {error.date && <p className='error mt-1'>{error.date[0]}</p>}
           </div>
+
           <div className='flex-1'>
-            <SelectGroup
-              name='trimester'
-              value={formData.trimester}
-              onChange={inputChange}
-              placeholder='Select trimester'
-              options={trimesterOptions}
-              id='trimester'
-              icon={<CalendarCheck className='h-5 w-5 text-gray-400' />}
+            <DatePicker
               hasLabel
-              label='Select Trimester'
+              label='Select Time'
+              placeholder='Select Time'
+              value={formData.time}
+              setFormData={setFormData}
+              id='time'
+              name='time'
+              dateFormat='H:i'
+              disable_weekends
+              enableTime
+              noCalendar
             />
-            {error.trimester && (
-              <p className='error mt-1'>{error.trimester[0]}</p>
-            )}
+            {error.time && <p className='error mt-1'>{error.time[0]}</p>}
           </div>
-        </div> */}
+        </div>
+        <div className='flex flex-col sm:flex-row items-center justify-between gap-4'>
+          <div className='flex-1'>
+            <InputGroup
+              type='number'
+              name='height'
+              id='height'
+              value={formData.height}
+              onChange={inputChange}
+              placeholder='Enter height'
+              icon={<Ruler className='h-5 w-5 text-gray-400' />}
+              hasLabel
+              label='height (cm)'
+            />
+            {error.height && <p className='error mt-1'>{error.height[0]}</p>}
+          </div>
+
+          <div className='flex-1'>
+            <InputGroup
+              type='number'
+              step='0.1'
+              name='weight'
+              id='weight'
+              value={formData.weight}
+              onChange={inputChange}
+              placeholder='Enter weight'
+              icon={<Weight className='h-5 w-5 text-gray-400' />}
+              hasLabel
+              label='Weight (kg)'
+            />
+            {error.weight && <p className='error mt-1'>{error.weight[0]}</p>}
+          </div>
+        </div>
 
         {/* Vital Signs Section */}
         <div className='bg-gray-50 p-4 rounded-lg'>
@@ -120,23 +112,7 @@ const PrenatalVisitForm = ({
           </h3>
 
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <div className='-mt-5'>
-              <InputGroup
-                type='number'
-                step='0.1'
-                name='weight'
-                id='weight'
-                value={formData.weight}
-                onChange={inputChange}
-                placeholder='Enter weight'
-                icon={<Weight className='h-5 w-5 text-gray-400' />}
-                hasLabel
-                label='Weight (kg)'
-              />
-              {error.weight && <p className='error mt-1'>{error.weight[0]}</p>}
-            </div>
-
-            <div className='-mt-5'>
+            <div className='-mt-5 col-span-1 sm:col-span-2'>
               <InputGroup
                 type='text'
                 name='bp'
@@ -218,62 +194,6 @@ const PrenatalVisitForm = ({
           </div>
         </div>
 
-        {/* Fetal Assessment Section */}
-        <div className='bg-gray-50 p-4 rounded-lg'>
-          <h3 className='text-lg font-semibold text-gray-800 mb-4'>
-            Fetal Assessment
-          </h3>
-
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-            <div className='-mt-5'>
-              <InputGroup
-                type='text'
-                name='fht'
-                id='fht'
-                value={formData.fht}
-                onChange={inputChange}
-                placeholder='Normal'
-                icon={<Baby className='h-5 w-5 text-gray-400' />}
-                hasLabel
-                label='Fetal Heart Tone (FHT)'
-              />
-              {error.fht && <p className='error mt-1'>{error.fht[0]}</p>}
-            </div>
-
-            <div className='-mt-5'>
-              <InputGroup
-                type='number'
-                step='0.1'
-                name='fh'
-                id='fh'
-                value={formData.fh}
-                onChange={inputChange}
-                placeholder='24'
-                icon={<Ruler className='h-5 w-5 text-gray-400' />}
-                hasLabel
-                label='Fundal Height (FH) cm'
-              />
-              {error.fh && <p className='error mt-1'>{error.fh[0]}</p>}
-            </div>
-
-            <div className='-mt-5'>
-              <InputGroup
-                type='number'
-                step='0.1'
-                name='aog'
-                id='aog'
-                value={formData.aog}
-                onChange={inputChange}
-                placeholder='24'
-                icon={<CalendarDays className='h-5 w-5 text-gray-400' />}
-                hasLabel
-                label='Age of Gestation (AOG) weeks'
-              />
-              {error.aog && <p className='error mt-1'>{error.aog[0]}</p>}
-            </div>
-          </div>
-        </div>
-
         <button
           disabled={isSubmitting}
           className={`w-full bg-gradient-to-r text-white py-3 rounded-lg font-semibold transform hover:scale-105 transition-all duration-200 shadow-lg 
@@ -288,12 +208,12 @@ const PrenatalVisitForm = ({
               ? 'Updating ...'
               : 'Creating ...'
             : isEdit
-            ? 'Updating Prenatal Visit'
-            : 'Creating Prenatal Visit'}
+            ? 'Updating Out Patient'
+            : 'Creating Out Patient'}
         </button>
       </div>
     </form>
   );
 };
 
-export default PrenatalVisitForm;
+export default OutPatientsForm;

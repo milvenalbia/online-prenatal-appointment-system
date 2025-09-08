@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import DateInput from '../ui/DateInput';
-import InputGroup from '../ui/InputGroup';
-import SelectReact from '../ui/SelectReact';
+import DateInput from '../../ui/DateInput';
+import InputGroup from '../../ui/InputGroup';
+import SelectReact from '../../ui/SelectReact';
 import {
   AlertCircle,
   ChevronDown,
@@ -9,8 +9,8 @@ import {
   FileWarning,
   Syringe,
 } from 'lucide-react';
-import DatePicker from '../ui/DatePicker';
-import { pickerNoWeekendsOptions } from '../../utils/columns';
+import DatePicker from '../../ui/DatePicker';
+import { pickerNoWeekendsOptions } from '../../../utils/columns';
 
 const ImmunizationForm = ({
   inputChange,

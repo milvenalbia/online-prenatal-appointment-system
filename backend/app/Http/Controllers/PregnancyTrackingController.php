@@ -115,6 +115,7 @@ class PregnancyTrackingController extends Controller
                 $health_station = BarangayCenter::where('id', $fields['barangay_center_id'])->first();
 
                 $fields['fullname'] = $patient->fullname;
+                $fields['status'] = 'first_trimester';
                 $fields['barangay_health_station'] = $health_station->health_station;
             }
 

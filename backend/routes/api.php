@@ -58,4 +58,5 @@ Route::middleware(['throttle:api', 'auth:sanctum'])->group(function () {
     Route::get('/midwife-and-nurse-name', [SelectAddressController::class, 'getMidwifeAndNurseName']);
     Route::get('/filter/roles', [SelectAddressController::class, 'roles']);
     Route::get('/filter/pregnancy_trakings', [SelectAddressController::class, 'pregnancy_trackings']);
+    Route::get('/available-appointments', [AppointmentController::class, 'getAvailabilityByRange']);
 });

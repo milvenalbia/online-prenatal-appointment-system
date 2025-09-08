@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router';
+import { pdf } from '@react-pdf/renderer';
 import Container from '../../components/ui/Container';
 import DataTable from '../../components/ui/Datatable';
 import { pregnancy_tracking_columns } from '../../utils/columns';
-import { pdf } from '@react-pdf/renderer';
-import PregnancyTrackingPDF from '../../components/interfaces/form-wizard/pdf/PregnancyTrackingPDF';
 import { useAuthStore } from '../../store/AuthStore.js';
+import PregnancyTrackingPDF from '../../components/interfaces/pdf/PregnancyTrackingPDF.jsx';
 
 const PregnancyTrackingRecords = () => {
   const navigate = useNavigate();
