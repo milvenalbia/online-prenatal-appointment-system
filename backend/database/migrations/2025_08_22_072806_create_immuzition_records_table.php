@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('immuzition_records', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id');
+            $table->foreignId('pregnancy_tracking_id')->constrained('pregnancy_trackings');
             $table->foreignId('tetanus_vaccine_id')->nullable()->constrained('tetanus_vaccines');
             $table->foreignId('covid_vaccine_id')->nullable()->constrained('covid_vaccines');
             $table->foreignId('other_vaccine_id')->nullable()->constrained('other_vaccines');

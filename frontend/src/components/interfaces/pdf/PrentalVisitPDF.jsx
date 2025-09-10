@@ -197,9 +197,9 @@ const PrenatalVisitPDF = ({ formData = {}, patientData = {} }) => {
   const visitsArray = Array.isArray(formData) ? formData : [formData];
 
   const groupVisitsByTrimester = (visits) => {
-    const first = visits.slice(0, 2);
-    const second = visits.slice(2, 5);
-    const third = visits.slice(5, 15);
+    const first = visits.slice(0, 1);
+    const second = visits.slice(1, 2);
+    const third = visits.slice(2, 4);
     return { first, second, third };
   };
 

@@ -165,6 +165,10 @@ const styles = StyleSheet.create({
     fontSize: 7,
     lineHeight: 1.0,
   },
+  riskCodeText: {
+    fontSize: 7,
+    marginBottom: 1,
+  },
 });
 
 const PregnancyTrackingPDF = ({ formData, patientType }) => {
@@ -188,6 +192,26 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
   };
 
   const edc = getEDCValues();
+
+  // Function to format risk codes for display
+  const formatRiskCodes = () => {
+    if (!formData.risk_codes || formData.risk_codes.length === 0) {
+      return '';
+    }
+
+    return formData.risk_codes
+      .map((risk, index) => {
+        let riskText = risk.risk_code || '';
+        if (risk.risk_status) {
+          riskText += ` - ${risk.risk_status}`;
+        }
+        if (risk.date_detected) {
+          riskText += `\nDate: ${risk.date_detected}`;
+        }
+        return riskText;
+      })
+      .join('\n\n');
+  };
 
   return (
     <Document>
@@ -526,177 +550,237 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
             />
           </View>
 
-          {/* Data Row */}
-          <View style={styles.tableRow}>
-            <View style={[styles.cell, styles.noCell]}>
-              <Text>1</Text>
-            </View>
-            <View style={[styles.cell, styles.nameCellWidth, styles.nameCell]}>
-              <Text>{getPatientName()}</Text>
-            </View>
-            <View style={[styles.cell, styles.gravidityCell]}>
-              <Text>{formData.patient_short_address || ''}</Text>
-            </View>
-            <View style={[styles.cell, styles.gravidityCell]}>
-              <Text>{formData.birth_date || ''}</Text>
-            </View>
-            <View style={[styles.cell, styles.ageCell]}>
-              <Text>{formData.age || ''}</Text>
-            </View>
-            <View style={[styles.cell, styles.contactCell]}>
-              <Text>
-                {formData.contact.startsWith('63')
-                  ? `0${formData.contact.slice(2)}`
-                  : ''}
-              </Text>
-            </View>
-            <View style={[styles.cell, styles.lmpCell]}>
-              <Text>{formData.lmp || ''}</Text>
-            </View>
-            <View style={[styles.cell, styles.edcCell]}>
-              <Text>{formData.edc || ''}</Text>
-            </View>
+          {/* Data Rows - First row and additional rows for each risk code */}
+          {Array.from({
+            length: Math.max(1, formData.risk_codes?.length || 1),
+          }).map((_, dataRowIndex) => {
+            const isFirstRow = dataRowIndex === 0;
+            const currentRisk = formData.risk_codes?.[dataRowIndex] || null;
 
-            {/* Antenatal Care columns */}
-            <View style={[styles.cell, styles.checkupCell]}>
-              <Text>{`G${formData.gravidity || '-'}`}</Text>
-            </View>
-            <View style={[styles.cell, styles.checkupCell]}>
-              <Text>{`P${formData.parity || '-'}`}</Text>
-            </View>
-            <View style={[styles.cell, styles.checkupCell]}>
-              <Text>{`A${formData.abortion || '-'}`}</Text>
-            </View>
-
-            {/* 4 ANC Given columns */}
-            <View style={[styles.cell, styles.checkupCell2]}>
-              <Text>✔</Text>
-            </View>
-            <View style={[styles.cell, styles.checkupCell2]}>
-              <Text></Text>
-            </View>
-
-            {/* Risk Code and Date Detected columns */}
-            <View style={[styles.cell, styles.checkupCell3]}>
-              <Text>Teenage pregnancy 19Y.O below</Text>
-              <Text>Date: 2025-08-23</Text>
-            </View>
-
-            {/* Date Terminated/Delivery */}
-            <View style={[styles.cell, styles.lmpCell]}>
-              <Text>{formData?.date_delivery || ''}</Text>
-            </View>
-
-            {/* Outcome Sex and Weight */}
-            <View style={[styles.cell, { width: 60 }]}>
-              <Text>
-                {formData?.outcome_sex && formData?.outcome_weight
-                  ? `${formData.outcome_sex.slice(0, 1).toUppercase()}/${
-                      formData.outcome_weight
-                    } kg`
-                  : ''}
-              </Text>
-            </View>
-
-            {/* Pace of delivery and attended by */}
-            <View style={[styles.cell, { width: 65 }]}>
-              <Text>{formData?.place_of_delivery || ''}</Text>
-            </View>
-
-            <View style={[styles.cell, { width: 65 }]}>
-              <Text>{formData?.attended_by || ''}</Text>
-            </View>
-
-            {/* PHIC */}
-            <View style={[styles.cell, { width: 40 }]}>
-              <Text>{formData?.phic ? 'Yes' : 'No'}</Text>
-            </View>
-          </View>
-
-          {/* Empty Rows */}
-          {Array.from({ length: 6 }).map((_, rowIndex) => (
-            <View key={rowIndex} style={styles.emptyTableRow}>
-              <View style={[styles.cell, styles.noCell]}>
-                <Text>{rowIndex + 2}</Text>
-              </View>
-              <View
-                style={[styles.cell, styles.nameCellWidth, styles.nameCell]}
-              >
-                <Text></Text>
-              </View>
-              <View style={[styles.cell, styles.gravidityCell]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.cell, styles.gravidityCell]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.cell, styles.ageCell]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.cell, styles.contactCell]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.cell, styles.lmpCell]}>
-                <Text></Text>
-              </View>
-              <View style={[styles.cell, styles.edcCell]}>
-                <Text></Text>
-              </View>
-
-              {/* Antenatal Care empty columns */}
-              {Array.from({ length: 3 }).map((_, index) => (
+            return (
+              <View key={`data-row-${dataRowIndex}`} style={styles.tableRow}>
+                <View style={[styles.cell, styles.noCell]}>
+                  <Text>{isFirstRow ? '1' : ''}</Text>
+                </View>
                 <View
-                  key={`empty-checkup-${index}`}
-                  style={[styles.cell, styles.checkupCell]}
+                  style={[styles.cell, styles.nameCellWidth, styles.nameCell]}
                 >
+                  <Text>{isFirstRow ? getPatientName() : ''}</Text>
+                </View>
+                <View style={[styles.cell, styles.gravidityCell]}>
+                  <Text>
+                    {isFirstRow ? formData.patient_short_address || '' : ''}
+                  </Text>
+                </View>
+                <View style={[styles.cell, styles.gravidityCell]}>
+                  <Text>{isFirstRow ? formData.birth_date || '' : ''}</Text>
+                </View>
+                <View style={[styles.cell, styles.ageCell]}>
+                  <Text>{isFirstRow ? formData.age || '' : ''}</Text>
+                </View>
+                <View style={[styles.cell, styles.contactCell]}>
+                  <Text>
+                    {isFirstRow
+                      ? formData.contact && formData.contact.startsWith('63')
+                        ? `0${formData.contact.slice(2)}`
+                        : formData.contact || ''
+                      : ''}
+                  </Text>
+                </View>
+                <View style={[styles.cell, styles.lmpCell]}>
+                  <Text>{isFirstRow ? formData.lmp || '' : ''}</Text>
+                </View>
+                <View style={[styles.cell, styles.edcCell]}>
+                  <Text>{isFirstRow ? formData.edc || '' : ''}</Text>
+                </View>
+
+                {/* Antenatal Care columns */}
+                <View style={[styles.cell, styles.checkupCell]}>
+                  <Text>
+                    {isFirstRow ? `G${formData.gravidity || '-'}` : ''}
+                  </Text>
+                </View>
+                <View style={[styles.cell, styles.checkupCell]}>
+                  <Text>{isFirstRow ? `P${formData.parity || '-'}` : ''}</Text>
+                </View>
+                <View style={[styles.cell, styles.checkupCell]}>
+                  <Text>
+                    {isFirstRow ? `A${formData.abortion || '-'}` : ''}
+                  </Text>
+                </View>
+
+                {/* 4 ANC Given columns */}
+                <View style={[styles.cell, styles.checkupCell2]}>
+                  <Text>{isFirstRow ? '✔' : ''}</Text>
+                </View>
+                <View style={[styles.cell, styles.checkupCell2]}>
                   <Text></Text>
                 </View>
-              ))}
 
-              {/* 4 ANC Given empty columns */}
-              {Array.from({ length: 2 }).map((_, index) => (
+                {/* Risk Code and Date Detected column - One risk code per row */}
                 <View
-                  key={`empty-outcome-${index}`}
-                  style={[styles.cell, styles.checkupCell2]}
+                  style={[
+                    styles.cell,
+                    styles.checkupCell3,
+                    {
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start',
+                      paddingTop: 3,
+                    },
+                  ]}
                 >
-                  <Text></Text>
+                  {currentRisk ? (
+                    <View>
+                      <Text style={styles.riskCodeText}>
+                        {currentRisk.risk_code || ''}
+                      </Text>
+                      {currentRisk.risk_status && (
+                        <Text style={styles.riskCodeText}>
+                          - {currentRisk.risk_status}
+                        </Text>
+                      )}
+                      {currentRisk.date_detected && (
+                        <Text style={styles.riskCodeText}>
+                          Date: {currentRisk.date_detected}
+                        </Text>
+                      )}
+                    </View>
+                  ) : (
+                    <Text></Text>
+                  )}
                 </View>
-              ))}
 
-              {/* Risk Code and Date Detected empty columns */}
-              <View style={[styles.cell, styles.checkupCell3]}>
-                <Text></Text>
-              </View>
-              {/* <View style={[styles.cell, styles.checkupCell3]}>
-                <Text>Teenage pregnancy 19Y.O below</Text>
-                <Text>Date: 2025-08-23</Text>
-              </View> */}
+                {/* Date Terminated/Delivery */}
+                <View style={[styles.cell, styles.lmpCell]}>
+                  <Text>{isFirstRow ? formData?.date_delivery || '' : ''}</Text>
+                </View>
 
-              {/* Date Terminated/Delivery */}
-              <View style={[styles.cell, styles.lmpCell]}>
-                <Text></Text>
-              </View>
+                {/* Outcome Sex and Weight */}
+                <View style={[styles.cell, { width: 60 }]}>
+                  <Text>
+                    {isFirstRow
+                      ? formData?.outcome_sex && formData?.outcome_weight
+                        ? `${formData.outcome_sex.slice(0, 1).toUpperCase()}/${
+                            formData.outcome_weight
+                          } kg`
+                        : ''
+                      : ''}
+                  </Text>
+                </View>
 
-              {/* Outcome Sex and Weight */}
-              <View style={[styles.cell, { width: 60 }]}>
-                <Text></Text>
-              </View>
+                {/* Place of delivery and attended by */}
+                <View style={[styles.cell, { width: 65 }]}>
+                  <Text>
+                    {isFirstRow ? formData?.place_of_delivery || '' : ''}
+                  </Text>
+                </View>
 
-              {/* Pace of delivery and attended by */}
-              <View style={[styles.cell, { width: 65 }]}>
-                <Text></Text>
-              </View>
+                <View style={[styles.cell, { width: 65 }]}>
+                  <Text>{isFirstRow ? formData?.attended_by || '' : ''}</Text>
+                </View>
 
-              <View style={[styles.cell, { width: 65 }]}>
-                <Text></Text>
+                {/* PHIC */}
+                <View style={[styles.cell, { width: 40 }]}>
+                  <Text>
+                    {isFirstRow ? (formData?.phic ? 'Yes' : 'No') : ''}
+                  </Text>
+                </View>
               </View>
+            );
+          })}
 
-              {/* PHIC */}
-              <View style={[styles.cell, { width: 40 }]}>
-                <Text></Text>
-              </View>
-            </View>
-          ))}
+          {/* Empty Rows - Adjust count based on risk codes */}
+          {formData.risk_codes?.length < 1 &&
+            Array.from({
+              length: Math.max(
+                0,
+                formData.risk_codes?.length ??
+                  8 - Math.max(1, formData.risk_codes?.length || 1)
+              ),
+            }).map((_, rowIndex) => {
+              const actualRowNumber =
+                Math.max(1, formData.risk_codes?.length || 1) + rowIndex + 1;
+
+              return (
+                <View key={`empty-${rowIndex}`} style={styles.emptyTableRow}>
+                  <View style={[styles.cell, styles.noCell]}>
+                    <Text>{actualRowNumber}</Text>
+                  </View>
+                  <View
+                    style={[styles.cell, styles.nameCellWidth, styles.nameCell]}
+                  >
+                    <Text></Text>
+                  </View>
+                  <View style={[styles.cell, styles.gravidityCell]}>
+                    <Text></Text>
+                  </View>
+                  <View style={[styles.cell, styles.gravidityCell]}>
+                    <Text></Text>
+                  </View>
+                  <View style={[styles.cell, styles.ageCell]}>
+                    <Text></Text>
+                  </View>
+                  <View style={[styles.cell, styles.contactCell]}>
+                    <Text></Text>
+                  </View>
+                  <View style={[styles.cell, styles.lmpCell]}>
+                    <Text></Text>
+                  </View>
+                  <View style={[styles.cell, styles.edcCell]}>
+                    <Text></Text>
+                  </View>
+
+                  {/* Antenatal Care empty columns */}
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <View
+                      key={`empty-checkup-${index}`}
+                      style={[styles.cell, styles.checkupCell]}
+                    >
+                      <Text></Text>
+                    </View>
+                  ))}
+
+                  {/* 4 ANC Given empty columns */}
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <View
+                      key={`empty-outcome-${index}`}
+                      style={[styles.cell, styles.checkupCell2]}
+                    >
+                      <Text></Text>
+                    </View>
+                  ))}
+
+                  {/* Risk Code and Date Detected empty columns */}
+                  <View style={[styles.cell, styles.checkupCell3]}>
+                    <Text></Text>
+                  </View>
+
+                  {/* Date Terminated/Delivery */}
+                  <View style={[styles.cell, styles.lmpCell]}>
+                    <Text></Text>
+                  </View>
+
+                  {/* Outcome Sex and Weight */}
+                  <View style={[styles.cell, { width: 60 }]}>
+                    <Text></Text>
+                  </View>
+
+                  {/* Place of delivery and attended by */}
+                  <View style={[styles.cell, { width: 65 }]}>
+                    <Text></Text>
+                  </View>
+
+                  <View style={[styles.cell, { width: 65 }]}>
+                    <Text></Text>
+                  </View>
+
+                  {/* PHIC */}
+                  <View style={[styles.cell, { width: 40 }]}>
+                    <Text></Text>
+                  </View>
+                </View>
+              );
+            })}
         </View>
 
         {/* Bottom Section */}

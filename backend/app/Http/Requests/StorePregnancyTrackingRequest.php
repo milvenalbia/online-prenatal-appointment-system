@@ -40,6 +40,10 @@ class StorePregnancyTrackingRequest extends FormRequest
             'cemoc'                     => 'required|max:255',
             'cemoc_address'             => 'required|max:255',
             'referral_unit'             => 'required|max:255',
+            'risk_codes'                     => 'required|array|min:1',
+            'risk_codes.*.risk_code'         => 'required|string|max:50',
+            'risk_codes.*.date_detected' => 'sometimes|nullable|date',
+            'risk_codes.*.risk_status'       => 'required|in:high,medium,low',
         ];
 
         if ($patientType === 'existing') {

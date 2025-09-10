@@ -118,6 +118,7 @@ class SelectAddressController extends Controller
     public function pregnancy_trackings()
     {
         $pregnancy_trackings = PregnancyTracking::select(['id', 'fullname'])
+            ->where('isDone', false)
             ->get();
 
         return $pregnancy_trackings->map(function ($tracking) {

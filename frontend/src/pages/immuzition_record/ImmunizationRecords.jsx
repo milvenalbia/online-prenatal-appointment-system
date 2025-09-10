@@ -128,7 +128,7 @@ const ImmunizationRecords = () => {
           closeModal={closeModal}
           isEdit={isEdit}
           title={'Immuzation Record'}
-          className={'sm:max-w-3xl'}
+          className={'sm:max-w-6xl'}
         >
           <ImmunizationForm
             onSubmit={onSubmit}

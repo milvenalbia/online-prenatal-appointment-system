@@ -38,6 +38,8 @@ const SelectAddressReact = ({
   onChange,
   isEdit = false,
   showSkeletonOnEdit = false,
+  required = false,
+  optional = false,
 }) => {
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -145,6 +147,8 @@ const SelectAddressReact = ({
     <div className='flex flex-col gap-2 w-full'>
       <label className='text-gray-700' htmlFor={id}>
         {label}
+        {required && <span className='text-red-500 ml-1'>*</span>}
+        {optional && <span className='text-gray-400 ml-1'>(optional)</span>}
       </label>
       {isLoading ? (
         <div className='animate-pulse'>

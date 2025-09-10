@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\BarangayCenter;
 use App\Models\Patient;
 use App\Models\PregnancyTracking;
+use App\Models\RiskCode;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -100,7 +101,7 @@ class PregnancyTrackingController extends Controller
         $fields = $request->validated();
         $patientType = $request->input('patient_type');
         $fields['age'] = Carbon::parse($fields['birth_date'])->age;
-        $pregnancy_tracking = DB::transaction(function () use ($fields, $patientType) {
+        DB::transaction(function () use ($fields, $patientType) {
             if ($patientType === 'new') {
                 $patient = Patient::create(array_merge($fields, [
                     "address" => "n/a",
@@ -119,13 +120,22 @@ class PregnancyTrackingController extends Controller
                 $fields['barangay_health_station'] = $health_station->health_station;
             }
 
-            return PregnancyTracking::create($fields);
-        });
+            $pregnancy_tracking = PregnancyTracking::create($fields);
 
-        return [
-            'data' => new PregnancyTrackingResource($pregnancy_tracking),
-            'message' => 'Pregnancy Tracking created successfully',
-        ];
+            foreach ($fields['risk_codes'] as $risk) {
+                RiskCode::create([
+                    'pregnancy_tracking_id' => $pregnancy_tracking->id,
+                    'risk_code' => $risk['risk_code'],
+                    'date_detected' => $risk['date_detected'],
+                    'risk_status' => $risk['risk_status'],
+                ]);
+            }
+
+            return [
+                'data' => new PregnancyTrackingResource($pregnancy_tracking),
+                'message' => 'Pregnancy Tracking created successfully',
+            ];
+        });
     }
 
 

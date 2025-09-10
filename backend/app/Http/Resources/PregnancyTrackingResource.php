@@ -76,6 +76,15 @@ class PregnancyTrackingResource extends JsonResource
             'referral_unit' => $this->referral_unit ?? $this->barangay_center->rural_health_unit,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'risk_codes' => $this->whenLoaded('risk_codes', function () {
+                return $this->risk_codes->map(function ($risk) {
+                    return [
+                        'risk_code'     => $risk->risk_code,
+                        'date_detected' => $risk->date_detected ?? '',
+                        'risk_status'   => $risk->risk_status,
+                    ];
+                });
+            }),
         ];
     }
 }

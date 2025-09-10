@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('pregnancy_tracking_id')->nullable()->constrained('pregnancy_trackings');
             $table->string('risk_code')->nullable();
             $table->date('date_detected')->nullable();
+            $table->enum('risk_status', ['high', 'medium', 'low'])->default('medium');
             $table->timestamps();
         });
     }

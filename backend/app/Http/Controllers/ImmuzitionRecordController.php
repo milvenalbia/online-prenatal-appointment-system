@@ -26,23 +26,24 @@ class ImmuzitionRecordController extends Controller
         $perPage    = $request->input('per_page', 10);
 
         $sortableColumns = [
-            'fullname' => 'patients.firstname',
-            'age' => 'patients.age',
+            'fullname' => 'pregnancy_trackings.fullname',
+            'age' => 'pregnancy_trackings.age',
         ];
 
         $sortBy = $sortableColumns[$request->input('sort_by')] ?? 'immuzition_records.created_at';
 
         $immunizations = ImmuzitionRecord::select('immuzition_records.*')
-            ->join('patients', 'patients.id', '=', 'immuzition_records.patient_id')
+            ->join('pregnancy_trackings', 'pregnancy_trackings.id', '=', 'immuzition_records.pregnancy_tracking_id')
             ->with([
-                'patient',
-                'tetanus_vaccine',
-                'covid_vaccine',
-                'other_vaccine',
+                'pregnancy_tracking',
+                'pregnancy_tracking.patient',
+                'pregnancy_tracking.patient.barangays',
+                'pregnancy_tracking.patient.municipalities',
+                'pregnancy_tracking.patient.provinces',
             ])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where(DB::raw("CONCAT('patients.firstname', ,' ', 'patients.lastname')"), 'LIKE', "%{$search}%");
+                    $q->where("pregnancy_trackings.fullname", 'LIKE', "%{$search}%");
                     // ->orWhere('pregnancy_tracking_number', 'LIKE', "%{$search}%");
                 });
             })
@@ -98,7 +99,7 @@ class ImmuzitionRecordController extends Controller
 
             // Create main Immunization Record
             $immunizationRecord = ImmuzitionRecord::create([
-                'patient_id' => $vaccineData['patient_id'],
+                'pregnancy_tracking_id' => $vaccineData['pregnancy_tracking_id'],
                 'tetanus_vaccine_id' => $vaccineIds['tetanus_vaccine_id'] ?? null,
                 'covid_vaccine_id' => $vaccineIds['covid_vaccine_id'] ?? null,
                 'other_vaccine_id' => $vaccineIds['other_vaccine_id'] ?? null,
@@ -109,12 +110,6 @@ class ImmuzitionRecordController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Immunization record created successfully!',
-                'data' => $immunizationRecord->load([
-                    'patient',
-                    'tetanus_vaccine',
-                    'covid_vaccine',
-                    'other_vaccine'
-                ])
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -166,9 +161,9 @@ class ImmuzitionRecordController extends Controller
                 'other_vaccine_id'
             );
 
-            // Update patient_id if changed
+            // Update pregnancy_tracking_id if changed
             $immunizationRecord->update([
-                'patient_id' => $vaccineData['patient_id']
+                'pregnancy_tracking_id' => $vaccineData['pregnancy_tracking_id']
             ]);
 
             DB::commit();
@@ -176,12 +171,6 @@ class ImmuzitionRecordController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Immunization record updated successfully!',
-                'data' => $immunizationRecord->fresh()->load([
-                    'patient',
-                    'tetanus_vaccine',
-                    'covid_vaccine',
-                    'other_vaccine'
-                ])
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();

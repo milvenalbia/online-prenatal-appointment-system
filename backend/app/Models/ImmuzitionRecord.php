@@ -8,15 +8,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ImmuzitionRecord extends Model
 {
     protected $fillable = [
-        'patient_id',
+        'pregnancy_tracking_id',
         'tetanus_vaccine_id',
         'covid_vaccine_id',
         'other_vaccine_id',
     ];
 
-    public function patient(): BelongsTo
+    public function pregnancy_tracking(): BelongsTo
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(PregnancyTracking::class);
     }
 
     public function tetanus_vaccine(): BelongsTo

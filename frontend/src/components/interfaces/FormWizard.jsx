@@ -11,6 +11,7 @@ import {
   pregnancyFormData,
 } from '../../utils/formDefault.jsx';
 import { useAuthStore } from '../../store/AuthStore.js';
+import RiskCodes from './form-wizard/RiskCodes.jsx';
 
 const FormWizard = ({ row = null }) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -91,6 +92,11 @@ const FormWizard = ({ row = null }) => {
     },
     {
       number: 4,
+      title: 'Risk Codes',
+      description: 'List one or more pregnancy-related risk codes',
+    },
+    {
+      number: 5,
       title: 'Review & Submit',
       description: 'Please review all information before submitting',
     },
@@ -146,6 +152,7 @@ const FormWizard = ({ row = null }) => {
   }, [row]);
 
   useEffect(() => {
+    setError({});
     if (user.role_id === 2) {
       setFormData((prev) => ({
         ...prev,
@@ -210,6 +217,14 @@ const FormWizard = ({ row = null }) => {
           />
         );
       case 4:
+        return (
+          <RiskCodes
+            formData={formData}
+            setFormData={setFormData}
+            error={error}
+          />
+        );
+      case 5:
         return (
           <PregnancyReviewInterface
             pregnancyTrackingData={pregnancyTrackingData}

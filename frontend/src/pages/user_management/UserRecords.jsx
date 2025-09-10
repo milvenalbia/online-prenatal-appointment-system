@@ -125,31 +125,41 @@ const UserRecords = () => {
         <FormModal closeModal={closeModal} isEdit={isEdit} title={'User'}>
           <form onSubmit={onSubmit}>
             <div className='space-y-6 sm:w-auto'>
-              <InputGroup
-                type='text'
-                name='name'
-                value={formData.name}
-                onChange={inputChange}
-                placeholder='Fullname'
-                icon={<User className='h-5 w-5 text-gray-400' />}
-                id={'name'}
-                hasLabel
-                label={'Name'}
-              />
-              {error.name && <p className='error -mt-4'>{error.name[0]}</p>}
-
-              <InputGroup
-                type='email'
-                name='email'
-                value={formData.email}
-                onChange={inputChange}
-                placeholder='Email'
-                icon={<Mail className='h-5 w-5 text-gray-400' />}
-                id={'email'}
-                hasLabel
-                label={'Email'}
-              />
-              {error.email && <p className='error -mt-4'>{error.email[0]}</p>}
+              <div className='flex justify-between gap-2'>
+                <div className='w-full'>
+                  <InputGroup
+                    type='text'
+                    name='name'
+                    noNumbers
+                    required
+                    value={formData.name}
+                    onChange={inputChange}
+                    placeholder='Fullname'
+                    icon={<User className='h-5 w-5 text-gray-400' />}
+                    id={'name'}
+                    hasLabel
+                    label={'Name'}
+                  />
+                  {error.name && <p className='error -mt-4'>{error.name[0]}</p>}
+                </div>
+                <div className='w-full'>
+                  <InputGroup
+                    type='email'
+                    name='email'
+                    value={formData.email}
+                    onChange={inputChange}
+                    placeholder='Email'
+                    icon={<Mail className='h-5 w-5 text-gray-400' />}
+                    id={'email'}
+                    hasLabel
+                    label={'Email'}
+                    required
+                  />
+                  {error.email && (
+                    <p className='error -mt-4'>{error.email[0]}</p>
+                  )}
+                </div>
+              </div>
 
               <SelectReact
                 label='Role'
@@ -168,8 +178,11 @@ const UserRecords = () => {
                 }
                 setFormData={setFormData}
                 labelKey={'role'}
+                required
               />
-              {error.role && <p className='error -mt-4'>{error.role[0]}</p>}
+              {error.role_id && (
+                <p className='error -mt-4'>{error.role_id[0]}</p>
+              )}
 
               {formData.role_id == 2 && (
                 <SelectReact
@@ -199,6 +212,7 @@ const UserRecords = () => {
                   id={'password'}
                   hasLabel
                   label={'Password'}
+                  required
                 >
                   <button
                     type='button'
@@ -223,6 +237,7 @@ const UserRecords = () => {
                   id={'password_confirmation'}
                   hasLabel
                   label={'Confirm Password'}
+                  required
                 >
                   <button
                     type='button'

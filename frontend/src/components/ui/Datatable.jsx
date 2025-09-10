@@ -56,7 +56,7 @@ const DataTable = forwardRef((props, ref) => {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [sortField, setSortField] = useState('');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortDirection, setSortDirection] = useState(null);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [openAdvanceFilter, setOpenAdvanceFilter] = useState(false);
   const [range, setRange] = useState([]);

@@ -14,6 +14,8 @@ const SelectGroup = ({
   hasChildren = false,
   options = [],
   children,
+  required = false,
+  optional = false,
   ...props
 }) => {
   const handleChange = (e) => {
@@ -24,6 +26,8 @@ const SelectGroup = ({
       {hasLabel && (
         <label className='text-gray-700' htmlFor={id}>
           {label}
+          {required && <span className='text-red-500 ml-1'>*</span>}
+          {optional && <span className='text-gray-400 ml-1'>(optional)</span>}
         </label>
       )}
       <div className='relative'>
@@ -32,7 +36,7 @@ const SelectGroup = ({
         </div>
         <select
           name={name}
-          value={value}
+          value={value ?? name}
           onChange={handleChange}
           className={cn(
             `w-full ${

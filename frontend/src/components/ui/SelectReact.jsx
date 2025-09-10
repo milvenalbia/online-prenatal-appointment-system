@@ -16,6 +16,8 @@ const SelectReact = ({
   isClearable = true,
   isMenuOpen = undefined,
   isSearchable = true,
+  required = false,
+  optional = false,
   onChange,
   inputChange,
 }) => {
@@ -55,6 +57,8 @@ const SelectReact = ({
     <div className='flex flex-col gap-2 w-full'>
       <label className='text-gray-700' htmlFor={id}>
         {label}
+        {required && <span className='text-red-500 ml-1'>*</span>}
+        {optional && <span className='text-gray-400 ml-1'>(optional)</span>}
       </label>
       <Select
         inputId={id}

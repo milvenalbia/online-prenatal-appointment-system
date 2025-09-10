@@ -109,7 +109,7 @@ const OutPatients = () => {
         showActions={true}
         defaultPerPage={10}
         onAdd={handleAdd}
-        addButton={user.role_id !== 3 ? '' : 'Create Out Patient'}
+        addButton={user.role_id !== 3 ? '' : 'Add Out Patient'}
         ref={dataTableRef}
       />
       {isOpen && (
@@ -117,6 +117,7 @@ const OutPatients = () => {
           closeModal={closeModal}
           isEdit={isEdit}
           title={'Out Patient'}
+          className={'sm:max-w-6xl'}
         >
           <OutPatientsForm
             onSubmit={onSubmit}

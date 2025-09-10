@@ -39,82 +39,98 @@ const PrenatalVisitForm = ({
 
   return (
     <form onSubmit={onSubmit}>
-      <div className='space-y-6 sm:w-auto'>
+      <div className='flex flex-col md:flex-row items-center gap-4 space-y-6 sm:w-auto'>
         {/* Visit Date */}
-        <div>
-          <SelectReact
-            label='Patient ID'
-            name='patient_id'
-            id={'patient_id'}
-            value={formData.patient_id}
-            endpoint='/api/patients'
-            placeholder='Choose a patient'
-            formData={formData}
-            setFormData={setFormData}
-            labelKey='fullname'
-          />
-          {error.patient_id && (
-            <p className='error mt-1'>{error.patient_id[0]}</p>
-          )}
-        </div>
+        <div className='w-full'>
+          <div>
+            <SelectReact
+              label='Select Patient'
+              id='pregnancy_tracking_id'
+              name='pregnancy_tracking_id'
+              endpoint={`/api/filter/pregnancy_trakings`}
+              placeholder='Choose a patient'
+              value={formData.pregnancy_tracking_id}
+              formData={formData}
+              setFormData={setFormData}
+              labelKey='fullname'
+            />
+            {error.pregnancy_tracking_id && (
+              <p className='error mt-1'>{error.pregnancy_tracking_id[0]}</p>
+            )}
+          </div>
 
-        <div className='flex-1'>
-          <DatePicker
-            disable_weekends
-            hasLabel
-            label='Visit Date'
-            value={formData.date}
-            setFormData={setFormData}
-            id='date'
-            name='date'
-          />
-          {error.date && <p className='error mt-1'>{error.date[0]}</p>}
-        </div>
-
-        {/* <div className='relative flex-1'>
-          <DateInput
-            hasLabel
-            label='Visit Date'
-            value={formData.date}
-            onChange={inputChange}
-            id='date'
-            name='date'
-          />
-          {error.date && <p className='error mt-1'>{error.date[0]}</p>}
-        </div> */}
-
-        {/* <div className='flex items-center justify-between gap-4'>
-          <div className='relative flex-1'>
-            <DateInput
+          <div className='flex-1'>
+            <DatePicker
+              disable_weekends
               hasLabel
               label='Visit Date'
               value={formData.date}
-              onChange={inputChange}
+              setFormData={setFormData}
               id='date'
               name='date'
             />
             {error.date && <p className='error mt-1'>{error.date[0]}</p>}
           </div>
-          <div className='flex-1'>
-            <SelectGroup
-              name='trimester'
-              value={formData.trimester}
-              onChange={inputChange}
-              placeholder='Select trimester'
-              options={trimesterOptions}
-              id='trimester'
-              icon={<CalendarCheck className='h-5 w-5 text-gray-400' />}
-              hasLabel
-              label='Select Trimester'
-            />
-            {error.trimester && (
-              <p className='error mt-1'>{error.trimester[0]}</p>
-            )}
+
+          {/* Fetal Assessment Section */}
+          <div className='bg-gray-50 p-4 rounded-lg mt-4'>
+            <h3 className='text-lg font-semibold text-gray-800 mb-4'>
+              Fetal Assessment
+            </h3>
+
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+              <div className='-mt-5'>
+                <InputGroup
+                  type='text'
+                  name='fht'
+                  id='fht'
+                  value={formData.fht}
+                  onChange={inputChange}
+                  placeholder='Normal'
+                  icon={<Baby className='h-5 w-5 text-gray-400' />}
+                  hasLabel
+                  label='Fetal Heart Tone (FHT)'
+                />
+                {error.fht && <p className='error mt-1'>{error.fht[0]}</p>}
+              </div>
+
+              <div className='-mt-5'>
+                <InputGroup
+                  type='number'
+                  step='0.1'
+                  name='fh'
+                  id='fh'
+                  value={formData.fh}
+                  onChange={inputChange}
+                  placeholder='24'
+                  icon={<Ruler className='h-5 w-5 text-gray-400' />}
+                  hasLabel
+                  label='Fundal Height (FH) cm'
+                />
+                {error.fh && <p className='error mt-1'>{error.fh[0]}</p>}
+              </div>
+
+              <div className='-mt-5'>
+                <InputGroup
+                  type='number'
+                  step='0.1'
+                  name='aog'
+                  id='aog'
+                  value={formData.aog}
+                  onChange={inputChange}
+                  placeholder='24'
+                  icon={<CalendarDays className='h-5 w-5 text-gray-400' />}
+                  hasLabel
+                  label='Age of Gestation (AOG) weeks'
+                />
+                {error.aog && <p className='error mt-1'>{error.aog[0]}</p>}
+              </div>
+            </div>
           </div>
-        </div> */}
+        </div>
 
         {/* Vital Signs Section */}
-        <div className='bg-gray-50 p-4 rounded-lg'>
+        <div className='bg-gray-50 p-4 rounded-lg w-full'>
           <h3 className='text-lg font-semibold text-gray-800 mb-4'>
             Vital Signs
           </h3>
@@ -217,81 +233,25 @@ const PrenatalVisitForm = ({
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Fetal Assessment Section */}
-        <div className='bg-gray-50 p-4 rounded-lg'>
-          <h3 className='text-lg font-semibold text-gray-800 mb-4'>
-            Fetal Assessment
-          </h3>
-
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-            <div className='-mt-5'>
-              <InputGroup
-                type='text'
-                name='fht'
-                id='fht'
-                value={formData.fht}
-                onChange={inputChange}
-                placeholder='Normal'
-                icon={<Baby className='h-5 w-5 text-gray-400' />}
-                hasLabel
-                label='Fetal Heart Tone (FHT)'
-              />
-              {error.fht && <p className='error mt-1'>{error.fht[0]}</p>}
-            </div>
-
-            <div className='-mt-5'>
-              <InputGroup
-                type='number'
-                step='0.1'
-                name='fh'
-                id='fh'
-                value={formData.fh}
-                onChange={inputChange}
-                placeholder='24'
-                icon={<Ruler className='h-5 w-5 text-gray-400' />}
-                hasLabel
-                label='Fundal Height (FH) cm'
-              />
-              {error.fh && <p className='error mt-1'>{error.fh[0]}</p>}
-            </div>
-
-            <div className='-mt-5'>
-              <InputGroup
-                type='number'
-                step='0.1'
-                name='aog'
-                id='aog'
-                value={formData.aog}
-                onChange={inputChange}
-                placeholder='24'
-                icon={<CalendarDays className='h-5 w-5 text-gray-400' />}
-                hasLabel
-                label='Age of Gestation (AOG) weeks'
-              />
-              {error.aog && <p className='error mt-1'>{error.aog[0]}</p>}
-            </div>
-          </div>
-        </div>
-
-        <button
-          disabled={isSubmitting}
-          className={`w-full bg-gradient-to-r text-white py-3 rounded-lg font-semibold transform hover:scale-105 transition-all duration-200 shadow-lg 
+      <button
+        disabled={isSubmitting}
+        className={`w-full bg-gradient-to-r text-white py-3 rounded-lg font-semibold transform hover:scale-105 transition-all duration-200 shadow-lg 
               ${
                 isSubmitting
                   ? 'from-purple-300 to-pink-300 cursor-not-allowed'
                   : 'from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
               }`}
-        >
-          {isSubmitting
-            ? isEdit
-              ? 'Updating ...'
-              : 'Creating ...'
-            : isEdit
-            ? 'Updating Prenatal Visit'
-            : 'Creating Prenatal Visit'}
-        </button>
-      </div>
+      >
+        {isSubmitting
+          ? isEdit
+            ? 'Updating ...'
+            : 'Creating ...'
+          : isEdit
+          ? 'Updating Prenatal Visit'
+          : 'Creating Prenatal Visit'}
+      </button>
     </form>
   );
 };

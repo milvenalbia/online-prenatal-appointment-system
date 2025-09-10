@@ -27,7 +27,7 @@ export const pregnancyFormData = {
   patient_type: '',
   province: 57,
   region: 10,
-  religion: '',
+  religion: 'Roman Catholic',
   referral_unit: 'St. Paul Hospital',
   sex: 'female',
   status: 'single',
@@ -46,6 +46,7 @@ export const pregnancyFormData = {
   place_of_delivery: '',
   attended_by: '',
   phic: '',
+  risk_codes: [{ risk_code: '', date_detected: '', risk_status: '' }],
 };
 
 export const pregnancyEditFormData = (data = {}) => ({
@@ -96,12 +97,13 @@ export const pregnancyEditFormData = (data = {}) => ({
   place_of_delivery: '',
   attended_by: '',
   phic: '',
+  risk_codes: [{ risk_code: '', date_detected: '', risk_status: '' }],
   ...data,
 });
 
 export const prenatalVisitFormData = {
-  patient_id: '',
-  date: new Date(),
+  pregnancy_tracking_id: '',
+  date: new Date().toLocaleDateString('en-CA'),
   weight: '',
   bp: '',
   temp: '',
@@ -114,7 +116,7 @@ export const prenatalVisitFormData = {
 };
 
 export const prenatalVisitEditFormData = (data = {}) => ({
-  patient_id: '',
+  pregnancy_tracking_id: '',
   date: '',
   weight: '',
   bp: '',
@@ -129,7 +131,7 @@ export const prenatalVisitEditFormData = (data = {}) => ({
 });
 
 export const outPatientFormData = {
-  patient_id: '',
+  pregnancy_tracking_id: '',
   date: new Date().toLocaleDateString('en-CA'),
   time: new Date(),
   height: '',
@@ -142,7 +144,7 @@ export const outPatientFormData = {
 };
 
 export const outPatientEditFormData = (data = {}) => ({
-  patient_id: '',
+  pregnancy_tracking_id: '',
   date: '',
   time: '',
   height: '',
@@ -156,7 +158,7 @@ export const outPatientEditFormData = (data = {}) => ({
 });
 
 export const immunizationFormData = {
-  patient_id: '',
+  pregnancy_tracking_id: '',
   tetanus_first_given: new Date().toLocaleDateString('en-CA'),
   tetanus_second_given: '',
   tetanus_third_given: '',
@@ -187,7 +189,7 @@ export const immunizationFormData = {
 };
 
 export const immunizationEditFormData = (data = {}) => ({
-  patient_id: '',
+  pregnancy_tracking_id: '',
   tetanus_first_given: '',
   tetanus_second_given: '',
   tetanus_third_given: '',

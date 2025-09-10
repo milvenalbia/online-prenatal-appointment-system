@@ -12,6 +12,7 @@ import {
   prenatalVisitFormData,
 } from '../../utils/formDefault';
 import PrenatalVisitPDF from '../../components/interfaces/pdf/PrentalVisitPDF';
+import api from '../../api/axios';
 
 const PrenatalVisits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -78,7 +79,17 @@ const PrenatalVisits = () => {
   };
 
   const handelDownload = async (row) => {
-    const blob = await pdf(<PrenatalVisitPDF formData={row} />).toBlob();
+    const response = await api.get(
+      `/api/group-prenatal-visits/${row.pregnancy_tracking_id}`
+    );
+
+    const data = response.data;
+
+    console.log('PDF: ', data.data);
+
+    const blob = await pdf(
+      <PrenatalVisitPDF formData={data.data || data} />
+    ).toBlob();
 
     const url = URL.createObjectURL(blob);
 
@@ -113,15 +124,15 @@ const PrenatalVisits = () => {
         showActions={true}
         defaultPerPage={10}
         onAdd={handleAdd}
-        addButton={user.role_id !== 3 ? '' : 'add Prenatal'}
+        addButton={user.role_id !== 3 ? '' : 'Add Prenatal Visit'}
         ref={dataTableRef}
       />
       {isOpen && (
         <FormModal
           closeModal={closeModal}
           isEdit={isEdit}
-          title={'Prenatal'}
-          className={'sm:max-w-4xl'}
+          title={'Prenatal Visit'}
+          className={'sm:max-w-6xl'}
         >
           <PrenatalVisitForm
             onSubmit={onSubmit}

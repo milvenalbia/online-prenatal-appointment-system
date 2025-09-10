@@ -21,7 +21,7 @@ class ImmunizationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'patient_id' => 'required|exists:patients,id',
+            'pregnancy_tracking_id'  => 'required|exists:pregnancy_trackings,id',
 
             // Tetanus vaccine validation rules
             'tetanus_first_given' => 'nullable|date|before_or_equal:today',
@@ -184,8 +184,8 @@ class ImmunizationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'patient_id.required' => 'Patient ID is required.',
-            'patient_id.exists' => 'Selected patient does not exist.',
+            'pregnancy_tracking_id.required' => 'Patient ID is required.',
+            'pregnancy_tracking_id.exists' => 'Selected patient does not exist.',
 
             // Tetanus messages
             'tetanus_second_given.after_or_equal' => 'Second tetanus dose must be given after or on the same date as the first dose.',
@@ -399,7 +399,7 @@ class ImmunizationRequest extends FormRequest
         $validated = $this->validated();
 
         return [
-            'patient_id' => $validated['patient_id'],
+            'pregnancy_tracking_id' => $validated['pregnancy_tracking_id'],
             'tetanus' => $this->extractVaccineData($validated, 'tetanus'),
             'covid' => $this->extractVaccineData($validated, 'covid'),
             'other' => $this->extractVaccineData($validated, 'other'),
@@ -431,7 +431,7 @@ class ImmunizationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'patient_id' => 'patient',
+            'pregnancy_tracking_id' => 'pregnancy tracking',
             'tetanus_first_given' => 'tetanus first dose',
             'tetanus_second_given' => 'tetanus second dose',
             'tetanus_third_given' => 'tetanus third dose',

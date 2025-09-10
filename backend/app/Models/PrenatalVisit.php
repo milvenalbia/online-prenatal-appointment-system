@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PrenatalVisit extends Model
 {
     protected $fillable = [
-        'patient_id',
+        'pregnancy_tracking_id',
         'attending_physician',
         'date',
         'temp',
@@ -22,8 +22,8 @@ class PrenatalVisit extends Model
         'aog',
     ];
 
-    public function patient(): BelongsTo
+    public function pregnancy_tracking(): BelongsTo
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(PregnancyTracking::class);
     }
 }

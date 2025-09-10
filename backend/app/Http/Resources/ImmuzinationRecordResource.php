@@ -56,15 +56,15 @@ class ImmuzinationRecordResource extends JsonResource
         return [
             'id' => $this->id,
             'created_at' => $this->created_at,
-            'patient_id' => $this->patient_id,
+            'pregnancy_tracking_id' => $this->pregnancy_tracking_id,
             'tetanus_vaccine_id' => $this->tetanus_vaccine_id,
             'covid_vaccine_id' => $this->covid_vaccine_id,
             'other_vaccine_id' => $this->other_vaccine_id,
 
-            'fullname' => $this->patient->fullname,
-            'patient_full_address' => $this->patient->fulladdress,
-            'patient_address' => $this->patient->address,
-            'age' => $this->patient->age,
+            'fullname' => $this->pregnancy_tracking->fullname,
+            'patient_full_address' => $this->pregnancy_tracking->patient->fulladdress,
+            'patient_address' => $this->pregnancy_tracking->patient->address,
+            'age' => $this->pregnancy_tracking->age,
 
             // ✅ computed fields
             'tetanus_last_vaccine' => $tetanusDateTime

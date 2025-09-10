@@ -23,7 +23,7 @@ class OutPatientController extends Controller
         $perPage    = $request->input('per_page', 10);
 
         $sortableColumns = [
-            'fullname' => 'patients.firstname',
+            'fullname' => 'pregnancy_trackings.fullname',
             'date' => 'out_patients.date',
             'time' => 'out_patients.time',
             'age' => 'patients.age',
@@ -33,16 +33,17 @@ class OutPatientController extends Controller
         $sortBy = $sortableColumns[$request->input('sort_by')] ?? 'out_patients.created_at';
 
         $out_patients = OutPatient::select('out_patients.*')
-            ->join('patients', 'patients.id', '=', 'out_patients.patient_id')
+            ->join('pregnancy_trackings', 'pregnancy_trackings.id', '=', 'out_patients.pregnancy_tracking_id')
             ->with([
-                'patient',
-                'patient.barangays',
-                'patient.municipalities',
-                'patient.provinces',
+                'pregnancy_tracking',
+                'pregnancy_tracking.patient',
+                'pregnancy_tracking.patient.barangays',
+                'pregnancy_tracking.patient.municipalities',
+                'pregnancy_tracking.patient.provinces',
             ])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where(DB::raw("CONCAT('patients.firstname', ,' ', 'patients.lastname')"), 'LIKE', "%{$search}%");
+                    $q->where('pregnancy_trackings.fullname', 'LIKE', "%{$search}%");
                     // ->orWhere('pregnancy_tracking_number', 'LIKE', "%{$search}%");
                 });
             })
@@ -74,7 +75,7 @@ class OutPatientController extends Controller
     {
 
         $fields = $request->validate([
-            'patient_id'  => 'required|exists:patients,id',
+            'pregnancy_tracking_id'  => 'required|exists:pregnancy_trackings,id',
             'date'        => 'required|date',
             'time'        => 'required',
             'weight'      => 'required',
@@ -89,7 +90,7 @@ class OutPatientController extends Controller
 
         DB::transaction(function () use ($fields) {
 
-            $pregnancy_tracking = PregnancyTracking::where('patient_id', $fields['patient_id'])
+            $pregnancy_tracking = PregnancyTracking::where('id', $fields['pregnancy_tracking_id'])
                 ->where('isDone', false)
                 ->first();
 
@@ -104,6 +105,10 @@ class OutPatientController extends Controller
             $outpatient->update([
                 'file_number' => $fileNumber,
                 'phic' => $pregnancy_tracking->phic ? 'yes' : 'no',
+            ]);
+
+            $pregnancy_tracking->update([
+                'isDone' => true,
             ]);
         });
 
@@ -127,7 +132,52 @@ class OutPatientController extends Controller
      */
     public function update(Request $request, OutPatient $outPatient)
     {
-        //
+        $fields = $request->validate([
+            'pregnancy_tracking_id'  => 'required|exists:pregnancy_trackings,id',
+            'date'        => 'required|date',
+            'time'        => 'required',
+            'weight'      => 'required',
+            'height'      => 'required',
+            'bp'          => 'required',
+            'temp'        => 'required',
+            'rr'          => 'required',
+            'pr'          => 'required',
+            'two_sat'     => 'required',
+        ]);
+
+
+        DB::transaction(function () use ($fields, $outPatient) {
+
+            $old_pregnancy_tracking_id = $outPatient->pregnancy_tacking_id;
+
+            $pregnancy_tracking = PregnancyTracking::where('id', $fields['pregnancy_tracking_id'])
+                ->where('isDone', false)
+                ->first();
+
+            $outPatient->update(array_merge($fields, [
+                'phic' => $pregnancy_tracking->phic ? 'yes' : 'no',
+            ]));
+
+            if ($old_pregnancy_tracking_id !== $fields['pregnancy_tracking_id']) {
+                $old_pregnancy_tracking = PregnancyTracking::where('id', $old_pregnancy_tracking_id)
+                    ->where('isDone', true)
+                    ->first();
+
+                $old_pregnancy_tracking->update([
+                    'isDone' => false,
+                ]);
+            }
+
+            $pregnancy_tracking->update([
+                'isDone' => true,
+            ]);
+        });
+
+
+
+        return [
+            'message' => 'Out Patient updated successfully!',
+        ];
     }
 
     /**

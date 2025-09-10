@@ -60,7 +60,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
     },
   };
 
-  const { handleSubmit, setError } = useFormSubmit();
+  const { handleSubmit, setError, error } = useFormSubmit();
 
   const onSubmit = (e) => {
     handleSubmit({
@@ -275,6 +275,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
               formData={formData}
               setFormData={setFormData}
               priorities={priorities}
+              error={error}
             />
 
             <div className='flex justify-between mt-8 max-w-md mx-auto'>

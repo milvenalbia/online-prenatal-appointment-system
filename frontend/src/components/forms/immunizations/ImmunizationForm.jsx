@@ -41,185 +41,193 @@ const ImmunizationForm = ({
 
   // Tetanus Vaccine Form
   const TetanusForm = () => (
-    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-      <div className='space-y-4'>
+    <div className='grid grid-cols-1 gap-4'>
+      <div className='space-y-2'>
         <h4 className='text-lg font-semibold text-gray-800 border-b pb-2'>
-          Vaccination Dates
+          Given Dates
         </h4>
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='1st Dose Given'
-          name='tetanus_first_given'
-          value={formData.tetanus_first_given}
-          id='tetanus_first_given'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='2nd Dose Given'
-          name='tetanus_second_given'
-          value={formData.tetanus_second_given}
-          id='tetanus_second_given'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='3rd Dose Given'
-          name='tetanus_third_given'
-          value={formData.tetanus_third_given}
-          id='tetanus_third_given'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='4th Dose Given'
-          name='tetanus_fourth_given'
-          value={formData.tetanus_fourth_given}
-          id='tetanus_fourth_given'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='5th Dose Given'
-          name='tetanus_fifth_given'
-          value={formData.tetanus_fifth_given}
-          id='tetanus_fifth_given'
-          onChange={handleInputChange}
-          hasLabel
-        />
+        <div className='flex flex-col sm:flex-row items-center gap-2'>
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='1st Dose Given'
+            name='tetanus_first_given'
+            value={formData.tetanus_first_given}
+            id='tetanus_first_given'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='2nd Dose Given'
+            name='tetanus_second_given'
+            value={formData.tetanus_second_given}
+            id='tetanus_second_given'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='3rd Dose Given'
+            name='tetanus_third_given'
+            value={formData.tetanus_third_given}
+            id='tetanus_third_given'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='4th Dose Given'
+            name='tetanus_fourth_given'
+            value={formData.tetanus_fourth_given}
+            id='tetanus_fourth_given'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='5th Dose Given'
+            name='tetanus_fifth_given'
+            value={formData.tetanus_fifth_given}
+            id='tetanus_fifth_given'
+            onChange={handleInputChange}
+            hasLabel
+          />
+        </div>
       </div>
 
-      <div className='space-y-4'>
+      <div className='space-y-2'>
         <h4 className='text-lg font-semibold text-gray-800 border-b pb-2'>
-          Next Vaccination
+          Comeback Dates
         </h4>
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='1st Date Comeback'
-          name='tetanus_first_comeback'
-          value={formData.tetanus_first_comeback}
-          id='tetanus_first_comeback'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='2nd Date Comeback'
-          name='tetanus_second_comeback'
-          value={formData.tetanus_second_comeback}
-          id='tetanus_second_comeback'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='3rd Date Comeback'
-          name='tetanus_third_comeback'
-          value={formData.tetanus_third_comeback}
-          id='tetanus_third_comeback'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='4th Date Comeback'
-          name='tetanus_fourth_comeback'
-          value={formData.tetanus_fourth_comeback}
-          id='tetanus_fourth_comeback'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='5th Date Comeback'
-          name='tetanus_fifth_comeback'
-          value={formData.tetanus_fifth_comeback}
-          id='tetanus_fifth_comeback'
-          onChange={handleInputChange}
-          hasLabel
-        />
+        <div className='flex flex-col sm:flex-row items-center gap-2'>
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='1st Date Comeback'
+            name='tetanus_first_comeback'
+            value={formData.tetanus_first_comeback}
+            id='tetanus_first_comeback'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='2nd Date Comeback'
+            name='tetanus_second_comeback'
+            value={formData.tetanus_second_comeback}
+            id='tetanus_second_comeback'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='3rd Date Comeback'
+            name='tetanus_third_comeback'
+            value={formData.tetanus_third_comeback}
+            id='tetanus_third_comeback'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='4th Date Comeback'
+            name='tetanus_fourth_comeback'
+            value={formData.tetanus_fourth_comeback}
+            id='tetanus_fourth_comeback'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='5th Date Comeback'
+            name='tetanus_fifth_comeback'
+            value={formData.tetanus_fifth_comeback}
+            id='tetanus_fifth_comeback'
+            onChange={handleInputChange}
+            hasLabel
+          />
+        </div>
       </div>
     </div>
   );
 
   // COVID-19 Vaccine Form
   const CovidForm = () => (
-    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-      <div className='space-y-4'>
+    <div className='grid grid-cols-1 gap-4'>
+      <div className='space-y-2'>
         <h4 className='text-lg font-semibold text-gray-800 border-b pb-2'>
-          Vaccination Dates
+          Given Dates
         </h4>
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='1st Dose Given'
-          name='covid_first_given'
-          value={formData.covid_first_given}
-          id='covid_first_given'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='2nd Dose Given'
-          name='covid_second_given'
-          value={formData.covid_second_given}
-          id='covid_second_given'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='Booster Given'
-          name='covid_booster_given'
-          value={formData.covid_booster_given}
-          id='covid_booster_given'
-          onChange={handleInputChange}
-          hasLabel
-        />
+        <div className='flex flex-col sm:flex-row items-center gap-2'>
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='1st Dose Given'
+            name='covid_first_given'
+            value={formData.covid_first_given}
+            id='covid_first_given'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='2nd Dose Given'
+            name='covid_second_given'
+            value={formData.covid_second_given}
+            id='covid_second_given'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='Booster Given'
+            name='covid_booster_given'
+            value={formData.covid_booster_given}
+            id='covid_booster_given'
+            onChange={handleInputChange}
+            hasLabel
+          />
+        </div>
       </div>
 
-      <div className='space-y-4'>
+      <div className='space-y-2'>
         <h4 className='text-lg font-semibold text-gray-800 border-b pb-2'>
-          Next Vaccination
+          Comeback Dates
         </h4>
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='1st Date Comeback'
-          name='covid_first_comeback'
-          value={formData.covid_first_comeback}
-          id='covid_first_comeback'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='2nd Date Comeback'
-          name='covid_second_comeback'
-          value={formData.covid_second_comeback}
-          id='covid_second_comeback'
-          onChange={handleInputChange}
-          hasLabel
-        />
-        <DatePicker
-          options={pickerNoWeekendsOptions}
-          label='Booster Date Comeback'
-          name='covid_booster_comeback'
-          value={formData.covid_booster_comeback}
-          id='covid_booster_comeback'
-          onChange={handleInputChange}
-          hasLabel
-        />
+        <div className='flex flex-col sm:flex-row items-center gap-2'>
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='1st Date Comeback'
+            name='covid_first_comeback'
+            value={formData.covid_first_comeback}
+            id='covid_first_comeback'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='2nd Date Comeback'
+            name='covid_second_comeback'
+            value={formData.covid_second_comeback}
+            id='covid_second_comeback'
+            onChange={handleInputChange}
+            hasLabel
+          />
+          <DatePicker
+            options={pickerNoWeekendsOptions}
+            label='Booster Date Comeback'
+            name='covid_booster_comeback'
+            value={formData.covid_booster_comeback}
+            id='covid_booster_comeback'
+            onChange={handleInputChange}
+            hasLabel
+          />
+        </div>
       </div>
     </div>
   );
 
   // Other Vaccines Form
   const OtherForm = () => (
-    <div className='space-y-6'>
+    <div className='space-y-4'>
       <div className='grid grid-cols-1 gap-4'>
         <InputGroup
           label='Vaccine Name'
@@ -233,107 +241,111 @@ const ImmunizationForm = ({
         />
       </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-        <div className='space-y-4'>
+      <div className='grid grid-cols-1 gap-4'>
+        <div className='space-y-2'>
           <h4 className='text-lg font-semibold text-gray-800 border-b pb-2'>
-            Vaccination Dates
+            Given Dates
           </h4>
-          <DatePicker
-            options={pickerNoWeekendsOptions}
-            label='1st Dose Given'
-            name='other_first_given'
-            value={formData.other_first_given}
-            id='other_first_given'
-            onChange={handleInputChange}
-            hasLabel
-          />
-          <DatePicker
-            options={pickerNoWeekendsOptions}
-            label='2nd Dose Given'
-            name='other_second_given'
-            value={formData.other_second_given}
-            id='other_second_given'
-            onChange={handleInputChange}
-            hasLabel
-          />
-          <DatePicker
-            options={pickerNoWeekendsOptions}
-            label='3rd Dose Given'
-            name='other_third_given'
-            value={formData.other_third_given}
-            id='other_third_given'
-            onChange={handleInputChange}
-            hasLabel
-          />
-          <DatePicker
-            options={pickerNoWeekendsOptions}
-            label='4th Dose Given'
-            name='other_fourth_given'
-            value={formData.other_fourth_given}
-            id='other_fourth_given'
-            onChange={handleInputChange}
-            hasLabel
-          />
-          <DatePicker
-            options={pickerNoWeekendsOptions}
-            label='5th Dose Given'
-            name='other_fifth_given'
-            value={formData.other_fifth_given}
-            id='other_fifth_given'
-            onChange={handleInputChange}
-            hasLabel
-          />
+          <div className='flex flex-col sm:flex-row items-center gap-2'>
+            <DatePicker
+              options={pickerNoWeekendsOptions}
+              label='1st Dose Given'
+              name='other_first_given'
+              value={formData.other_first_given}
+              id='other_first_given'
+              onChange={handleInputChange}
+              hasLabel
+            />
+            <DatePicker
+              options={pickerNoWeekendsOptions}
+              label='2nd Dose Given'
+              name='other_second_given'
+              value={formData.other_second_given}
+              id='other_second_given'
+              onChange={handleInputChange}
+              hasLabel
+            />
+            <DatePicker
+              options={pickerNoWeekendsOptions}
+              label='3rd Dose Given'
+              name='other_third_given'
+              value={formData.other_third_given}
+              id='other_third_given'
+              onChange={handleInputChange}
+              hasLabel
+            />
+            <DatePicker
+              options={pickerNoWeekendsOptions}
+              label='4th Dose Given'
+              name='other_fourth_given'
+              value={formData.other_fourth_given}
+              id='other_fourth_given'
+              onChange={handleInputChange}
+              hasLabel
+            />
+            <DatePicker
+              options={pickerNoWeekendsOptions}
+              label='5th Dose Given'
+              name='other_fifth_given'
+              value={formData.other_fifth_given}
+              id='other_fifth_given'
+              onChange={handleInputChange}
+              hasLabel
+            />
+          </div>
         </div>
 
-        <div className='space-y-4'>
+        <div className='space-y-2'>
           <h4 className='text-lg font-semibold text-gray-800 border-b pb-2'>
-            Next Vaccination
+            Comeback Dates
           </h4>
-          <DatePicker
-            options={pickerNoWeekendsOptions}
-            label='1st Date Comeback'
-            name='other_first_comeback'
-            value={formData.other_first_comeback}
-            id='other_first_comeback'
-            onChange={handleInputChange}
-            hasLabel
-          />
-          <DatePicker
-            options={pickerNoWeekendsOptions}
-            label='2nd Date Comeback'
-            name='other_second_comeback'
-            value={formData.other_second_comeback}
-            id='other_second_comeback'
-            onChange={handleInputChange}
-            hasLabel
-          />
-          <DatePicker
-            options={pickerNoWeekendsOptions}
-            label='3rd Date Comeback'
-            name='other_third_comeback'
-            value={formData.other_third_comeback}
-            id='other_third_comeback'
-            onChange={handleInputChange}
-            hasLabel
-          />
-          <DatePicker
-            options={pickerNoWeekendsOptions}
-            label='4th Date Comeback'
-            name='other_fourth_comeback'
-            value={formData.other_fourth_comeback}
-            id='other_fourth_comeback'
-            onChange={handleInputChange}
-            hasLabel
-          />
-          <DatePicker
-            options={pickerNoWeekendsOptions}
-            label='5th Date Comeback'
-            name='other_fifth_comeback'
-            value={formData.other_fifth_comeback}
-            id='other_fifth_comeback'
-            onChange={handleInputChange}
-            hasLabel
-          />
+          <div className='flex flex-col sm:flex-row items-center gap-2'>
+            <DatePicker
+              options={pickerNoWeekendsOptions}
+              label='1st Date Comeback'
+              name='other_first_comeback'
+              value={formData.other_first_comeback}
+              id='other_first_comeback'
+              onChange={handleInputChange}
+              hasLabel
+            />
+            <DatePicker
+              options={pickerNoWeekendsOptions}
+              label='2nd Date Comeback'
+              name='other_second_comeback'
+              value={formData.other_second_comeback}
+              id='other_second_comeback'
+              onChange={handleInputChange}
+              hasLabel
+            />
+            <DatePicker
+              options={pickerNoWeekendsOptions}
+              label='3rd Date Comeback'
+              name='other_third_comeback'
+              value={formData.other_third_comeback}
+              id='other_third_comeback'
+              onChange={handleInputChange}
+              hasLabel
+            />
+            <DatePicker
+              options={pickerNoWeekendsOptions}
+              label='4th Date Comeback'
+              name='other_fourth_comeback'
+              value={formData.other_fourth_comeback}
+              id='other_fourth_comeback'
+              onChange={handleInputChange}
+              hasLabel
+            />
+            <DatePicker
+              options={pickerNoWeekendsOptions}
+              label='5th Date Comeback'
+              name='other_fifth_comeback'
+              value={formData.other_fifth_comeback}
+              id='other_fifth_comeback'
+              onChange={handleInputChange}
+              hasLabel
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -432,13 +444,7 @@ const ImmunizationForm = ({
 
   return (
     <div className='w-full'>
-      <div className='mb-8'>
-        <p className='text-gray-600 px-4'>
-          Manage patient vaccination records across different vaccine types
-        </p>
-      </div>
-
-      <div className='space-y-8'>
+      <div className='space-y-2'>
         {Object.keys(error).length > 0 && (
           <div className='mt-8 p-4 bg-red-50 rounded-lg'>
             <h3 className='text-sm inline-flex items-center gap-2 font-medium text-red-800 mb-2'>
@@ -527,18 +533,18 @@ const ImmunizationForm = ({
         {/* Patient ID Field */}
         <div className='bg-gray-50 p-4 rounded-lg'>
           <SelectReact
-            label='Patient ID'
-            name='patient_id'
-            id={'patient_id'}
-            value={formData.patient_id}
-            endpoint='/api/patients'
+            label='Select Patient'
+            id='pregnancy_tracking_id'
+            name='pregnancy_tracking_id'
+            endpoint={`/api/filter/pregnancy_trakings`}
             placeholder='Choose a patient'
+            value={formData.pregnancy_tracking_id}
             formData={formData}
             setFormData={setFormData}
             labelKey='fullname'
           />
-          {error.patient_id && (
-            <p className='error mt-1'>{error.patient_id[0]}</p>
+          {error.pregnancy_tracking_id && (
+            <p className='error mt-1'>{error.pregnancy_tracking_id[0]}</p>
           )}
         </div>
 

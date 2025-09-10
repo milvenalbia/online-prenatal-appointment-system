@@ -276,24 +276,34 @@ const ImmunizationPDF = ({ formData = {} }) => (
             style={[
               styles.vaccineNameCell,
               styles.doseRow,
-              { flexDirection: 'row', alignItems: 'center' },
+              {
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+              },
             ]}
           >
-            <Text style={{ marginRight: 0 }}>1.</Text>
+            <Text style={{ marginRight: 5 }}>1.</Text>
             <View style={styles.otherVaccineInput}>
-              <Text style={{ fontSize: 9 }}>{formData.other_vaccine_name}</Text>
+              <Text style={{ fontSize: 9 }}>
+                {formData.other_vaccine_name || ''}
+              </Text>
             </View>
           </View>
-          <Text style={styles.dataCell}>{formData.other_first_given}</Text>
+          <Text style={styles.dataCell}>
+            {formData.other_first_given || ''}
+          </Text>
           <Text style={[styles.dataCell, styles.lastCell]}>
-            {formData.other_first_comeback}
+            {formData.other_first_comeback || ''}
           </Text>
         </View>
         <View style={[styles.tableRow, styles.lastRow]}>
           <Text style={[styles.vaccineNameCell, styles.doseRow]}>2.</Text>
-          <Text style={styles.dataCell}>{formData.other_second_given}</Text>
+          <Text style={styles.dataCell}>
+            {formData.other_second_given || ''}
+          </Text>
           <Text style={[styles.dataCell, styles.lastCell]}>
-            {formData.other_second_comeback}
+            {formData.other_second_comeback || ''}
           </Text>
         </View>
       </View>

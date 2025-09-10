@@ -163,88 +163,99 @@ const HealthStations = () => {
                 </div>
               </div>
 
-              <SelectAddressReact
-                label='Region'
-                id='region'
-                name='region'
-                endpoint='/api/select-address/regions'
-                placeholder='Choose a region'
-                formData={formData}
-                setFormData={setFormData}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    region: value,
-                    province: 0,
-                    municipality: 0,
-                    barangay: 0,
-                  }))
-                }
-                showSkeletonOnEdit={true}
-                isEdit={isEdit}
-              />
-              {error.region && <p className='error -mt-4'>{error.region[0]}</p>}
-
-              <SelectAddressReact
-                label='Province'
-                id='province'
-                name='province'
-                endpoint={`/api/select-address/provinces/${formData.region}`}
-                placeholder='Choose a province'
-                formData={formData}
-                setFormData={setFormData}
-                disabled={!formData.region}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    province: value,
-                    municipality: 0,
-                    barangay: 0,
-                  }))
-                }
-                showSkeletonOnEdit={true}
-                isEdit={isEdit}
-              />
-              {error.province && (
-                <p className='error -mt-4'>{error.province[0]}</p>
-              )}
-
-              <SelectAddressReact
-                label='Municipality'
-                id='municipality'
-                name='municipality'
-                endpoint={`/api/select-address/municipalities/${formData.province}`}
-                placeholder='Choose a municipality'
-                formData={formData}
-                setFormData={setFormData}
-                disabled={!formData.province}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    municipality: value,
-                    barangay: 0,
-                  }))
-                }
-                isEdit={isEdit}
-              />
-              {error.municipality && (
-                <p className='error -mt-4'>{error.municipality[0]}</p>
-              )}
-
-              <SelectAddressReact
-                label='Barangay'
-                id='barangay'
-                name='barangay'
-                endpoint={`/api/select-address/barangays/${formData.municipality}`}
-                placeholder='Choose a barangay'
-                formData={formData}
-                setFormData={setFormData}
-                disabled={!formData.municipality}
-                isEdit={isEdit}
-              />
-              {error.barangay && (
-                <p className='error -mt-4'>{error.barangay[0]}</p>
-              )}
+              <div className='flex justify-between gap-2 -mt-2'>
+                <div className='w-full'>
+                  <SelectAddressReact
+                    label='Region'
+                    id='region'
+                    name='region'
+                    endpoint='/api/select-address/regions'
+                    placeholder='Choose a region'
+                    formData={formData}
+                    setFormData={setFormData}
+                    onChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        region: value,
+                        province: 0,
+                        municipality: 0,
+                        barangay: 0,
+                      }))
+                    }
+                    showSkeletonOnEdit={true}
+                    isEdit={isEdit}
+                  />
+                  {error.region && (
+                    <p className='error -mt-4'>{error.region[0]}</p>
+                  )}
+                </div>
+                <div className='w-full'>
+                  <SelectAddressReact
+                    label='Province'
+                    id='province'
+                    name='province'
+                    endpoint={`/api/select-address/provinces/${formData.region}`}
+                    placeholder='Choose a province'
+                    formData={formData}
+                    setFormData={setFormData}
+                    disabled={!formData.region}
+                    onChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        province: value,
+                        municipality: 0,
+                        barangay: 0,
+                      }))
+                    }
+                    showSkeletonOnEdit={true}
+                    isEdit={isEdit}
+                  />
+                  {error.province && (
+                    <p className='error -mt-4'>{error.province[0]}</p>
+                  )}
+                </div>
+              </div>
+              <div className='flex justify-between gap-2 -mt-2'>
+                <div className='w-full'>
+                  <SelectAddressReact
+                    label='Municipality'
+                    id='municipality'
+                    name='municipality'
+                    endpoint={`/api/select-address/municipalities/${formData.province}`}
+                    placeholder='Choose a municipality'
+                    formData={formData}
+                    setFormData={setFormData}
+                    disabled={!formData.province}
+                    onChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        municipality: value,
+                        barangay: 0,
+                      }))
+                    }
+                    isEdit={isEdit}
+                  />
+                  {error.municipality && (
+                    <p className='error -mt-4'>{error.municipality[0]}</p>
+                  )}
+                </div>
+                <div className='w-full'>
+                  <SelectAddressReact
+                    label='Barangay'
+                    id='barangay'
+                    name='barangay'
+                    endpoint={`/api/select-address/barangays/${formData.municipality}`}
+                    placeholder='Choose a barangay'
+                    formData={formData}
+                    setFormData={setFormData}
+                    disabled={!formData.municipality}
+                    isEdit={isEdit}
+                  />
+                  {error.barangay && (
+                    <p className='error -mt-4'>{error.barangay[0]}</p>
+                  )}
+                </div>
+              </div>
 
               {/* Login Button */}
               <button

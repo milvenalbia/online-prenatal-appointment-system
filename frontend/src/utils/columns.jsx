@@ -262,6 +262,10 @@ export const pregnancy_tracking_columns = [
     key: 'region_name',
     hidden: true,
   },
+  {
+    key: 'risk_codes',
+    hidden: true,
+  },
 ];
 
 export const barangay_center_columns = [

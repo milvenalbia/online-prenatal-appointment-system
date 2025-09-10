@@ -22,7 +22,7 @@ class PrenatalVisitController extends Controller
         $perPage    = $request->input('per_page', 10);
 
         $sortableColumns = [
-            'fullname' => 'patients.firstname',
+            'fullname' => 'pregnancy_trackings.fullname',
             'date' => 'preantal_visits.date',
             'age' => 'patients.age',
             'created_at' => 'prenatal_visits.created_at',
@@ -31,16 +31,22 @@ class PrenatalVisitController extends Controller
         $sortBy = $sortableColumns[$request->input('sort_by')] ?? 'prenatal_visits.created_at';
 
         $prenatal_visits = PrenatalVisit::select('prenatal_visits.*')
-            ->join('patients', 'patients.id', '=', 'prenatal_visits.patient_id')
+            ->join('pregnancy_trackings', 'pregnancy_trackings.id', '=', 'prenatal_visits.pregnancy_tracking_id')
+            ->whereIn('prenatal_visits.id', function ($query) {
+                $query->select(DB::raw('MAX(id)'))
+                    ->from('prenatal_visits')
+                    ->groupBy('pregnancy_tracking_id');
+            })
             ->with([
-                'patient',
-                'patient.barangays',
-                'patient.municipalities',
-                'patient.provinces',
+                'pregnancy_tracking',
+                'pregnancy_tracking.patient',
+                'pregnancy_tracking.patient.barangays',
+                'pregnancy_tracking.patient.municipalities',
+                'pregnancy_tracking.patient.provinces',
             ])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where(DB::raw("CONCAT('patients.firstname', ,' ', 'patients.lastname')"), 'LIKE', "%{$search}%");
+                    $q->where("pregnancy_trackings.fullname", 'LIKE', "%{$search}%");
                     // ->orWhere('pregnancy_tracking_number', 'LIKE', "%{$search}%");
                 });
             })
@@ -52,6 +58,7 @@ class PrenatalVisitController extends Controller
             })
             ->orderBy($sortBy, $sortDir)
             ->paginate($perPage);
+
 
 
         return [
@@ -71,7 +78,7 @@ class PrenatalVisitController extends Controller
     public function store(Request $request)
     {
         $fields = $request->validate([
-            'patient_id'  => 'required|exists:patients,id',
+            'pregnancy_tracking_id'  => 'required|exists:pregnancy_trackings,id',
             'date'        => 'required|date',
             'weight'      => 'required',
             'bp'          => 'required',
@@ -105,7 +112,7 @@ class PrenatalVisitController extends Controller
     public function update(Request $request, PrenatalVisit $prenatal_visit)
     {
         $fields = $request->validate([
-            'patient_id'  => 'required|exists:patients,id',
+            'pregnancy_tracking_id'  => 'required|exists:pregnancy_trackings,id',
             'date'        => 'required|date',
             'weight'      => 'required',
             'bp'          => 'required',
@@ -131,5 +138,23 @@ class PrenatalVisitController extends Controller
     public function destroy(PrenatalVisit $prenatalVisit)
     {
         //
+    }
+
+    public function getGroupPrenatalVisit($pregnancy_tracking_id)
+    {
+        $prenatal_visits = PrenatalVisit::query()
+            ->with([
+                'pregnancy_tracking',
+                'pregnancy_tracking.patient',
+                'pregnancy_tracking.patient.barangays',
+                'pregnancy_tracking.patient.municipalities',
+                'pregnancy_tracking.patient.provinces',
+            ])
+            ->where('pregnancy_tracking_id', $pregnancy_tracking_id)
+            ->get();
+
+        return [
+            'data' => PrenatalVisitResource::collection($prenatal_visits),
+        ];
     }
 }

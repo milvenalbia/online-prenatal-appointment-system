@@ -12,17 +12,35 @@ const InputGroup = ({
   icon = null,
   hasLabel = false,
   hasChildren = false,
+  noNumbers = false,
+  required = false,
+  optional = false,
   children,
   ...props
 }) => {
   const handleChange = (e) => {
-    onChange(e);
+    let inputValue = e.target.value;
+
+    if (noNumbers) {
+      inputValue = inputValue.replace(/[0-9]/g, '');
+    }
+
+    // Call parent onChange with cleaned value
+    onChange({
+      target: {
+        name: e.target.name,
+        value: inputValue,
+      },
+    });
   };
+
   return (
     <div className='flex flex-col gap-2 mt-4 w-full'>
       {hasLabel && (
         <label className='text-gray-700' htmlFor={id}>
           {label}
+          {required && <span className='text-red-500 ml-1'>*</span>}
+          {optional && <span className='text-gray-400 ml-1'>(optional)</span>}
         </label>
       )}
       <div className='relative'>

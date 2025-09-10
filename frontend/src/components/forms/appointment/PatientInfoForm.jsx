@@ -3,7 +3,7 @@ import SelectReact from '../../ui/SelectReact';
 import InputGroup from '../../ui/InputGroup';
 
 // Patient Information Form Component
-const PatientInfoForm = ({ formData, setFormData, priorities }) => (
+const PatientInfoForm = ({ formData, setFormData, priorities, error }) => (
   <div className='max-w-md mx-auto space-y-6'>
     <div>
       <SelectReact
@@ -23,6 +23,9 @@ const PatientInfoForm = ({ formData, setFormData, priorities }) => (
         }}
         labelKey='fullname'
       />
+      {error.pregnancy_tracking_id && (
+        <p className='error mt-1'>{error.pregnancy_tracking_id[0]}</p>
+      )}
     </div>
 
     <div>
@@ -42,6 +45,9 @@ const PatientInfoForm = ({ formData, setFormData, priorities }) => (
         hasLabel
         label='Visit Count'
       />
+      {error.visit_count && (
+        <p className='error mt-1'>{error.visit_count[0]}</p>
+      )}
     </div>
 
     <div>
@@ -75,6 +81,7 @@ const PatientInfoForm = ({ formData, setFormData, priorities }) => (
           </label>
         ))}
       </div>
+      {error.priority && <p className='error mt-1'>{error.priority[0]}</p>}
     </div>
 
     <div>
