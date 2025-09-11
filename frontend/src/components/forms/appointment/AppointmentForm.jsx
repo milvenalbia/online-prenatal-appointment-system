@@ -31,7 +31,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
     pregnancy_tracking_id: '',
     appointment_date: null,
     priority: 'medium',
-    visit_count: '',
+    visit_count: 1,
     note: '',
     fullname: '',
   });
@@ -87,7 +87,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
       pregnancy_tracking_id: '',
       appointment_date: null,
       priority: 'medium',
-      visit_count: '',
+      visit_count: 1,
       note: '',
       fullname: '',
     });
@@ -278,7 +278,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
               error={error}
             />
 
-            <div className='flex justify-between mt-8 max-w-md mx-auto'>
+            <div className='flex justify-between mt-8 max-w-xl mx-auto'>
               <button
                 onClick={() => setCurrentStep(1)}
                 className='flex items-center gap-2 px-4 md:px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors'

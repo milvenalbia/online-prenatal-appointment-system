@@ -44,7 +44,10 @@ const DataTable = forwardRef((props, ref) => {
     onCustomAction = null,
     customActions = [],
     addButton = null,
+    downloadReport = null,
+    onDownloadReport = null,
     onAdd = null,
+    isAppointment = false,
   } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -251,6 +254,12 @@ const DataTable = forwardRef((props, ref) => {
     }
   };
 
+  const handleDownloadReport = () => {
+    if (onDownloadReport) {
+      onDownloadReport();
+    }
+  };
+
   const handleAdd = () => {
     if (onAdd) {
       onAdd();
@@ -291,10 +300,6 @@ const DataTable = forwardRef((props, ref) => {
       ...prev,
       [name]: value,
     }));
-  };
-
-  const handleAdvanceFilter = () => {
-    fetchData;
   };
 
   const handleSelectedDates = (selectedDates) => {
@@ -504,6 +509,15 @@ const DataTable = forwardRef((props, ref) => {
                 <span>{addButton}</span>
               </button>
             )}
+            {downloadReport && (
+              <button
+                onClick={handleDownloadReport}
+                className='download-btn px-4 py-2 text-sm font-medium inline-flex items-center gap-2 rounded-md'
+              >
+                <FileDown className='w-5.5 h-5.5' />
+                <span>{downloadReport}</span>
+              </button>
+            )}
             {hasAdvanceFilter && (
               <div className='relative'>
                 <button
@@ -659,24 +673,14 @@ const DataTable = forwardRef((props, ref) => {
                 value={range}
                 onChange={(selectedDates) => handleSelectedDates(selectedDates)}
                 mode='range'
-                placeholdertext='Select date range'
+                placeholder={
+                  isAppointment
+                    ? 'Filter by Appointment Date'
+                    : 'Select Date Range'
+                }
                 className='w-full pl-10 pr-4 py-2 border border-gray-300 outline-none rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all'
               />
             </div>
-            // <div className='relative -mt-4'>
-            //   <DateInput
-            //     className='w-full pl-10 pr-4 py-2 border border-gray-300 outline-none rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all'
-            //     selectsRange
-            //     startDate={dateFrom}
-            //     endDate={dateTo}
-            //     onChange={([start, end]) => {
-            //       setDateFrom(start);
-            //       setDateTo(end);
-            //     }}
-            //     placeholdertext='Select date range'
-            //     dateformat='yyyy-MM-dd'
-            //   />
-            // </div>
           )}
 
           {/* Per Page */}
@@ -776,7 +780,10 @@ const DataTable = forwardRef((props, ref) => {
                   {displayColumns.map(
                     (column, colIndex) =>
                       !column.hidden && (
-                        <td key={colIndex} className='pl-4'>
+                        <td
+                          key={colIndex}
+                          className={showActions ? 'pl-4' : 'pl-4 py-3'}
+                        >
                           {column.render
                             ? column.render(row[column.key], row, rowIndex) // ✅ correct row index
                             : row[column.key]}

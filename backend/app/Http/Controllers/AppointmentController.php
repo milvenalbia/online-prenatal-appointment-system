@@ -65,10 +65,10 @@ class AppointmentController extends Controller
                 $query->where('appointments.priority', $priority);
             })
             ->when($dateFrom, function ($query, $dateFrom) {
-                $query->whereDate('appointments.created_at', '>=', $dateFrom);
+                $query->whereDate('appointments.appointment_date', '>=', $dateFrom);
             })
             ->when($dateTo, function ($query, $dateTo) {
-                $query->whereDate('appointments.created_at', '<=', $dateTo);
+                $query->whereDate('appointments.appointment_date', '<=', $dateTo);
             })
             ->orderBy($sortableColumns[$sortBy], $sortDir)
             ->paginate($perPage);
@@ -186,7 +186,7 @@ class AppointmentController extends Controller
     {
         $start = $request->input('start'); // YYYY-MM-DD
         $end = $request->input('end');     // YYYY-MM-DD
-        $maxSlots = 5;
+        $maxSlots = 5; // This is the max slot to display in the calendar
 
         $appointments = Appointment::selectRaw('DATE(appointment_date) as date, COUNT(*) as count')
             ->whereBetween('appointment_date', [$start, $end])

@@ -10,6 +10,10 @@
     @apply bg-purple-500 text-white hover:bg-purple-400 transition-all;
 }
 
+.download-btn {
+    @apply bg-green-500 text-white hover:bg-green-400 transition-all;
+}
+
 .container {
     @apply mt-5 bg-white border border-gray-300 p-6 rounded-2xl shadow;
 }

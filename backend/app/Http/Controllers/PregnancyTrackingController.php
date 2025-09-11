@@ -101,7 +101,7 @@ class PregnancyTrackingController extends Controller
         $fields = $request->validated();
         $patientType = $request->input('patient_type');
         $fields['age'] = Carbon::parse($fields['birth_date'])->age;
-        DB::transaction(function () use ($fields, $patientType) {
+        $pregnancy_tracking = DB::transaction(function () use ($fields, $patientType) {
             if ($patientType === 'new') {
                 $patient = Patient::create(array_merge($fields, [
                     "address" => "n/a",
@@ -120,22 +120,22 @@ class PregnancyTrackingController extends Controller
                 $fields['barangay_health_station'] = $health_station->health_station;
             }
 
-            $pregnancy_tracking = PregnancyTracking::create($fields);
-
-            foreach ($fields['risk_codes'] as $risk) {
-                RiskCode::create([
-                    'pregnancy_tracking_id' => $pregnancy_tracking->id,
-                    'risk_code' => $risk['risk_code'],
-                    'date_detected' => $risk['date_detected'],
-                    'risk_status' => $risk['risk_status'],
-                ]);
-            }
-
-            return [
-                'data' => new PregnancyTrackingResource($pregnancy_tracking),
-                'message' => 'Pregnancy Tracking created successfully',
-            ];
+            return PregnancyTracking::create($fields);
         });
+
+        foreach ($fields['risk_codes'] as $risk) {
+            RiskCode::create([
+                'pregnancy_tracking_id' => $pregnancy_tracking->id,
+                'risk_code' => $risk['risk_code'],
+                'date_detected' => $risk['date_detected'],
+                'risk_status' => $risk['risk_status'],
+            ]);
+        }
+
+        return [
+            'data' => new PregnancyTrackingResource($pregnancy_tracking),
+            'message' => 'Pregnancy Tracking created successfully',
+        ];
     }
 
 

@@ -14,7 +14,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router';
 import Card from '../components/interfaces/cards/Card';
-import { useAuthStore } from '../store/authStore.js';
+import { useAuthStore } from '../store/AuthStore.js';
+import Title from '../components/Title.jsx';
 
 const Dashboard = () => {
   const { user } = useAuthStore();
@@ -151,6 +152,7 @@ const Dashboard = () => {
 
   return (
     <div className='min-h-screen'>
+      <Title title={'Dashboard'} />
       <div className='w-full'>
         {/* Statistics Cards - Responsive Grid */}
         <div

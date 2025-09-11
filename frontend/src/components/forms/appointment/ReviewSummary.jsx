@@ -25,6 +25,11 @@ const ReviewSummary = ({ formData, priorities, selectedDate }) => (
       </div>
 
       <div className='flex justify-between items-center'>
+        <span className='font-medium text-gray-700'>Visit Count:</span>
+        <span className='text-gray-900'>{formData.visit_count}</span>
+      </div>
+
+      <div className='flex justify-between items-center'>
         <span className='font-medium text-gray-700'>Priority:</span>
         <span
           className={`px-3 py-1 rounded-full text-sm font-medium ${

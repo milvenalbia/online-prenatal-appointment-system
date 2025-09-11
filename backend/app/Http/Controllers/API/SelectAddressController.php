@@ -129,6 +129,21 @@ class SelectAddressController extends Controller
         });
     }
 
+    public function pregnancy_trackings_has_appointments()
+    {
+        $pregnancy_trackings = PregnancyTracking::select(['id', 'fullname'])
+            ->where('isDone', false)
+            ->whereHas('appointments')
+            ->get();
+
+        return $pregnancy_trackings->map(function ($tracking) {
+            return [
+                'id' => $tracking->id,
+                'fullname' => $tracking->fullname,
+            ];
+        });
+    }
+
     public function midwives(BarangayCenter $barangay_center)
     {
         $midwives = Midwife::where('barangay_center_id', $barangay_center->id)

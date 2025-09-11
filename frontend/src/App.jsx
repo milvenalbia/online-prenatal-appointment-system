@@ -20,6 +20,10 @@ import Midwives from './pages/midwives/Midwives';
 import BarangayWorkers from './pages/barangay_workers/BarangayWorkers';
 import Nurse from './pages/nurses/Nurse';
 import RoleBasedRoute from './protected_route/RolebasedRoute';
+import AppointmentReports from './pages/reports/AppointmentReports';
+import PregnancyTrackingReports from './pages/reports/PregnancyTrackingReports';
+import PrenatalVisitReports from './pages/reports/PrenatalVisitReports';
+import OutPatientReports from './pages/reports/OutPatientReports';
 
 function App() {
   const permissions = {
@@ -35,6 +39,10 @@ function App() {
     nurses: [1, 2],
     health_stations: [1],
     reports: [1, 3],
+    reports_appointments: [1, 3],
+    reports_pregnancy_trackings: [1, 3],
+    reports_prenatal_visits: [1, 3],
+    reports_out_patients: [1, 3],
     user_management: [1],
   };
 
@@ -171,6 +179,42 @@ function App() {
             element={
               <RoleBasedRoute allowedRoles={permissions.reports}>
                 <Reports />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='reports/appointment-reports'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.reports_appointments}>
+                <AppointmentReports />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='reports/pregnancy-trackings'
+            element={
+              <RoleBasedRoute
+                allowedRoles={permissions.reports_pregnancy_trackings}
+              >
+                <PregnancyTrackingReports />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='reports/prenatal-visits'
+            element={
+              <RoleBasedRoute
+                allowedRoles={permissions.reports_prenatal_visits}
+              >
+                <PrenatalVisitReports />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='reports/out-patients'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.reports_out_patients}>
+                <OutPatientReports />
               </RoleBasedRoute>
             }
           />

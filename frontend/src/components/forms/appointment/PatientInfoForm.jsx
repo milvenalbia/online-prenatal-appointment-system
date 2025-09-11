@@ -4,13 +4,13 @@ import InputGroup from '../../ui/InputGroup';
 
 // Patient Information Form Component
 const PatientInfoForm = ({ formData, setFormData, priorities, error }) => (
-  <div className='max-w-md mx-auto space-y-6'>
+  <div className='max-w-xl mx-auto space-y-6'>
     <div>
       <SelectReact
         label='Pregnancy Tracking ID'
         id='pregnancy_tracking_id'
         name='pregnancy_tracking_id'
-        endpoint={`/api/filter/pregnancy_trakings`}
+        endpoint={`/api/filter/pregnancy-trakings`}
         placeholder='Choose a patient pregnancy form'
         formData={formData}
         setFormData={setFormData}
@@ -44,6 +44,7 @@ const PatientInfoForm = ({ formData, setFormData, priorities, error }) => (
         id='visit_count'
         hasLabel
         label='Visit Count'
+        min={1}
       />
       {error.visit_count && (
         <p className='error mt-1'>{error.visit_count[0]}</p>
@@ -54,11 +55,11 @@ const PatientInfoForm = ({ formData, setFormData, priorities, error }) => (
       <label className='block text-sm font-medium text-gray-700 mb-2'>
         Priority Level
       </label>
-      <div className='space-y-3'>
+      <div className='flex flex-col sm:flex-row items-center gap-4'>
         {Object.entries(priorities).map(([key, value]) => (
           <label
             key={key}
-            className='flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors'
+            className='w-full flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors'
           >
             <input
               type='radio'
@@ -93,7 +94,7 @@ const PatientInfoForm = ({ formData, setFormData, priorities, error }) => (
         value={formData.note}
         onChange={(e) => setFormData({ ...formData, note: e.target.value })}
         rows='4'
-        className='w-full p-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all'
+        className='w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-none transition-all'
         placeholder='Any additional information or special requests'
       />
     </div>

@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
+import { ShieldAlert } from 'lucide-react';
 import InputGroup from '../../ui/InputGroup';
 import DatePicker from '../../ui/DatePicker';
 import SelectGroup from '../../ui/SelectGroup';
-import { ShieldAlert } from 'lucide-react';
 
 const RiskCodes = ({ formData, setFormData, error }) => {
   // Initialize risk_codes array if it doesn't exist
@@ -69,9 +69,9 @@ const RiskCodes = ({ formData, setFormData, error }) => {
               onChange={(e) => handleChange(index, 'risk_code', e.target.value)}
               icon={<ShieldAlert className='h-5 w-5 text-gray-400' />}
             />
-            {error?.risk_codes.index.risk_code && (
-              <p className='text-red-500 text-sm'>
-                {error.risk_codes.index.risk_status[0]}
+            {error?.[`risk_codes.${index}.risk_code`] && (
+              <p className='text-red-500 text-sm mt-1'>
+                {error[`risk_codes.${index}.risk_code`][0]}
               </p>
             )}
           </div>
@@ -82,9 +82,9 @@ const RiskCodes = ({ formData, setFormData, error }) => {
                 handleChange(index, 'date_detected', e.target.value)
               }
             />
-            {error?.risk_codes.index.date_detected && (
-              <p className='text-red-500 text-sm'>
-                {error.risk_codes.index.date_detected[0]}
+            {error?.[`risk_codes.${index}.date_detected`] && (
+              <p className='text-red-500 text-sm mt-1'>
+                {error[`risk_codes.${index}.date_detected`][0]}
               </p>
             )}
           </div>
@@ -97,9 +97,10 @@ const RiskCodes = ({ formData, setFormData, error }) => {
               }
               placeholder='Select Risk Status'
             />
-            {error?.risk_codes.index.risk_status && (
-              <p className='text-red-500 text-sm'>
-                {error.risk_codes.index.risk_status[0]}
+
+            {error?.[`risk_codes.${index}.risk_status`] && (
+              <p className='text-red-500 text-sm mt-1'>
+                {error[`risk_codes.${index}.risk_status`][0]}
               </p>
             )}
           </div>

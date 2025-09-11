@@ -46,6 +46,7 @@ const Appointments = () => {
         hasSortByPriority
         hasAdvanceFilter
         ref={dataTableRef}
+        isAppointment
       />
 
       {isOpen && (
