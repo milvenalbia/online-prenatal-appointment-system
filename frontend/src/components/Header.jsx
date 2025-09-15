@@ -1,7 +1,7 @@
 import { Bell, Calendar, UserRound, Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { useAuthStore } from '../store/AuthStore';
+import { useAuthStore } from '../store/AuthStore.js';
 
 const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
   const { user } = useAuthStore();
@@ -58,7 +58,7 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                 </span>
               </Link>
               <Link
-                to={'appointment/create'}
+                to={'appointments/create'}
                 className='md:hidden p-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md cursor-pointer transition-colors shadow-md'
               >
                 <Calendar className='h-5 w-5' />

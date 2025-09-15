@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pregnancy_trackings', function (Blueprint $table) {
-            $table->enum('status', ['first_trimester', 'second_trimester', 'third_trimester', 'completed'])->default('first_trimester');
+            // Drop the old 'role' string column
+            $table->dropColumn('status');
+
+            $table->enum('pregnancy_status', ['first_trimester', 'second_trimester', 'third_trimester', 'completed'])->default('first_trimester');
         });
     }
 

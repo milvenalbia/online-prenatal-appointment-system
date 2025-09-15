@@ -676,7 +676,7 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
                 </View>
 
                 <View style={[styles.cell, { width: 65 }]}>
-                  <Text>{isFirstRow ? formData?.attended_by || '' : ''}</Text>
+                  <Text>{isFirstRow ? formData?.doctor_name || '' : ''}</Text>
                 </View>
 
                 {/* PHIC */}

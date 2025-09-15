@@ -14,6 +14,20 @@ class Midwife extends Model
         'barangay_center_id',
     ];
 
+    protected static function booted()
+    {
+        static::saving(function ($student) {
+            foreach (['firstname', 'lastname'] as $field) {
+                if (!empty($student->$field)) {
+                    // Trim, collapse multiple spaces, normalize spacing, standard capitalization
+                    $student->$field = ucwords(strtolower(
+                        preg_replace('/\s+/', ' ', trim($student->$field))
+                    ));
+                }
+            }
+        });
+    }
+
     public function getFullNameAttribute()
     {
         return "{$this->firstname} {$this->lastname}";

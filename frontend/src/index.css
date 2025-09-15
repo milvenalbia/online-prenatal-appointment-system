@@ -35,6 +35,26 @@ html {
   overflow-x: hidden;
 }
 
+.fc-event-content-wrapper {
+    padding: 2px;
+}
+
+.fc-event-doctors {
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 2px;
+}
+
+.fc-event-title {
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+/* Adjust event height to accommodate doctor info */
+.fc-daygrid-event {
+    white-space: normal !important;
+    min-height: 40px;
+}
+
 
 .flatpickr-input {
     display: none;

@@ -66,7 +66,7 @@ const DataTable = forwardRef((props, ref) => {
   const [formData, setFormData] = useState({
     category: '',
     status: '',
-    visit_count: '',
+    pregnancy_status: '',
     priority: '',
   });
 
@@ -75,51 +75,45 @@ const DataTable = forwardRef((props, ref) => {
   const statusOptions = [
     { name: 'Scheduled', value: 'scheduled', show: ['Appointments'] },
     {
-      name: 'Completed',
-      value: title === 'Pregnancy Tracking' ? 5 : 'completed',
-      show: ['Pregnancy Tracking', 'Appointments'],
-    },
-    { name: 'Cancelled', value: 'cancelled', show: ['Appointments'] },
-    {
       name: '1st Trimester',
-      value: 1,
+      value: 'first_trimester',
       show: ['Pregnancy Tracking'],
     },
     {
       name: '2nd Trimester',
-      value: 2,
+      value: 'second_trimester',
       show: ['Pregnancy Tracking'],
     },
     {
       name: '3rd Trimester',
-      value: 3,
+      value: 'third_trimester',
       show: ['Pregnancy Tracking'],
     },
     {
-      name: '4th Trimester',
-      value: 4,
-      show: ['Pregnancy Tracking'],
+      name: 'Completed',
+      value: title === 'Pregnancy Tracking' ? 'completed' : 'completed',
+      show: ['Pregnancy Tracking', 'Appointments'],
     },
+    { name: 'Missed Appointment', value: 'missed', show: ['Appointments'] },
   ];
 
   const pregnancyStatusOptions = [
     {
       name: '1st Trimester',
-      value: 1,
+      value: 'first_trimester',
     },
     {
       name: '2nd Trimester',
-      value: 2,
+      value: 'second_trimester',
     },
     {
       name: '3rd Trimester',
-      value: 3,
+      value: 'third_trimester',
     },
     {
-      name: '4th Trimester',
-      value: 4,
+      name: 'Completed',
+      value: 'completed',
     },
-    { name: 'Completed', value: 5 },
   ];
 
   const priorityOptions = [
@@ -141,7 +135,7 @@ const DataTable = forwardRef((props, ref) => {
         sort_dir: sortDirection,
         category: formData.category,
         status: formData.status,
-        visit_count: formData.visit_count,
+        pregnancy_status: formData.pregnancy_status,
         priority: formData.priority,
         date_from: dateFrom
           ? dateFrom.toLocaleDateString('en-CA') // → "2025-08-24"
@@ -588,14 +582,14 @@ const DataTable = forwardRef((props, ref) => {
                       <div className='w-full mt-4'>
                         <label
                           className='text-sm text-gray-600'
-                          htmlFor='visit_count'
+                          htmlFor='pregnancy_status'
                         >
                           Sort by Pregnancy Status
                         </label>
                         <select
-                          id='visit_count'
-                          value={formData.visit_count}
-                          name='visit_count'
+                          id='pregnancy_status'
+                          value={formData.pregnancy_status}
+                          name='pregnancy_status'
                           onChange={(e) => handleFormData(e)}
                           className='w-full px-3 py-2.25 border border-gray-300 rounded-md outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm mt-2'
                         >

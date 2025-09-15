@@ -22,7 +22,7 @@ const InputGroup = ({
     let inputValue = e.target.value;
 
     if (noNumbers) {
-      inputValue = inputValue.replace(/[0-9]/g, '');
+      inputValue = inputValue.replace(/[^a-zA-Z.\- ]/g, '');
     }
 
     // Call parent onChange with cleaned value

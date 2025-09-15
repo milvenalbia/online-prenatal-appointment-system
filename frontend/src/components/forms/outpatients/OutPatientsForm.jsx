@@ -210,8 +210,8 @@ const OutPatientsForm = ({
             ? 'Updating ...'
             : 'Creating ...'
           : isEdit
-          ? 'Updating Out Patient'
-          : 'Creating Out Patient'}
+          ? 'Update Out Patient'
+          : 'Create Out Patient'}
       </button>
     </form>
   );

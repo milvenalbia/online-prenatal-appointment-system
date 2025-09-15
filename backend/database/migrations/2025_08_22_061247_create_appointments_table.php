@@ -19,7 +19,7 @@ return new class extends Migration
             $table->time('end_time');
             $table->enum('priority', ['high', 'medium', 'low'])->default('medium');
             $table->integer('visit_count')->default(1);
-            $table->enum('status', ['scheduled', 'completed', 'cancelled'])->default('scheduled');
+            $table->enum('status', ['scheduled', 'completed', 'missed'])->default('scheduled');
             $table->text('notes')->nullable();
             $table->timestamp('booking_timestamp')->useCurrent();
             $table->timestamps();

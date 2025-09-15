@@ -3,16 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Nurse extends Model
+class Doctor extends Model
 {
     protected $fillable = [
         'firstname',
         'lastname',
-        'barangay_center_id',
+        'assigned_day',
     ];
+
+    public function getFullNameAttribute()
+    {
+        return "{$this->firstname} {$this->lastname}";
+    }
 
     protected static function booted()
     {
@@ -26,20 +29,5 @@ class Nurse extends Model
                 }
             }
         });
-    }
-
-    public function getFullNameAttribute()
-    {
-        return "{$this->firstname} {$this->lastname}";
-    }
-
-    public function barangay_center(): BelongsTo
-    {
-        return $this->belongsTo(BarangayCenter::class);
-    }
-
-    public function pregnancy_tracking(): HasMany
-    {
-        return $this->hasMany(PregnancyTracking::class);
     }
 }

@@ -25,6 +25,10 @@ return new class extends Migration
             $table->string('fht')->nullable();
             $table->string('fh')->nullable();
             $table->string('aog')->nullable();
+            $table->string('term')->nullable();
+            $table->string('preterm')->nullable();
+            $table->string('post_term')->nullable();
+            $table->string('living_children')->nullable();
             $table->timestamps();
         });
     }

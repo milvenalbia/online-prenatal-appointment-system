@@ -1,17 +1,10 @@
 import { Link } from 'react-router';
 
-const LinkCards = ({
-  icon: Icon,
-  title,
-  description,
-  linkTo,
-  bgColor,
-  iconColor,
-}) => {
+const LinkCards = ({ icon: Icon, title, description, linkTo, iconColor }) => {
   return (
     <Link
       to={linkTo}
-      className={`${bgColor} rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 border border-gray-100`}
+      className={`bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 border border-gray-100`}
     >
       <div className='flex items-center mb-4'>
         <div className={`${iconColor} p-3 rounded-lg mr-4`}>

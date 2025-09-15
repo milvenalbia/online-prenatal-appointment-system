@@ -4,8 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
+use App\Models\Doctor;
+use App\Models\PregnancyTracking;
 use App\Services\AppointmentSchedulingService;
 use Carbon\Carbon;
+use DateInterval;
+use DatePeriod;
+use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -26,12 +31,13 @@ class AppointmentController extends Controller
         $search     = $request->input('search');
         $status     = $request->input('status');
         $priority   = $request->input('priority');
-        $visit_count   = $request->input('visit_count');
+        $pregnancy_status   = $request->input('pregnancy_status');
         $dateFrom   = $request->input('date_from');
         $dateTo     = $request->input('date_to');
         $sortBy     = $request->input('sort_by', 'created_at');
         $sortDir    = $request->input('sort_dir', 'desc');
         $perPage    = $request->input('per_page', 10);
+        $report     = $request->input('report', false);
 
         // Optional: whitelist sortable columns to prevent SQL injection
         $sortableColumns = [
@@ -58,8 +64,8 @@ class AppointmentController extends Controller
             ->when($status, function ($query, $status) {
                 $query->where('appointments.status', $status);
             })
-            ->when($visit_count, function ($query, $visit_count) {
-                $query->where('appointments.visit_count', $visit_count);
+            ->when($pregnancy_status, function ($query, $pregnancy_status) {
+                $query->where('pregnancy_trackings.pregnancy_status', $pregnancy_status);
             })
             ->when($priority, function ($query, $priority) {
                 $query->where('appointments.priority', $priority);
@@ -69,9 +75,37 @@ class AppointmentController extends Controller
             })
             ->when($dateTo, function ($query, $dateTo) {
                 $query->whereDate('appointments.appointment_date', '<=', $dateTo);
-            })
-            ->orderBy($sortableColumns[$sortBy], $sortDir)
-            ->paginate($perPage);
+            });
+
+        if ($report) {
+            $appointments = $appointments->orderBy($sortableColumns[$sortBy], 'asc');
+
+            $results = $appointments->get();
+
+            return [
+                'data' => AppointmentResource::collection($results),
+                'meta' => [
+                    'total' => $results->count(),
+                    'per_page' => $results->count(),
+                    'current_page' => 1,
+                    'last_page' => 1,
+                ],
+            ];
+        } else {
+            $appointments = $appointments->orderBy($sortableColumns[$sortBy], $sortDir);
+
+            $results = $appointments->paginate($perPage);
+
+            return [
+                'data' => AppointmentResource::collection($results),
+                'meta' => [
+                    'total' => $results->total(),
+                    'per_page' => $results->perPage(),
+                    'current_page' => $results->currentPage(),
+                    'last_page' => $results->lastPage(),
+                ],
+            ];
+        }
 
         return [
             'data' => AppointmentResource::collection($appointments),
@@ -119,6 +153,7 @@ class AppointmentController extends Controller
             'appointment_date' => 'required|date|after:today',
             'priority' => 'required|in:high,medium,low',
             'visit_count' => 'integer|min:1',
+            'doctor_id' => 'required',
             'notes' => 'nullable|string|max:1000'
         ]);
 
@@ -130,6 +165,21 @@ class AppointmentController extends Controller
             }
 
             $appointment = $this->schedulingService->createAppointment($request->all());
+
+            $pregnancy_tracking = PregnancyTracking::where('id', $request->pregnancy_tracking_id)->first();
+
+            if (empty($pregnancy_tracking->attended_by)) {
+                $pregnancy_tracking->update([
+                    'attended_by' => $request->doctor_id,
+                ]);
+            }
+
+            // Calculate pregnancy status based on LMP and appointment date
+            if (!empty($pregnancy_tracking->lmp)) {
+                $appointmentDate = Carbon::parse($request->appointment_date);
+                $status = $this->calculatePregnancyStatus($pregnancy_tracking->lmp, $appointmentDate);
+                $pregnancy_tracking->update(['pregnancy_status' => $status]);
+            }
 
             return response()->json([
                 'message' => 'Appointment created successfully',
@@ -143,6 +193,127 @@ class AppointmentController extends Controller
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'pregnancy_tracking_id' => 'required|exists:pregnancy_trackings,id',
+            'appointment_date' => 'required|date|after_or_equal:today',
+            'priority' => 'required|in:high,medium,low',
+            'visit_count' => 'integer|min:1',
+            'notes' => 'nullable|string|max:1000'
+        ]);
+
+        DB::transaction(function () use ($request, $id) {
+            $appointment = Appointment::findOrFail($id);
+
+            // Store original values for comparison
+            $old_pregnancy_tracking_id = $appointment->pregnancy_tracking_id;
+            $oldDate = $appointment->appointment_date;
+            $oldPriority = $appointment->priority;
+            $oldVisitCount = $appointment->visit_count;
+
+            $new_pregnancy_tracking_id = $request->pregnancy_tracking_id;
+            $newDate = $request->appointment_date;
+            $newPriority = $request->priority;
+            $newVisitCount = $request->visit_count;
+
+            // Calculate new priority score
+            $newPriorityScore = $this->schedulingService->getPriorityScore($newVisitCount, $newPriority, $appointment->booking_timestamp);
+
+            $hasDateChanged = $oldDate !== $newDate;
+            $hasPriorityChanged = $oldPriority !== $newPriority || $oldVisitCount !== $newVisitCount;
+
+            // Handle different update scenarios
+            if ($hasDateChanged) {
+                // Date is changing - check if target date is full
+                $this->handleDateChange($appointment, $request, $oldDate, $newDate, $newPriorityScore);
+            } else if ($hasPriorityChanged) {
+                // Same date, priority changed - update and reorganize
+                $appointment->update([
+                    'pregnancy_tracking_id' => $request->pregnancy_tracking_id,
+                    'priority' => $newPriority,
+                    'visit_count' => $newVisitCount,
+                    'notes' => $request->notes,
+                    'priority_score' => $newPriorityScore
+                ]);
+
+                $this->schedulingService->reorganizeAppointments($oldDate);
+            } else {
+                // Only notes or pregnancy_tracking_id changed
+                $appointment->update($request->only(['pregnancy_tracking_id', 'notes']));
+            }
+
+            $appointment = $appointment->fresh();
+
+            if ($old_pregnancy_tracking_id !== $new_pregnancy_tracking_id) {
+                $old_pregnancy_tracking = PregnancyTracking::find($old_pregnancy_tracking_id);
+
+                // Clear attended_by
+                if ($old_pregnancy_tracking->attended_by) {
+                    $old_pregnancy_tracking->update([
+                        'attended_by' => null,
+                    ]);
+                }
+
+                // ✅ Old tracking status based on NOW
+                if ($old_pregnancy_tracking->lmp) {
+                    $status = $this->calculatePregnancyStatus($old_pregnancy_tracking->lmp, Carbon::now());
+                    $old_pregnancy_tracking->update(['pregnancy_status' => $status]);
+                }
+
+                $new_pregnancy_tracking = PregnancyTracking::find($new_pregnancy_tracking_id);
+
+                // Assign doctor if none
+                if ($new_pregnancy_tracking->attended_by === null) {
+                    $new_pregnancy_tracking->update([
+                        'attended_by' => $request->doctor_id,
+                    ]);
+                }
+
+                // ✅ New tracking status based on appointment_date
+                if ($new_pregnancy_tracking->lmp) {
+                    $appointmentDate = Carbon::parse($request->appointment_date);
+                    $status = $this->calculatePregnancyStatus($new_pregnancy_tracking->lmp, $appointmentDate);
+                    $new_pregnancy_tracking->update(['pregnancy_status' => $status]);
+                }
+            } else {
+                $pregnancy_tracking = PregnancyTracking::find($old_pregnancy_tracking_id);
+
+                // ✅ Same tracking, use appointment_date
+                if ($pregnancy_tracking->lmp) {
+                    $appointmentDate = Carbon::parse($request->appointment_date);
+                    $status = $this->calculatePregnancyStatus($pregnancy_tracking->lmp, $appointmentDate);
+                    $pregnancy_tracking->update(['pregnancy_status' => $status]);
+                }
+            }
+        });
+
+        return response()->json([
+            'message' => 'Appointment updated successfully',
+            // 'appointment' => $appointment,
+            // 'changes' => [
+            //     'date_changed' => $hasDateChanged,
+            //     'priority_changed' => $hasPriorityChanged
+            // ]
+        ]);
+    }
+
+    private function calculatePregnancyStatus(string $lmp, Carbon $referenceDate): string
+    {
+        $lmp = Carbon::parse($lmp);
+        $weeks = $lmp->diffInWeeks($referenceDate);
+
+        if ($weeks <= 12) {
+            return 'first_trimester';
+        } elseif ($weeks <= 27) {
+            return 'second_trimester';
+        } elseif ($weeks <= 40) {
+            return 'third_trimester';
+        }
+        return 'postpartum';
+    }
+
 
     /**
      * Get appointments for a date range (for calendar view)
@@ -188,12 +359,15 @@ class AppointmentController extends Controller
         $end = $request->input('end');     // YYYY-MM-DD
         $maxSlots = 5; // This is the max slot to display in the calendar
 
+        // Get appointment counts
         $appointments = Appointment::selectRaw('DATE(appointment_date) as date, COUNT(*) as count')
             ->whereBetween('appointment_date', [$start, $end])
             ->groupBy('date')
             ->get();
 
         $availability = [];
+
+        // Process existing appointments data
         foreach ($appointments as $day) {
             $remaining = max($maxSlots - $day->count, 0);
             $availability[$day->date] = [
@@ -203,8 +377,71 @@ class AppointmentController extends Controller
             ];
         }
 
+        // Add doctors information for each date in the range
+        $startDate = new DateTime($start);
+        $endDate = new DateTime($end);
+        $period = new DatePeriod($startDate, new DateInterval('P1D'), $endDate);
+
+        foreach ($period as $date) {
+            $dayName = strtolower($date->format('l')); // monday, tuesday, etc.
+            $dateStr = $date->format('Y-m-d');
+
+            // Skip weekends (no doctors assigned)
+            if (in_array($dayName, ['saturday', 'sunday'])) {
+                continue;
+            }
+
+            // Get doctors assigned to this day
+            $doctors = Doctor::where('assigned_day', $dayName)
+                ->get(['id', 'firstname', 'lastname'])
+                ->map(function ($doctor) {
+                    return [
+                        'id' => $doctor->id,
+                        'name' => $doctor->full_name
+                    ];
+                });
+
+            // If we already have availability data for this date, add doctors
+            if (isset($availability[$dateStr])) {
+                $availability[$dateStr]['doctors'] = $doctors;
+            } else {
+                // If no appointments exist for this date, create availability entry
+                $availability[$dateStr] = [
+                    'appointments_count' => 0,
+                    'remaining_slots' => $maxSlots,
+                    'is_fully_booked' => false,
+                    'doctors' => $doctors
+                ];
+            }
+        }
+
         return response()->json($availability);
     }
+
+
+    // public function getAvailabilityByRange(Request $request): JsonResponse
+    // {
+    //     $start = $request->input('start'); // YYYY-MM-DD
+    //     $end = $request->input('end');     // YYYY-MM-DD
+    //     $maxSlots = 5; // This is the max slot to display in the calendar
+
+    //     $appointments = Appointment::selectRaw('DATE(appointment_date) as date, COUNT(*) as count')
+    //         ->whereBetween('appointment_date', [$start, $end])
+    //         ->groupBy('date')
+    //         ->get();
+
+    //     $availability = [];
+    //     foreach ($appointments as $day) {
+    //         $remaining = max($maxSlots - $day->count, 0);
+    //         $availability[$day->date] = [
+    //             'appointments_count' => $day->count,
+    //             'remaining_slots' => $remaining,
+    //             'is_fully_booked' => $remaining === 0,
+    //         ];
+    //     }
+
+    //     return response()->json($availability);
+    // }
 
 
     /**
@@ -246,68 +483,7 @@ class AppointmentController extends Controller
     //     }
     // }
 
-    public function update(Request $request, $id): JsonResponse
-    {
-        $request->validate([
-            'pregnancy_tracking_id' => 'required|exists:pregnancy_trackings,id',
-            'appointment_date' => 'required|date|after_or_equal:today',
-            'priority' => 'required|in:high,medium,low',
-            'visit_count' => 'integer|min:1',
-            'notes' => 'nullable|string|max:1000'
-        ]);
 
-        try {
-            $appointment = Appointment::findOrFail($id);
-
-            // Store original values for comparison
-            $oldDate = $appointment->appointment_date;
-            $oldPriority = $appointment->priority;
-            $oldVisitCount = $appointment->visit_count;
-
-            $newDate = $request->appointment_date;
-            $newPriority = $request->priority;
-            $newVisitCount = $request->visit_count;
-
-            // Calculate new priority score
-            $newPriorityScore = $this->schedulingService->getPriorityScore($newVisitCount, $newPriority, $appointment->booking_timestamp);
-
-            $hasDateChanged = $oldDate !== $newDate;
-            $hasPriorityChanged = $oldPriority !== $newPriority || $oldVisitCount !== $newVisitCount;
-
-            // Handle different update scenarios
-            if ($hasDateChanged) {
-                // Date is changing - check if target date is full
-                $this->handleDateChange($appointment, $request, $oldDate, $newDate, $newPriorityScore);
-            } else if ($hasPriorityChanged) {
-                // Same date, priority changed - update and reorganize
-                $appointment->update([
-                    'pregnancy_tracking_id' => $request->pregnancy_tracking_id,
-                    'priority' => $newPriority,
-                    'visit_count' => $newVisitCount,
-                    'notes' => $request->notes,
-                    'priority_score' => $newPriorityScore
-                ]);
-
-                $this->schedulingService->reorganizeAppointments($oldDate);
-            } else {
-                // Only notes or pregnancy_tracking_id changed
-                $appointment->update($request->only(['pregnancy_tracking_id', 'notes']));
-            }
-
-            $appointment = $appointment->fresh();
-
-            return response()->json([
-                'message' => 'Appointment updated successfully',
-                'appointment' => $appointment,
-                'changes' => [
-                    'date_changed' => $hasDateChanged,
-                    'priority_changed' => $hasPriorityChanged
-                ]
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
-    }
 
     /**
      * Handle appointment date change with rescheduling logic

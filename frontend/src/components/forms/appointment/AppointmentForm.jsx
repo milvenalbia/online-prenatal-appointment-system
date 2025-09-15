@@ -18,6 +18,23 @@ import { useFormSubmit } from '../../../utils/functions';
 import ProgressBar from './ProgressBar';
 import api from '../../../api/axios';
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768); // Tailwind's 'md' breakpoint
+    };
+
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  return isMobile;
+};
+
 const AppointmentForm = ({ row = null, type = null }) => {
   const [appointments, setAppointments] = useState([]);
   const [appointmentId, setAppointmentId] = useState(0);
@@ -33,6 +50,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
     priority: 'medium',
     visit_count: 1,
     note: '',
+    doctor_id: '',
     fullname: '',
   });
 
@@ -89,6 +107,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
       priority: 'medium',
       visit_count: 1,
       note: '',
+      doctor_id: '',
       fullname: '',
     });
     setCurrentStep(1);
@@ -107,10 +126,13 @@ const AppointmentForm = ({ row = null, type = null }) => {
       status: row.status,
       visit_count: row.visit_count,
       note: row.notes ?? '',
+      doctor_id: row.doctor_id ?? '',
       fullname: row.fullname ?? '',
     });
     if (type !== 'reschedule') setCurrentStep(2);
   }, [row, type]);
+
+  const isMobile = useIsMobile();
 
   return (
     <>
@@ -128,7 +150,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
               </p>
             </div>
 
-            <FullCalendar
+            {/* <FullCalendar
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView='dayGridMonth'
               selectable={true}
@@ -254,6 +276,204 @@ const AppointmentForm = ({ row = null, type = null }) => {
                 setFormData({
                   ...formData,
                   appointment_date: info.event.startStr,
+                });
+                setCurrentStep(2);
+              }}
+            /> */}
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              initialView='dayGridMonth'
+              selectable={true}
+              events={appointments}
+              height='auto'
+              weekends={!isMobile} // Hide weekends on mobile
+              headerToolbar={{
+                left: 'dayGridMonth',
+                center: 'title',
+                right: 'prev,next today',
+              }}
+              views={{
+                dayGridMonth: {
+                  titleFormat: { year: 'numeric', month: 'long' },
+                },
+              }}
+              // ... rest of your props remain the same
+              eventContent={(eventInfo) => {
+                const event = eventInfo.event;
+                const doctors = event.extendedProps.doctors || [];
+
+                return (
+                  <div className='fc-event-content-wrapper p-1 sm:p-2 overflow-hidden'>
+                    <div className='fc-event-title text-xs sm:text-sm font-semibold leading-tight mb-1 truncate'>
+                      {event.title}
+                    </div>
+                    {doctors.length > 0 && (
+                      <div className='fc-event-doctors text-white/90'>
+                        <div className='text-xs font-medium mb-0.5 hidden sm:block'>
+                          Doctors:
+                        </div>
+                        <div className='text-xs sm:text-xs font-medium mb-0.5 sm:hidden'>
+                          Dr:
+                        </div>
+                        <div className='space-y-0.5'>
+                          {doctors.map((doctor, index) => (
+                            <div
+                              key={doctor.id}
+                              className='text-xs leading-tight'
+                            >
+                              <span className='hidden sm:inline'>• </span>
+                              <span className='truncate block sm:inline'>
+                                <span className='sm:hidden'>
+                                  {doctor.name.split(' ')[0]}
+                                </span>
+                                <span className='hidden sm:inline'>
+                                  {doctor.name}
+                                </span>
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              }}
+              datesSet={(info) => {
+                const start = new Date(info.startStr).toLocaleDateString(
+                  'en-CA'
+                );
+                const end = new Date(info.endStr).toLocaleDateString('en-CA');
+
+                if (abortControllerRef.current) {
+                  abortControllerRef.current.abort();
+                }
+                const controller = new AbortController();
+                abortControllerRef.current = controller;
+
+                api
+                  .get(
+                    `/api/available-appointments?start=${start}&end=${end}`,
+                    {
+                      signal: controller.signal,
+                    }
+                  )
+                  .then((res) => {
+                    const data = res.data;
+
+                    const events = Object.entries(data).map(([date, info]) => {
+                      let title = info.is_fully_booked
+                        ? 'Fully Booked'
+                        : `${info.remaining_slots} slots left`;
+
+                      if (info.doctors && info.doctors.length > 0) {
+                        title += ` (${info.doctors.length} doctor${
+                          info.doctors.length > 1 ? 's' : ''
+                        })`;
+                      }
+
+                      return {
+                        title: title,
+                        start: date,
+                        color: info.is_fully_booked ? 'red' : 'green',
+                        extendedProps: {
+                          doctors: info.doctors || [],
+                          remaining_slots: info.remaining_slots,
+                          is_fully_booked: info.is_fully_booked,
+                        },
+                      };
+                    });
+
+                    setAppointments(events);
+                  })
+                  .catch((err) => {
+                    if (err.name === 'CanceledError') {
+                      console.log('Previous request canceled');
+                    } else {
+                      console.error('Error fetching availability:', err);
+                    }
+                  });
+              }}
+              dateClick={(info) => {
+                const date = new Date(info.dateStr);
+                const today = new Date();
+
+                today.setHours(0, 0, 0, 0);
+                date.setHours(0, 0, 0, 0);
+
+                if (date.getDay() === 0 || date.getDay() === 6) {
+                  alert('Booking is not allowed on weekends.');
+                  return;
+                }
+
+                if (date < today) {
+                  alert('You cannot book in the past.');
+                  return;
+                }
+
+                const eventForDate = appointments.find(
+                  (e) =>
+                    new Date(e.start).toDateString() === date.toDateString()
+                );
+
+                if (
+                  eventForDate &&
+                  eventForDate.title.includes('Fully Booked')
+                ) {
+                  const proceed = window.confirm(
+                    'This date is fully booked. Proceed only if the patient is on their second or subsequent visit.'
+                  );
+
+                  if (!proceed) {
+                    return;
+                  }
+                }
+
+                const doctorIds =
+                  eventForDate?.extendedProps?.doctors.map((doc) => doc.id) ||
+                  [];
+
+                setSelectedDate(date);
+                setFormData({
+                  ...formData,
+                  appointment_date: info.dateStr,
+                  doctor_id: doctorIds[0],
+                });
+                setCurrentStep(2);
+              }}
+              eventClick={(info) => {
+                const date = new Date(info.event.startStr);
+                const today = new Date();
+
+                const doctor_id = info.event.extendedProps.doctors[0].id;
+
+                today.setHours(0, 0, 0, 0);
+                date.setHours(0, 0, 0, 0);
+
+                if (info.event.title.includes('Fully Booked')) {
+                  const proceed = window.confirm(
+                    'This date is fully booked. Proceed only if the patient is on their second or subsequent visit.'
+                  );
+
+                  if (!proceed) {
+                    return;
+                  }
+                }
+
+                if (date.getDay() === 0 || date.getDay() === 6) {
+                  alert('Booking is not allowed on weekends.');
+                  return;
+                }
+
+                if (date < today) {
+                  alert('You cannot book in the past.');
+                  return;
+                }
+
+                setSelectedDate(date);
+                setFormData({
+                  ...formData,
+                  appointment_date: info.event.startStr,
+                  doctor_id: doctor_id,
                 });
                 setCurrentStep(2);
               }}

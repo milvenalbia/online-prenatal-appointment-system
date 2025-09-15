@@ -1,9 +1,9 @@
+import * as XLSX from 'exceljs';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import Container from '../../components/ui/Container';
 import DataTable from '../../components/ui/Datatable';
 import { pregnancy_tracking_columns } from '../../utils/columns';
 import api from '../../api/axios';
-import * as XLSX from 'exceljs';
 
 const PregnancyTrackingReports = () => {
   const columns = pregnancy_tracking_columns;
@@ -13,8 +13,12 @@ const PregnancyTrackingReports = () => {
       // Show loading state
       console.log('Generating Excel report...');
 
+      const params = {
+        report: true,
+      };
+
       // Fetch all pregnancy tracking data
-      const response = await api.get('/api/pregnancy-trackings?all=true');
+      const response = await api.get('/api/pregnancy-trackings', { params });
       const allData = response.data?.data || response.data || [];
 
       // Create workbook
@@ -89,6 +93,12 @@ const PregnancyTrackingReports = () => {
                 filteredRow[key] = date.toLocaleDateString('en-CA');
               } else if (key === 'pregnancy_status') {
                 filteredRow[key] = formatPregnancyStatus(row[key]);
+              } else if (
+                row[key] === null ||
+                row[key] === undefined ||
+                row[key] === ''
+              ) {
+                filteredRow[key] = '-';
               } else {
                 filteredRow[key] = row[key];
               }
@@ -362,7 +372,7 @@ const PregnancyTrackingReports = () => {
   ];
 
   return (
-    <Container title={'Pregnancy Tracking'}>
+    <Container title={'Reports - Pregnancy Tracking'}>
       <Breadcrumb items={Items} />
       <DataTable
         title='Pregnancy Tracking'

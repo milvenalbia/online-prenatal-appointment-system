@@ -20,7 +20,6 @@ const Reports = () => {
       description:
         'Monitor pregnancy progress with detailed tracking reports including weight, vitals, and developmental milestones.',
       linkTo: 'pregnancy-trackings',
-      bgColor: 'bg-gradient-to-br from-pink-50 to-pink-100',
       iconColor: 'bg-pink-500',
     },
     {
@@ -29,7 +28,6 @@ const Reports = () => {
       description:
         'Access detailed reports of prenatal visits, examination results, and healthcare provider recommendations.',
       linkTo: 'prenatal-visits',
-      bgColor: 'bg-gradient-to-br from-green-50 to-green-100',
       iconColor: 'bg-green-500',
     },
     {
@@ -38,7 +36,6 @@ const Reports = () => {
       description:
         'Review outpatient consultation records, referrals, and follow-up care documentation for comprehensive patient management.',
       linkTo: 'out-patients',
-      bgColor: 'bg-gradient-to-br from-purple-50 to-purple-100',
       iconColor: 'bg-purple-500',
     },
   ];

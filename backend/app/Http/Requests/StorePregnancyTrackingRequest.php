@@ -40,10 +40,14 @@ class StorePregnancyTrackingRequest extends FormRequest
             'cemoc'                     => 'required|max:255',
             'cemoc_address'             => 'required|max:255',
             'referral_unit'             => 'required|max:255',
-            'risk_codes'                     => 'required|array|min:1',
-            'risk_codes.*.risk_code'         => 'required|string|max:50',
+            'date_delivery'             => 'nullable|max:255',
+            'outcome_sex'               => 'nullable|max:255',
+            'outcome_weight'            => 'nullable|max:255',
+            'place_of_delivery'         => 'nullable|max:255',
+            'phic'                      => 'nullable|max:255',
+            'risk_codes'                     => 'sometimes|nullable|array',
+            'risk_codes.*.risk_code'         => 'nullable|string|max:50',
             'risk_codes.*.date_detected' => 'sometimes|nullable|date',
-            'risk_codes.*.risk_status'       => 'required|in:high,medium,low',
         ];
 
         if ($patientType === 'existing') {
@@ -63,6 +67,32 @@ class StorePregnancyTrackingRequest extends FormRequest
                 'birth_place'               => 'required|max:255',
                 'religion'                  => 'required|max:255',
                 'contact'                   => 'required|regex:/^639\d{9}$/|unique:patients',
+                'contact_person_name'       => 'required|max:255',
+                'contact_person_number'     => 'required|regex:/^639\d{9}$/',
+                'contact_person_relationship' => 'required|max:255',
+                'zone'                      => 'required|max:255',
+                'region'                    => 'required|exists:regions,id',
+                'province'                  => 'required|exists:provinces,id',
+                'municipality'              => 'required|exists:municipalities,id',
+                'barangay'                  => 'required|exists:barangays,id',
+            ]);
+        }
+
+        if ($patientType === 'edit') {
+
+            $patient_id = $this->input('patient_id');
+
+            $rules = array_merge($rules, [
+                'patient_id'                => 'required|exists:patients,id',
+                'firstname'                 => 'required|max:255',
+                'lastname'                  => 'required|max:255',
+                'middlename'                => 'required|max:255',
+                'sex'                       => 'required|max:255',
+                'status'                    => 'required|max:255',
+                'birth_date'                => 'required|date',
+                'birth_place'               => 'required|max:255',
+                'religion'                  => 'required|max:255',
+                'contact'                   => 'required|regex:/^639\d{9}$/|unique:patients,contact,' . $patient_id,
                 'contact_person_name'       => 'required|max:255',
                 'contact_person_number'     => 'required|regex:/^639\d{9}$/',
                 'contact_person_relationship' => 'required|max:255',

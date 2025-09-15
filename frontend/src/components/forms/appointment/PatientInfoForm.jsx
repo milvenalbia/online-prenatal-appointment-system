@@ -7,11 +7,11 @@ const PatientInfoForm = ({ formData, setFormData, priorities, error }) => (
   <div className='max-w-xl mx-auto space-y-6'>
     <div>
       <SelectReact
-        label='Pregnancy Tracking ID'
+        label='Select Patient'
         id='pregnancy_tracking_id'
         name='pregnancy_tracking_id'
         endpoint={`/api/filter/pregnancy-trakings`}
-        placeholder='Choose a patient pregnancy form'
+        placeholder='Choose a patient from pregnancy tracking'
         formData={formData}
         setFormData={setFormData}
         inputChange={(value, fullname) => {

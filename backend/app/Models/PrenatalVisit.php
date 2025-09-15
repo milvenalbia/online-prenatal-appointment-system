@@ -20,6 +20,10 @@ class PrenatalVisit extends Model
         'fht',
         'fh',
         'aog',
+        'term',
+        'preterm',
+        'post_term',
+        'living_children',
     ];
 
     public function pregnancy_tracking(): BelongsTo

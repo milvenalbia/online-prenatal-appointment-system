@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('risk_codes', function (Blueprint $table) {
+        Schema::create('doctors', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pregnancy_tracking_id')->nullable()->constrained('pregnancy_trackings');
-            $table->string('risk_code')->nullable();
-            $table->date('date_detected')->nullable();
-            $table->enum('risk_status', ['high', 'medium', 'low'])->default('high');
+            $table->string('firstname');
+            $table->string('lastname');
+            $table->enum('assigned_day', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('risk_codes');
+        Schema::dropIfExists('doctors');
     }
 };

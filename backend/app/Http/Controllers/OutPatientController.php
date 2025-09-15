@@ -21,6 +21,7 @@ class OutPatientController extends Controller
         $sortBy     = $request->input('sort_by', 'created_at');
         $sortDir    = $request->input('sort_dir', 'desc');
         $perPage    = $request->input('per_page', 10);
+        $report     = $request->input('report', false);
 
         $sortableColumns = [
             'fullname' => 'pregnancy_trackings.fullname',
@@ -52,20 +53,37 @@ class OutPatientController extends Controller
             })
             ->when($dateTo, function ($query, $dateTo) {
                 $query->whereDate('out_patients.created_at', '<=', $dateTo);
-            })
-            ->orderBy($sortBy, $sortDir)
-            ->paginate($perPage);
+            });
 
+        if ($report) {
+            $out_patients = $out_patients->orderBy($sortBy, 'asc');
 
-        return [
-            'data' => OutPatientResource::collection($out_patients),
-            'meta' => [
-                'total' => $out_patients->total(),
-                'per_page' => $out_patients->perPage(),
-                'current_page' => $out_patients->currentPage(),
-                'last_page' => $out_patients->lastPage(),
-            ],
-        ];
+            $results = $out_patients->get();
+
+            return [
+                'data' => OutPatientResource::collection($results),
+                'meta' => [
+                    'total' => $results->count(),
+                    'per_page' => $results->count(),
+                    'current_page' => 1,
+                    'last_page' => 1,
+                ],
+            ];
+        } else {
+            $out_patients = $out_patients->orderBy($sortBy, $sortDir);
+
+            $results = $out_patients->paginate($perPage);
+
+            return [
+                'data' => OutPatientResource::collection($results),
+                'meta' => [
+                    'total' => $results->total(),
+                    'per_page' => $results->perPage(),
+                    'current_page' => $results->currentPage(),
+                    'last_page' => $results->lastPage(),
+                ],
+            ];
+        }
     }
 
     /**
@@ -106,10 +124,6 @@ class OutPatientController extends Controller
                 'file_number' => $fileNumber,
                 'phic' => $pregnancy_tracking->phic ? 'yes' : 'no',
             ]);
-
-            $pregnancy_tracking->update([
-                'isDone' => true,
-            ]);
         });
 
 
@@ -148,8 +162,6 @@ class OutPatientController extends Controller
 
         DB::transaction(function () use ($fields, $outPatient) {
 
-            $old_pregnancy_tracking_id = $outPatient->pregnancy_tacking_id;
-
             $pregnancy_tracking = PregnancyTracking::where('id', $fields['pregnancy_tracking_id'])
                 ->where('isDone', false)
                 ->first();
@@ -157,20 +169,6 @@ class OutPatientController extends Controller
             $outPatient->update(array_merge($fields, [
                 'phic' => $pregnancy_tracking->phic ? 'yes' : 'no',
             ]));
-
-            if ($old_pregnancy_tracking_id !== $fields['pregnancy_tracking_id']) {
-                $old_pregnancy_tracking = PregnancyTracking::where('id', $old_pregnancy_tracking_id)
-                    ->where('isDone', true)
-                    ->first();
-
-                $old_pregnancy_tracking->update([
-                    'isDone' => false,
-                ]);
-            }
-
-            $pregnancy_tracking->update([
-                'isDone' => true,
-            ]);
         });
 
 

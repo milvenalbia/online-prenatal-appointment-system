@@ -249,8 +249,8 @@ const PrenatalVisitForm = ({
             ? 'Updating ...'
             : 'Creating ...'
           : isEdit
-          ? 'Updating Prenatal Visit'
-          : 'Creating Prenatal Visit'}
+          ? 'Update Prenatal Visit'
+          : 'Create Prenatal Visit'}
       </button>
     </form>
   );

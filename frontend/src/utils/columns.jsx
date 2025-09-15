@@ -211,6 +211,22 @@ export const pregnancy_tracking_columns = [
     hidden: true,
   },
   {
+    key: 'outcome_sex',
+    hidden: true,
+  },
+  {
+    key: 'outcome_weight',
+    hidden: true,
+  },
+  {
+    key: 'place_of_delivery',
+    hidden: true,
+  },
+  {
+    key: 'date_delivery',
+    hidden: true,
+  },
+  {
     key: 'bemoc_address',
     hidden: true,
   },
@@ -224,6 +240,10 @@ export const pregnancy_tracking_columns = [
   },
   {
     key: 'midwife_name',
+    hidden: true,
+  },
+  {
+    key: 'doctor_name',
     hidden: true,
   },
   {
@@ -261,6 +281,13 @@ export const pregnancy_tracking_columns = [
   {
     key: 'region_name',
     hidden: true,
+  },
+  {
+    key: 'attended_by',
+    hidden: true,
+  },
+  {
+    phic: '',
   },
   {
     key: 'risk_codes',
@@ -600,7 +627,7 @@ export const prenatal_visit_column = [
     hidden: true,
   },
   {
-    key: 'patient_id',
+    key: 'pregnancy_tracking_id',
     hidden: true,
   },
   {
@@ -741,6 +768,13 @@ export const out_patient_column = [
     width: 'w-[15%]',
   },
   {
+    key: 'created_at',
+    title: 'Created',
+    sortable: true,
+    width: 'w-[10%]',
+    render: (value) => new Date(value).toLocaleDateString(),
+  },
+  {
     key: 'id',
     hidden: true,
   },
@@ -781,7 +815,7 @@ export const out_patient_column = [
     hidden: true,
   },
   {
-    key: 'patient_id',
+    key: 'pregnancy_tracking_id',
     hidden: true,
   },
   {
@@ -877,7 +911,7 @@ export const immunization_records_columns = [
     hidden: true,
   },
   {
-    key: 'patient_id',
+    key: 'pregnancy_tracking_id',
     hidden: true,
   },
   {
@@ -1201,3 +1235,38 @@ export const pickerRangeOptions = {
   altFormat: 'F j, Y',
   dateFormat: 'Y-m-d',
 };
+
+export const doctor_columns = [
+  {
+    key: 'index',
+    title: 'No.',
+    sortable: false,
+    width: 'w-[10%]',
+    render: (value, row, index) => {
+      return <span className='ml-5'>{index + 1}</span>;
+    },
+  },
+  {
+    key: 'fullname',
+    title: 'Full Name',
+    sortable: true,
+    width: 'w-[25%]',
+  },
+  {
+    key: 'assigned_day',
+    title: 'Assigned Day',
+    sortable: false,
+    width: 'w-[25%]',
+  },
+  {
+    key: 'created_at',
+    title: 'Created',
+    sortable: true,
+    width: 'w-[20%]',
+    render: (value) => new Date(value).toLocaleDateString(),
+  },
+  {
+    key: 'id',
+    hidden: true,
+  },
+];

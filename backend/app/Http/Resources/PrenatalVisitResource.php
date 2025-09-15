@@ -45,7 +45,7 @@ class PrenatalVisitResource extends JsonResource
             'aog' => $this->aog,
             'lmp' => $this->pregnancy_tracking->lmp,
             'edc' => $this->pregnancy_tracking->edc,
-            'attended_by' => $this->pregnancy_tracking->attende_by,
+            'attended_by' => $this->pregnancy_tracking->attended_by,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

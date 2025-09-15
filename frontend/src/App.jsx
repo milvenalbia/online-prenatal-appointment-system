@@ -24,6 +24,7 @@ import AppointmentReports from './pages/reports/AppointmentReports';
 import PregnancyTrackingReports from './pages/reports/PregnancyTrackingReports';
 import PrenatalVisitReports from './pages/reports/PrenatalVisitReports';
 import OutPatientReports from './pages/reports/OutPatientReports';
+import DoctorManagement from './pages/doctor_management/DoctorManagement';
 
 function App() {
   const permissions = {
@@ -43,6 +44,7 @@ function App() {
     reports_pregnancy_trackings: [1, 3],
     reports_prenatal_visits: [1, 3],
     reports_out_patients: [1, 3],
+    doctor_management: [1, 3],
     user_management: [1],
   };
 
@@ -155,6 +157,14 @@ function App() {
             element={
               <RoleBasedRoute allowedRoles={permissions.health_stations}>
                 <HealthStations />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='doctor-management'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.doctor_management}>
+                <DoctorManagement />
               </RoleBasedRoute>
             }
           />

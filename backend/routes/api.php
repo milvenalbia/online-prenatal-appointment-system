@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\SelectAddressController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BarangayCenterController;
 use App\Http\Controllers\BarangayWorkerController;
+use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\ImmuzitionRecordController;
 use App\Http\Controllers\MidwifeController;
 use App\Http\Controllers\NurseController;
@@ -32,6 +33,7 @@ Route::middleware(['throttle:api', 'auth:sanctum'])->group(function () {
     Route::apiResource('/midwives', MidwifeController::class);
     Route::apiResource('/barangay-workers', BarangayWorkerController::class);
     Route::apiResource('/nurses', NurseController::class);
+    Route::apiResource('/doctors', DoctorController::class);
     Route::apiResource('/pregnancy-trackings', PregnancyTrackingController::class);
     Route::apiResource('/immunization-records', ImmuzitionRecordController::class);
     Route::apiResource('/prenatal-visits', PrenatalVisitController::class);
@@ -45,7 +47,7 @@ Route::middleware(['throttle:api', 'auth:sanctum'])->group(function () {
     //     Route::put('/{id}', [AppointmentController::class, 'update']);
     //     Route::delete('/{id}', [AppointmentController::class, 'cancel']);
     // });
-
+    Route::put('/edit/pregnancy-trackings/{pregnancy_tracking}', [PregnancyTrackingController::class, 'update_pregnancy']);
     Route::get('/select-address/regions', [SelectAddressController::class, 'regions']);
     Route::get('/select-address/provinces/{region}', [SelectAddressController::class, 'provinces']);
     Route::get('/select-address/municipalities/{province}', [SelectAddressController::class, 'municipalities']);

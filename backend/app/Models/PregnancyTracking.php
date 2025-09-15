@@ -11,6 +11,7 @@ class PregnancyTracking extends Model
 {
     protected $fillable = [
         'patient_id',
+        'pregnancy_tracking_number',
         'barangay_center_id',
         'barangay_worker_id',
         'nurse_id',
@@ -35,7 +36,7 @@ class PregnancyTracking extends Model
         'phic',
         'barangay_health_station',
         'referral_unit',
-        'status',
+        'pregnancy_status',
         'isDone',
     ];
 
@@ -52,6 +53,11 @@ class PregnancyTracking extends Model
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
+    }
+
+    public function doctor(): BelongsTo
+    {
+        return $this->belongsTo(Doctor::class, 'attended_by');
     }
 
     public function barangay_center(): BelongsTo

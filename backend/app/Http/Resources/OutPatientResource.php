@@ -16,7 +16,7 @@ class OutPatientResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'patient_id' => $this->patient_id,
+            'pregnancy_tracking_id' => $this->pregnancy_tracking_id,
             'file_number' => $this->file_number,
             'fullname' => $this->pregnancy_tracking->fullname,
             'firstname' => $this->pregnancy_tracking->patient->firstname,

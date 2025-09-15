@@ -15,6 +15,7 @@ const NewPatientBasicInfo = ({ formData, inputChange, error, setFormData }) => {
           <InputGroup
             type='text'
             name='firstname'
+            noNumbers
             value={formData.firstname}
             onChange={inputChange}
             placeholder='First name'
@@ -31,6 +32,7 @@ const NewPatientBasicInfo = ({ formData, inputChange, error, setFormData }) => {
           <InputGroup
             type='text'
             name='lastname'
+            noNumbers
             value={formData.lastname}
             onChange={inputChange}
             placeholder='Last name'
@@ -45,6 +47,7 @@ const NewPatientBasicInfo = ({ formData, inputChange, error, setFormData }) => {
           <InputGroup
             type='text'
             name='middlename'
+            noNumbers
             value={formData.middlename}
             onChange={inputChange}
             placeholder='Middle name'

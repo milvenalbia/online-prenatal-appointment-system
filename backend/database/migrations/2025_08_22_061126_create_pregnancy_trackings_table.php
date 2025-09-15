@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('pregnancy_trackings', function (Blueprint $table) {
             $table->id();
+            $table->string('pregnancy_tracking_number')->nullable()->unique();
             $table->foreignId('patient_id')->nullable()->constrained('patients');
             $table->foreignId('barangay_center_id')->nullable()->constrained('barangay_centers');
             $table->foreignId('midwife_id')->nullable()->constrained('midwives');

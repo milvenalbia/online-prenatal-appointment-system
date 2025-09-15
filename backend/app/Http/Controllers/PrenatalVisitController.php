@@ -20,6 +20,7 @@ class PrenatalVisitController extends Controller
         $sortBy     = $request->input('sort_by', 'created_at');
         $sortDir    = $request->input('sort_dir', 'desc');
         $perPage    = $request->input('per_page', 10);
+        $report     = $request->input('report', false);
 
         $sortableColumns = [
             'fullname' => 'pregnancy_trackings.fullname',
@@ -55,21 +56,38 @@ class PrenatalVisitController extends Controller
             })
             ->when($dateTo, function ($query, $dateTo) {
                 $query->whereDate('prenatal_visits.created_at', '<=', $dateTo);
-            })
-            ->orderBy($sortBy, $sortDir)
-            ->paginate($perPage);
+            });
 
 
+        if ($report) {
+            $prenatal_visits = $prenatal_visits->orderBy($sortBy, 'asc');
 
-        return [
-            'data' => PrenatalVisitResource::collection($prenatal_visits),
-            'meta' => [
-                'total' => $prenatal_visits->total(),
-                'per_page' => $prenatal_visits->perPage(),
-                'current_page' => $prenatal_visits->currentPage(),
-                'last_page' => $prenatal_visits->lastPage(),
-            ],
-        ];
+            $results = $prenatal_visits->get();
+
+            return [
+                'data' => PrenatalVisitResource::collection($results),
+                'meta' => [
+                    'total' => $results->count(),
+                    'per_page' => $results->count(),
+                    'current_page' => 1,
+                    'last_page' => 1,
+                ],
+            ];
+        } else {
+            $prenatal_visits = $prenatal_visits->orderBy($sortBy, $sortDir);
+
+            $results = $prenatal_visits->paginate($perPage);
+
+            return [
+                'data' => PrenatalVisitResource::collection($results),
+                'meta' => [
+                    'total' => $results->total(),
+                    'per_page' => $results->perPage(),
+                    'current_page' => $results->currentPage(),
+                    'last_page' => $results->lastPage(),
+                ],
+            ];
+        }
     }
 
     /**

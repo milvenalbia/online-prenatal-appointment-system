@@ -10,6 +10,7 @@ class RiskCode extends Model
     protected $fillable = [
         "risk_code",
         "date_detected",
+        "risk_status",
         "pregnancy_tracking_id"
     ];
 

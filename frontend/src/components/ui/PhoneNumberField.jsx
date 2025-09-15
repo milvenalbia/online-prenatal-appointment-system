@@ -13,6 +13,8 @@ export default function PhoneNumberField({
   icon = null,
   hasLabel = false,
   hasChildren = false,
+  required = false,
+  optional = false,
   children,
   ...props
 }) {
@@ -46,6 +48,8 @@ export default function PhoneNumberField({
       {hasLabel && (
         <label className='text-gray-700' htmlFor={id}>
           {label}
+          {required && <span className='text-red-500 ml-1'>*</span>}
+          {optional && <span className='text-gray-400 ml-1'>(optional)</span>}
         </label>
       )}
       <div className='relative'>

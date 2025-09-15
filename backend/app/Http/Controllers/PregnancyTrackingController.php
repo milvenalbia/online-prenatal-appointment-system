@@ -29,6 +29,7 @@ class PregnancyTrackingController extends Controller
         $sortBy     = $request->input('sort_by', 'created_at');
         $sortDir    = $request->input('sort_dir', 'desc');
         $perPage    = $request->input('per_page', 10);
+        $report     = $request->input('report', false);
 
         // Optional: whitelist sortable columns to prevent SQL injection
         $sortableColumns = [
@@ -44,7 +45,6 @@ class PregnancyTrackingController extends Controller
         $user = Auth::user();
 
         $pregnancy_trackings = PregnancyTracking::with([
-            'latestAppointment',   // only one appointment
             'patient',
             'patient.barangays',
             'patient.municipalities',
@@ -52,7 +52,8 @@ class PregnancyTrackingController extends Controller
             'midwife',
             'nurse',
             'risk_codes',
-            'barangay_center'
+            'barangay_center',
+            'doctor',
         ])
             ->when($user->role_id === 2, function ($query) use ($user) {
                 $query->where('pregnancy_trackings.barangay_center_id', $user->barangay_center_id);
@@ -66,31 +67,46 @@ class PregnancyTrackingController extends Controller
                 $query->where('pregnancy_trackings.barangay_center_id', $category);
             })
             ->when($status, function ($query, $status) {
-                // filter using latest appointment’s visit_count
-                $query->whereHas('latestAppointment', function ($q) use ($status) {
-                    $q->where('visit_count', $status);
-                });
+                $query->where('pregnancy_trackings.pregnancy_status', $status);
             })
             ->when($dateFrom, function ($query, $dateFrom) {
                 $query->whereDate('pregnancy_trackings.created_at', '>=', $dateFrom);
             })
             ->when($dateTo, function ($query, $dateTo) {
                 $query->whereDate('pregnancy_trackings.created_at', '<=', $dateTo);
-            })
-            ->orderBy($sortableColumns[$sortBy], $sortDir)
-            ->paginate($perPage);
+            });
 
 
 
-        return [
-            'data' => PregnancyTrackingResource::collection($pregnancy_trackings),
-            'meta' => [
-                'total' => $pregnancy_trackings->total(),
-                'per_page' => $pregnancy_trackings->perPage(),
-                'current_page' => $pregnancy_trackings->currentPage(),
-                'last_page' => $pregnancy_trackings->lastPage(),
-            ],
-        ];
+        if ($report) {
+            $pregnancy_trackings = $pregnancy_trackings->orderBy($sortableColumns[$sortBy], 'asc');
+
+            $results = $pregnancy_trackings->get();
+
+            return [
+                'data' => PregnancyTrackingResource::collection($results),
+                'meta' => [
+                    'total' => $results->count(),
+                    'per_page' => $results->count(),
+                    'current_page' => 1,
+                    'last_page' => 1,
+                ],
+            ];
+        } else {
+            $pregnancy_trackings = $pregnancy_trackings->orderBy($sortableColumns[$sortBy], $sortDir);
+
+            $results = $pregnancy_trackings->paginate($perPage);
+
+            return [
+                'data' => PregnancyTrackingResource::collection($results),
+                'meta' => [
+                    'total' => $results->total(),
+                    'per_page' => $results->perPage(),
+                    'current_page' => $results->currentPage(),
+                    'last_page' => $results->lastPage(),
+                ],
+            ];
+        }
     }
 
     /**
@@ -101,42 +117,64 @@ class PregnancyTrackingController extends Controller
         $fields = $request->validated();
         $patientType = $request->input('patient_type');
         $fields['age'] = Carbon::parse($fields['birth_date'])->age;
+
         $pregnancy_tracking = DB::transaction(function () use ($fields, $patientType) {
             if ($patientType === 'new') {
                 $patient = Patient::create(array_merge($fields, [
-                    "address" => "n/a",
+                    'address' => 'n/a',
                 ]));
                 $fields['patient_id'] = $patient->id;
 
-                $address = "{$patient->zone}, {$patient->barangays->name} {$patient->municipalities->name}, {$patient->provinces->name}";
+                $address = collect([
+                    $patient->zone,
+                    optional($patient->barangays)->name,
+                    optional($patient->municipalities)->name,
+                    optional($patient->provinces)->name,
+                ])->filter()->implode(', ');
+
+
                 $patient->update([
                     'address' => $address,
                 ]);
 
-                $health_station = BarangayCenter::where('id', $fields['barangay_center_id'])->first();
+                $health_station = BarangayCenter::find($fields['barangay_center_id']);
 
                 $fields['fullname'] = $patient->fullname;
-                $fields['status'] = 'first_trimester';
-                $fields['barangay_health_station'] = $health_station->health_station;
+                $fields['barangay_health_station'] = $health_station?->health_station;
             }
 
-            return PregnancyTracking::create($fields);
-        });
+            $pregnancy_tracking = PregnancyTracking::create($fields);
 
-        foreach ($fields['risk_codes'] as $risk) {
-            RiskCode::create([
-                'pregnancy_tracking_id' => $pregnancy_tracking->id,
-                'risk_code' => $risk['risk_code'],
-                'date_detected' => $risk['date_detected'],
-                'risk_status' => $risk['risk_status'],
+            // Generate unique number after creation
+            $dailyCount = PregnancyTracking::whereDate('created_at', now())->count();
+            $pregnancy_tracking_number = now()->format('Y')
+                . str_pad($dailyCount, 2, '0', STR_PAD_LEFT)
+                . str_pad($pregnancy_tracking->id, 3, '0', STR_PAD_LEFT);
+
+            $pregnancy_tracking->update([
+                'pregnancy_tracking_number' => $pregnancy_tracking_number,
             ]);
-        }
+
+            // Risk codes inside transaction
+            foreach ($fields['risk_codes'] ?? [] as $risk) {
+                if (!empty($risk['risk_code'])) {
+                    RiskCode::create([
+                        'pregnancy_tracking_id' => $pregnancy_tracking->id,
+                        'risk_code' => $risk['risk_code'] ?? null,
+                        'date_detected' => $risk['date_detected'] ?? null,
+                    ]);
+                }
+            }
+
+            return $pregnancy_tracking;
+        });
 
         return [
             'data' => new PregnancyTrackingResource($pregnancy_tracking),
             'message' => 'Pregnancy Tracking created successfully',
         ];
     }
+
 
 
     /**
@@ -150,9 +188,68 @@ class PregnancyTrackingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PregnancyTracking $pregnancyTracking)
+    public function update(StorePregnancyTrackingRequest $request, PregnancyTracking $pregnancyTracking)
     {
-        //
+        $fields = $request->validated();
+        $patientType = $request->input('patient_type');
+        $fields['age'] = Carbon::parse($fields['birth_date'])->age;
+        $pregnancy_tracking = DB::transaction(function () use ($fields, $patientType, $pregnancyTracking) {
+            if ($patientType === 'edit') {
+                $patient = Patient::findOrFail($fields['patient_id']);
+                $patient->update($fields);
+
+                $address = "{$patient->zone}, {$patient->barangays->name} {$patient->municipalities->name}, {$patient->provinces->name}";
+                $patient->update(['address' => $address]);
+
+                $health_station = BarangayCenter::findOrFail($fields['barangay_center_id']);
+
+                $fields['fullname'] = $patient->fullname;
+                $fields['barangay_health_station'] = $health_station->health_station;
+            }
+
+            // update the record
+            $pregnancyTracking->update($fields);
+
+            $pregnancyTracking->risk_codes()->delete();
+
+            foreach ($fields['risk_codes'] ?? [] as $risk) {
+                if (!empty($risk['risk_code'])) {
+                    RiskCode::create([
+                        'pregnancy_tracking_id' => $pregnancyTracking->id,
+                        'risk_code' => $risk['risk_code'] ?? null,
+                        'date_detected' => $risk['date_detected'] ?? null,
+                    ]);
+                }
+            }
+
+            // return the model itself
+            return $pregnancyTracking;
+        });
+
+        return [
+            'data' => new PregnancyTrackingResource($pregnancy_tracking),
+            'message' => 'Pregnancy Tracking created successfully',
+        ];
+    }
+
+    public function update_pregnancy(Request $request, PregnancyTracking $pregnancy_tracking)
+    {
+        $fields = $request->validate([
+            'outcome_sex' => 'required',
+            'outcome_weight' => 'required',
+            'attended_by' => 'required|string|max:255',
+            'place_of_delivery' => 'required|string|max:255',
+            'date_delivery' => 'required|string|max:255',
+            'phic' => 'required',
+        ]);
+
+        $pregnancy_tracking->update(array_merge($fields, [
+            "isDone" => true,
+        ]));
+
+        return [
+            'message' => 'Pregnancy Tracking updated successfully',
+        ];
     }
 
     /**
