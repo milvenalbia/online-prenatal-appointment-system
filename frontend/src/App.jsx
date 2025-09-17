@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
+import { toast } from 'sonner';
 import LoginPage from './pages/Login';
 import AdminLayout from './components/AdminLayout';
 import Dashboard from './pages/Dashboard';
@@ -25,8 +26,33 @@ import PregnancyTrackingReports from './pages/reports/PregnancyTrackingReports';
 import PrenatalVisitReports from './pages/reports/PrenatalVisitReports';
 import OutPatientReports from './pages/reports/OutPatientReports';
 import DoctorManagement from './pages/doctor_management/DoctorManagement';
+import echo from './utils/echo';
 
 function App() {
+  useEffect(() => {
+    console.log('Setting up Echo listener...');
+    // Subscribe to the notifications channel
+    const channel = echo.channel('notifications');
+    // Listen for the notify-user event
+    channel.listen('.notify.user', (data) => {
+      console.log('Received notification:', data);
+      toast.success(data.message || 'New notification received!');
+    });
+    // Optional: Listen for successful subscription
+    channel.subscribed(() => {
+      console.log('Successfully subscribed to notifications channel');
+    });
+    // Optional: Listen for subscription errors
+    channel.error((error) => {
+      console.error('Channel subscription error:', error);
+    });
+    return () => {
+      console.log('Cleaning up Echo listener...');
+      channel.stopListening('.notify.user');
+      echo.leaveChannel('notifications');
+    };
+  }, []);
+
   const permissions = {
     dashboard: [1, 2, 3],
     appointments: [1, 3],

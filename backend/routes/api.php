@@ -15,12 +15,17 @@ use App\Http\Controllers\PregnancyTrackingController;
 use App\Http\Controllers\PrenatalVisitController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user()->load('barangay_center');
 })->middleware('auth:sanctum');
 
+Route::get('/test-broadcast', function () {
+    broadcast(new \App\Events\UserNotified('Test broadcast from route'));
+    return response()->json(['status' => 'Event dispatched']);
+});
 
 Route::post('/login', [AuthController::class, 'login'])->middleware(['throttle:login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
