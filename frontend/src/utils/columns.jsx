@@ -679,6 +679,22 @@ export const prenatal_visit_column = [
     hidden: true,
   },
   {
+    key: 'term',
+    hidden: true,
+  },
+  {
+    key: 'preterm',
+    hidden: true,
+  },
+  {
+    key: 'post_term',
+    hidden: true,
+  },
+  {
+    key: 'living_children',
+    hidden: true,
+  },
+  {
     key: 'attended_by',
     hidden: true,
   },

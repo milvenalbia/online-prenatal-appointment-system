@@ -60,7 +60,8 @@ class PregnancyTrackingController extends Controller
             })
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('pregnancy_trackings.fullname', 'LIKE', "%{$search}%");
+                    $q->where('pregnancy_trackings.fullname', 'LIKE', "%{$search}%")
+                        ->orWhere('pregnancy_trackings.pregnancy_tracking_number', 'LIKE', "%{$search}%");
                 });
             })
             ->when($category, function ($query, $category) {
@@ -237,9 +238,8 @@ class PregnancyTrackingController extends Controller
         $fields = $request->validate([
             'outcome_sex' => 'required',
             'outcome_weight' => 'required',
-            'attended_by' => 'required|string|max:255',
             'place_of_delivery' => 'required|string|max:255',
-            'date_delivery' => 'required|string|max:255',
+            'date_delivery' => 'required|date|max:255',
             'phic' => 'required',
         ]);
 

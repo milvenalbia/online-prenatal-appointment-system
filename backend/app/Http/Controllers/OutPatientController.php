@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\OutPatientResource;
+use App\Http\Resources\PrenatalOutPatientValueResource;
 use App\Models\OutPatient;
 use App\Models\PregnancyTracking;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -44,8 +46,8 @@ class OutPatientController extends Controller
             ])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('pregnancy_trackings.fullname', 'LIKE', "%{$search}%");
-                    // ->orWhere('pregnancy_tracking_number', 'LIKE', "%{$search}%");
+                    $q->where('pregnancy_trackings.fullname', 'LIKE', "%{$search}%")
+                        ->orWhere('pregnancy_trackings.pregnancy_tracking_number', 'LIKE', "%{$search}%");
                 });
             })
             ->when($dateFrom, function ($query, $dateFrom) {
@@ -136,9 +138,14 @@ class OutPatientController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(OutPatient $outPatient)
+    public function show($id)
     {
-        //
+        $out_patient = OutPatient::with('pregnancy_tracking')
+            ->where('pregnancy_tracking_id', $id)
+            ->whereDate('created_at', Carbon::now())
+            ->first();
+
+        return ['data' => new PrenatalOutPatientValueResource($out_patient)];
     }
 
     /**

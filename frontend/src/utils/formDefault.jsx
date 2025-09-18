@@ -113,6 +113,10 @@ export const prenatalVisitFormData = {
   fht: '',
   fh: '',
   aog: '',
+  term: '',
+  preterm: '',
+  post_term: '',
+  living_children: '',
 };
 
 export const prenatalVisitEditFormData = (data = {}) => ({
@@ -127,6 +131,10 @@ export const prenatalVisitEditFormData = (data = {}) => ({
   fht: '',
   fh: '',
   aog: '',
+  term: '',
+  preterm: '',
+  post_term: '',
+  living_children: '',
   ...data,
 });
 
@@ -163,7 +171,7 @@ export const outPatientEditFormData = (data = {}) => ({
 
 export const immunizationFormData = {
   pregnancy_tracking_id: '',
-  tetanus_first_given: new Date().toLocaleDateString('en-CA'),
+  tetanus_first_given: '',
   tetanus_second_given: '',
   tetanus_third_given: '',
   tetanus_fourth_given: '',

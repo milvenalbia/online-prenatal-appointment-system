@@ -379,7 +379,7 @@ const PrenatalVisitPDF = ({ formData = {}, patientData = {} }) => {
           <View style={styles.formRow}>
             <Text style={styles.label}>ATTENDING PHYSICIAN:</Text>
             <View style={[styles.underline, styles.longUnderline]}>
-              <Text style={styles.dataText}>{patient.attended_by || ''}</Text>
+              <Text style={styles.dataText}>{patient.doctor_name || ''}</Text>
             </View>
           </View>
 
@@ -388,31 +388,37 @@ const PrenatalVisitPDF = ({ formData = {}, patientData = {} }) => {
             <View style={styles.checkboxItem}>
               <Text style={styles.label}>G</Text>
               <View style={styles.checkbox}>
-                <Text style={styles.checkboxText}>{patient.g || ''}</Text>
+                <Text style={styles.checkboxText}>
+                  {patient.gravidity || ''}
+                </Text>
               </View>
             </View>
             <View style={styles.checkboxItem}>
               <Text style={styles.label}>T</Text>
               <View style={styles.checkbox}>
-                <Text style={styles.checkboxText}>{patient.t || ''}</Text>
+                <Text style={styles.checkboxText}>{patient.term || ''}</Text>
               </View>
             </View>
             <View style={styles.checkboxItem}>
               <Text style={styles.label}>P</Text>
               <View style={styles.checkbox}>
-                <Text style={styles.checkboxText}>{patient.p || ''}</Text>
+                <Text style={styles.checkboxText}>{patient.preterm || ''}</Text>
               </View>
             </View>
             <View style={styles.checkboxItem}>
               <Text style={styles.label}>A</Text>
               <View style={styles.checkbox}>
-                <Text style={styles.checkboxText}>{patient.a || ''}</Text>
+                <Text style={styles.checkboxText}>
+                  {patient.abortion || ''}
+                </Text>
               </View>
             </View>
             <View style={styles.checkboxItem}>
               <Text style={styles.label}>L</Text>
               <View style={styles.checkbox}>
-                <Text style={styles.checkboxText}>{patient.l || ''}</Text>
+                <Text style={styles.checkboxText}>
+                  {patient.living_children || ''}
+                </Text>
               </View>
             </View>
           </View>

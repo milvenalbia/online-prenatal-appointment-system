@@ -43,8 +43,8 @@ class ImmuzitionRecordController extends Controller
             ])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where("pregnancy_trackings.fullname", 'LIKE', "%{$search}%");
-                    // ->orWhere('pregnancy_tracking_number', 'LIKE', "%{$search}%");
+                    $q->where("pregnancy_trackings.fullname", 'LIKE', "%{$search}%")
+                        ->orWhere('pregnancy_trackings.pregnancy_tracking_number', 'LIKE', "%{$search}%");
                 });
             })
             ->when($dateFrom, function ($query, $dateFrom) {

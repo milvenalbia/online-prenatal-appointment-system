@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PrenatalOutPatientValueResource;
 use App\Http\Resources\PrenatalVisitResource;
 use App\Models\PrenatalVisit;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -40,6 +42,7 @@ class PrenatalVisitController extends Controller
             })
             ->with([
                 'pregnancy_tracking',
+                'pregnancy_tracking.doctor',
                 'pregnancy_tracking.patient',
                 'pregnancy_tracking.patient.barangays',
                 'pregnancy_tracking.patient.municipalities',
@@ -47,8 +50,8 @@ class PrenatalVisitController extends Controller
             ])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where("pregnancy_trackings.fullname", 'LIKE', "%{$search}%");
-                    // ->orWhere('pregnancy_tracking_number', 'LIKE', "%{$search}%");
+                    $q->where("pregnancy_trackings.fullname", 'LIKE', "%{$search}%")
+                        ->orWhere('pregnancy_trackings.pregnancy_tracking_number', 'LIKE', "%{$search}%");
                 });
             })
             ->when($dateFrom, function ($query, $dateFrom) {
@@ -107,6 +110,10 @@ class PrenatalVisitController extends Controller
             'fht'         => 'required',
             'fh'          => 'required',
             'aog'         => 'required',
+            'term'        => 'required',
+            'preterm'     => 'required',
+            'post_term'   => 'required',
+            'living_children' => 'required',
         ]);
 
         PrenatalVisit::create($fields);
@@ -119,9 +126,14 @@ class PrenatalVisitController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(PrenatalVisit $prenatalVisit)
+    public function show($id)
     {
-        //
+        $prenatal_visit = PrenatalVisit::with('pregnancy_tracking')
+            ->where('pregnancy_tracking_id', $id)
+            ->whereDate('created_at', Carbon::now())
+            ->first();
+
+        return ['data' => new PrenatalOutPatientValueResource($prenatal_visit)];
     }
 
     /**
@@ -141,6 +153,10 @@ class PrenatalVisitController extends Controller
             'fht'         => 'required',
             'fh'          => 'required',
             'aog'         => 'required',
+            'term'        => 'required',
+            'preterm'     => 'required',
+            'post_term'   => 'required',
+            'living_children' => 'required',
         ]);
 
         $prenatal_visit->update($fields);
@@ -163,6 +179,7 @@ class PrenatalVisitController extends Controller
         $prenatal_visits = PrenatalVisit::query()
             ->with([
                 'pregnancy_tracking',
+                'pregnancy_tracking.doctor',
                 'pregnancy_tracking.patient',
                 'pregnancy_tracking.patient.barangays',
                 'pregnancy_tracking.patient.municipalities',

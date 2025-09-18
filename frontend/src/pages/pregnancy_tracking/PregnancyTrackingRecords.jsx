@@ -217,11 +217,11 @@ const PregnancyTrackingRecords = () => {
                       options={[
                         {
                           name: 'Yes',
-                          value: true,
+                          value: 1,
                         },
                         {
                           name: 'No',
-                          value: false,
+                          value: 0,
                         },
                       ]}
                       placeholder='Has PhilHealth?'
