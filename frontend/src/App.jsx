@@ -26,9 +26,21 @@ import PregnancyTrackingReports from './pages/reports/PregnancyTrackingReports';
 import PrenatalVisitReports from './pages/reports/PrenatalVisitReports';
 import OutPatientReports from './pages/reports/OutPatientReports';
 import DoctorManagement from './pages/doctor_management/DoctorManagement';
+import ActivityLogs from './pages/activity_logs/ActivityLogs';
+import Notifications from './pages/notifications/Notifications';
+import useNotificationStore from './store/notificationStore.js';
+import useDashboardStore from './store/dashboardStore.js';
 // import echo from './utils/echo';
 
 function App() {
+  const { fetchUnreadCount } = useNotificationStore();
+
+  const { fetchDashboardData } = useDashboardStore();
+
+  useEffect(() => {
+    fetchUnreadCount();
+    fetchDashboardData();
+  }, []);
   // useEffect(() => {
   //   console.log('Setting up Echo listener...');
   //   // Subscribe to the notifications channel
@@ -66,6 +78,8 @@ function App() {
     nurses: [1, 2],
     health_stations: [1],
     reports: [1, 3],
+    notifications: [1, 3],
+    activity_logs: [1, 3],
     reports_appointments: [1, 3],
     reports_pregnancy_trackings: [1, 3],
     reports_prenatal_visits: [1, 3],
@@ -215,6 +229,22 @@ function App() {
             element={
               <RoleBasedRoute allowedRoles={permissions.reports}>
                 <Reports />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='activity-logs'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.activity_logs}>
+                <ActivityLogs />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path='notifications'
+            element={
+              <RoleBasedRoute allowedRoles={permissions.notifications}>
+                <Notifications />
               </RoleBasedRoute>
             }
           />

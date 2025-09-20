@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Notifications\Notifiable;
 
 class Appointment extends Model
 {
+    use Notifiable;
+
     protected $fillable = [
         'pregnancy_tracking_id',
         'appointment_date',
@@ -19,6 +22,7 @@ class Appointment extends Model
         'booking_timestamp',
         'sms_status',
         'priority_score',
+        'pregnancy-status',
     ];
 
     protected $casts = [
@@ -30,6 +34,14 @@ class Appointment extends Model
     public function pregnancy_tracking(): BelongsTo
     {
         return $this->belongsTo(PregnancyTracking::class);
+    }
+
+    /**
+     * Tell Laravel which phone number to use for Vonage.
+     */
+    public function routeNotificationForVonage(Notification $notification): string
+    {
+        return optional($this->pregnancy_tracking?->patient)->contact;
     }
 
     /**

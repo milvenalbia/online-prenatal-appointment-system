@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePregnancyTrackingRequest;
 use App\Http\Resources\PregnancyTrackingResource;
+use App\Models\ActivityLogs;
 use App\Models\Appointment;
 use App\Models\BarangayCenter;
 use App\Models\Patient;
@@ -119,7 +120,7 @@ class PregnancyTrackingController extends Controller
         $patientType = $request->input('patient_type');
         $fields['age'] = Carbon::parse($fields['birth_date'])->age;
 
-        $pregnancy_tracking = DB::transaction(function () use ($fields, $patientType) {
+        $pregnancy_tracking = DB::transaction(function () use ($fields, $patientType, $request) {
             if ($patientType === 'new') {
                 $patient = Patient::create(array_merge($fields, [
                     'address' => 'n/a',
@@ -138,6 +139,19 @@ class PregnancyTrackingController extends Controller
                     'address' => $address,
                 ]);
 
+                ActivityLogs::create([
+                    'user_id' => Auth::id(),
+                    'action' => 'create',
+                    'title' => 'Patient Created',
+                    'info' => [
+                        'new' => $patient->only(['firstname', 'lastname', 'age', 'birth_date', 'address']),
+                    ],
+                    'loggable_type' => Patient::class,
+                    'loggable_id' => $patient->id,
+                    'ip_address' => $request->ip() ?? null,
+                    'user_agent' => $request->header('User-Agent') ?? null,
+                ]);
+
                 $health_station = BarangayCenter::find($fields['barangay_center_id']);
 
                 $fields['fullname'] = $patient->fullname;
@@ -154,6 +168,19 @@ class PregnancyTrackingController extends Controller
 
             $pregnancy_tracking->update([
                 'pregnancy_tracking_number' => $pregnancy_tracking_number,
+            ]);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'title' => 'Pregnancy Tracking Created',
+                'info' => [
+                    'new' => $pregnancy_tracking->only(['pregnancy_tracking_number', 'patient_id', 'fullname', 'age', 'pregnancy_status']),
+                ],
+                'loggable_type' => PregnancyTracking::class,
+                'loggable_id' => $pregnancy_tracking->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
             ]);
 
             // Risk codes inside transaction
@@ -194,13 +221,34 @@ class PregnancyTrackingController extends Controller
         $fields = $request->validated();
         $patientType = $request->input('patient_type');
         $fields['age'] = Carbon::parse($fields['birth_date'])->age;
-        $pregnancy_tracking = DB::transaction(function () use ($fields, $patientType, $pregnancyTracking) {
+        $pregnancy_tracking = DB::transaction(function () use ($fields, $patientType, $pregnancyTracking, $request) {
             if ($patientType === 'edit') {
                 $patient = Patient::findOrFail($fields['patient_id']);
+
+                $oldData = $patient->only(array_keys($fields));
+
                 $patient->update($fields);
+
+                $changes = $patient->getChanges();
+
+                $oldDataFiltered = array_intersect_key($oldData, $changes);
 
                 $address = "{$patient->zone}, {$patient->barangays->name} {$patient->municipalities->name}, {$patient->provinces->name}";
                 $patient->update(['address' => $address]);
+
+                ActivityLogs::create([
+                    'user_id' => Auth::id(),
+                    'action' => 'update',
+                    'title' => 'Patient Updated',
+                    'info' => [
+                        'old' => $oldDataFiltered,
+                        'new' => $changes,
+                    ],
+                    'loggable_type' => Patient::class,
+                    'loggable_id' => $patient->id,
+                    'ip_address' => $request->ip() ?? null,
+                    'user_agent' => $request->header('User-Agent') ?? null,
+                ]);
 
                 $health_station = BarangayCenter::findOrFail($fields['barangay_center_id']);
 
@@ -208,8 +256,28 @@ class PregnancyTrackingController extends Controller
                 $fields['barangay_health_station'] = $health_station->health_station;
             }
 
+            $oldPregnancyData = $pregnancyTracking->only(array_keys($fields));
+
             // update the record
             $pregnancyTracking->update($fields);
+
+            $changes = $pregnancyTracking->getChanges();
+
+            $oldPregnancyDataFiltered = array_intersect_key($oldPregnancyData, $changes);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'title' => 'Pregnancy Tracking Created',
+                'info' => [
+                    'old' => $oldPregnancyDataFiltered,
+                    'new' => $changes,
+                ],
+                'loggable_type' => PregnancyTracking::class,
+                'loggable_id' => $pregnancyTracking->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
 
             $pregnancyTracking->risk_codes()->delete();
 
@@ -243,9 +311,30 @@ class PregnancyTrackingController extends Controller
             'phic' => 'required',
         ]);
 
-        $pregnancy_tracking->update(array_merge($fields, [
-            "isDone" => true,
-        ]));
+        DB::transaction(function () use ($request, $pregnancy_tracking, $fields) {
+            $oldPregnancyData = $pregnancy_tracking->only(['pregnancy_tracking_number', 'patient_id', 'fullname', 'age', 'pregnancy_status', 'anc_given']);
+
+            $pregnancy_tracking->update(array_merge($fields, [
+                "isDone" => true,
+                'pregnancy_status' => 'completed',
+                'anc_given' => 1,
+            ]));
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'update',
+                'title' => 'Complete Pregnancy Tracking Updated',
+                'info' => [
+                    'old' => $oldPregnancyData,
+                    'new' => $pregnancy_tracking->only(['pregnancy_tracking_number', 'patient_id', 'fullname', 'age', 'pregnancy_status', 'anc_given']),
+                ],
+                'loggable_type' => PregnancyTracking::class,
+                'loggable_id' => $pregnancy_tracking->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+        });
+
 
         return [
             'message' => 'Pregnancy Tracking updated successfully',

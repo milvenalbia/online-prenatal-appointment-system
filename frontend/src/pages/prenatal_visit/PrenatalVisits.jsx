@@ -124,7 +124,7 @@ const PrenatalVisits = () => {
         showActions={true}
         defaultPerPage={10}
         onAdd={handleAdd}
-        addButton={user.role_id !== 3 ? '' : 'Add Prenatal Visit'}
+        addButton={user.role_id !== 2 ? 'Add Prenatal Visit' : ''}
         ref={dataTableRef}
       />
       {isOpen && (

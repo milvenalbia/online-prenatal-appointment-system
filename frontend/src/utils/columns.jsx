@@ -1,3 +1,5 @@
+import InfoCell from '../components/ui/InfoCell';
+
 export const pregnancy_tracking_columns = [
   {
     key: 'index',
@@ -287,7 +289,12 @@ export const pregnancy_tracking_columns = [
     hidden: true,
   },
   {
-    phic: '',
+    key: 'phic',
+    hidden: true,
+  },
+  {
+    key: 'anc_given',
+    hidden: true,
   },
   {
     key: 'risk_codes',
@@ -864,6 +871,14 @@ export const out_patient_column = [
     hidden: true,
   },
   {
+    key: 'attending_physician',
+    hidden: true,
+  },
+  {
+    key: 'phic',
+    hidden: true,
+  },
+  {
     key: 'religion',
     hidden: true,
   },
@@ -1279,6 +1294,81 @@ export const doctor_columns = [
     title: 'Created',
     sortable: true,
     width: 'w-[20%]',
+    render: (value) => new Date(value).toLocaleDateString(),
+  },
+  {
+    key: 'id',
+    hidden: true,
+  },
+];
+
+export const activity_log_columns = [
+  {
+    key: 'index',
+    title: 'No.',
+    sortable: false,
+    width: 'w-[5%]',
+    render: (value, row, index) => {
+      return <span className='ml-5'>{index + 1}</span>;
+    },
+  },
+  {
+    key: 'user',
+    title: 'User',
+    sortable: true,
+    width: 'w-[10%]',
+    render: (value) => {
+      if (!value) return <span className='text-gray-400 italic'>System</span>;
+      return <span>{value.name}</span>;
+    },
+  },
+  {
+    key: 'title',
+    title: 'Title',
+    sortable: true,
+    width: 'w-[10%]',
+  },
+  {
+    key: 'info',
+    title: 'Info',
+    sortable: false,
+    width: 'w-[30%]',
+    render: (value) => <InfoCell value={value} />,
+  },
+  {
+    key: 'loggable',
+    title: 'Loggable',
+    sortable: false,
+    width: 'w-[20%]',
+    render: (value) =>
+      value ? (
+        <span>
+          {value.type} #{value.id}
+        </span>
+      ) : (
+        <span className='text-gray-400 italic'>N/A</span>
+      ),
+  },
+  {
+    key: 'action',
+    title: 'Action',
+    sortable: false,
+    width: 'w-[10%]',
+    render: (value) => {
+      return <span className='capitalize'>{value}</span>;
+    },
+  },
+  {
+    key: 'ip_address',
+    title: 'IP Address',
+    sortable: false,
+    width: 'w-[8%]',
+  },
+  {
+    key: 'created_at',
+    title: 'Created',
+    sortable: true,
+    width: 'w-[7%]',
     render: (value) => new Date(value).toLocaleDateString(),
   },
   {

@@ -1,13 +1,16 @@
 <?php
 
+use App\Http\Controllers\ActivityLogsController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\Api\SelectAddressController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BarangayCenterController;
 use App\Http\Controllers\BarangayWorkerController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\ImmuzitionRecordController;
 use App\Http\Controllers\MidwifeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NurseController;
 use App\Http\Controllers\OutPatientController;
 use App\Http\Controllers\PatientController;
@@ -27,8 +30,12 @@ Route::get('/test-broadcast', function () {
     return response()->json(['status' => 'Event dispatched']);
 });
 
+Route::get('/dashboard', [DashboardController::class, 'index']);
+
 Route::post('/login', [AuthController::class, 'login'])->middleware(['throttle:login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+Route::get('/activity-logs/actions', [ActivityLogsController::class, 'getActivityActions']);
 
 Route::middleware(['throttle:api', 'auth:sanctum'])->group(function () {
     // Api Resource
@@ -44,6 +51,23 @@ Route::middleware(['throttle:api', 'auth:sanctum'])->group(function () {
     Route::apiResource('/prenatal-visits', PrenatalVisitController::class);
     Route::apiResource('/out-patients', OutPatientController::class);
     Route::apiResource('/appointments', AppointmentController::class);
+    Route::apiResource('/activity-logs', ActivityLogsController::class);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+
+    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount']);
+
+    // Mark specific notification as read
+    Route::put('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead']);
+
+    // Mark all notifications as read
+    Route::put('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+
+    // Delete specific notification
+    Route::delete('/notifications/delete/{id}', [NotificationController::class, 'destroy']);
+
+    // Delete all read notifications
+    Route::delete('/notifications/delete-all-read', [NotificationController::class, 'deleteAllRead']);
 
     // Route::prefix('appointments')->group(function () {
     //     Route::get('/available-slots', [AppointmentController::class, 'getAvailableSlots']);

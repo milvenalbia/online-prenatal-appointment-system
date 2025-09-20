@@ -131,15 +131,35 @@ const AppointmentReports = () => {
       // 1. All Pregnancy Tracking Data
       addWorksheet(workbook, 'All Data', allData, 'All Prenatal Visits');
 
+      const scheduledData = allData.filter(
+        (item) => item.status.toLowerCase() === 'scheduled'
+      );
+      addWorksheet(workbook, 'Scheduled Status', scheduledData, 'Scheduled');
+
+      const completedStatusData = allData.filter(
+        (item) => item.status.toLowerCase() === 'completed'
+      );
+      addWorksheet(
+        workbook,
+        'Completed Status',
+        completedStatusData,
+        'Completed Status'
+      );
+
+      const missedData = allData.filter(
+        (item) => item.status.toLowerCase() === 'missed'
+      );
+      addWorksheet(
+        workbook,
+        'Missed Appoinments',
+        missedData,
+        'Missed Appointments'
+      );
+
       const highData = allData.filter(
         (item) => item.priority.toLowerCase() === 'high'
       );
       addWorksheet(workbook, 'High priority', highData, 'High');
-
-      const mediumData = allData.filter(
-        (item) => item.priority.toLowerCase() === 'medium'
-      );
-      addWorksheet(workbook, 'Medium priority', mediumData, 'Medium');
 
       const lowData = allData.filter(
         (item) => item.priority.toLowerCase() === 'low'
@@ -210,6 +230,9 @@ const AppointmentReports = () => {
       // Summary data
       const summaryData = [
         ['Total Prenatal Visit Records', allData.length],
+        ['Scheduled Status', scheduledData.length],
+        ['Completed Status', completedStatusData.length],
+        ['Missed Appointments', missedData.length],
         ['First Trimester', firstTrimesterData.length],
         ['Second Trimester', secondTrimesterData.length],
         ['Third Trimester', thirdTrimesterData.length],
@@ -217,7 +240,6 @@ const AppointmentReports = () => {
         ['Referral', referralData.length],
         [''],
         ['High Priority', highData.length],
-        ['Medium Priority', mediumData.length],
         ['Low Priority', lowData.length],
         [''],
         ['Report Generated:', new Date().toLocaleString()],

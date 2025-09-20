@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\DoctorResource;
+use App\Models\ActivityLogs;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -70,7 +71,22 @@ class DoctorController extends Controller
             'assigned_day' => 'required',
         ]);
 
-        Doctor::create($fields);
+        DB::transaction(function () use ($request, $fields) {
+            $doctor = Doctor::create($fields);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'title' => 'Doctor Created',
+                'info' => [
+                    'new' => $doctor->only(['firstname', 'lastname', 'assigned_day'])
+                ],
+                'loggable_type' => Doctor::class,
+                'loggable_id' => $doctor->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+        });
 
         return [
             'message' => 'Doctor created successfully',
@@ -96,7 +112,25 @@ class DoctorController extends Controller
             'assigned_day' => 'required',
         ]);
 
-        $doctor->update($fields);
+        DB::transaction(function () use ($request, $fields, $doctor) {
+            $oldData =  $doctor->only(['firstname', 'lastname', 'assigned_day']);
+            $doctor->update($fields);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'update',
+                'title' => 'Doctor Updated',
+                'info' => [
+                    'old' => $oldData,
+                    'new' => $doctor->only(['firstname', 'lastname', 'assigned_day'])
+                ],
+                'loggable_type' => Doctor::class,
+                'loggable_id' => $doctor->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+        });
+
 
         return [
             'message' => 'Doctor updated successfully',

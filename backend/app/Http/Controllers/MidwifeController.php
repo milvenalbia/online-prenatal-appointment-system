@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\MidwifeResource;
 use App\Http\Resources\SelectMidWifeResource;
+use App\Models\ActivityLogs;
 use App\Models\BarangayCenter;
 use App\Models\Midwife;
 use Illuminate\Http\Request;
@@ -81,7 +82,24 @@ class MidwifeController extends Controller
             'barangay_center_id' => 'required|exists:barangay_centers,id',
         ]);
 
-        Midwife::create($fields);
+        DB::transaction(function () use ($request, $fields) {
+
+            $midwife = Midwife::create($fields);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'title' => 'Midwife Created',
+                'info' => [
+                    'new' => $midwife->only(['firstname', 'lastname', 'barangay_center_id'])
+                ],
+                'loggable_type' => Midwife::class,
+                'loggable_id' => $midwife->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+        });
+
 
         return [
             'message' => 'Midwife created successfully',
@@ -110,7 +128,26 @@ class MidwifeController extends Controller
             'barangay_center_id' => 'required|exists:barangay_centers,id',
         ]);
 
-        $midwife->update($fields);
+        DB::transaction(function () use ($request, $fields, $midwife) {
+            $oldData = $midwife->only(['firstname', 'lastname', 'barangay_center_id']);
+
+            $midwife->update($fields);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'update',
+                'title' => 'Midwife Updated',
+                'info' => [
+                    'old' => $oldData,
+                    'new' => $midwife->only(['firstname', 'lastname', 'barangay_center_id'])
+                ],
+                'loggable_type' => Midwife::class,
+                'loggable_id' => $midwife->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+        });
+
 
         return [
             'message' => 'Midwife updated successfully',

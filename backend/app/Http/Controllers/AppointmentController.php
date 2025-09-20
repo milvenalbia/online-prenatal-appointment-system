@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AppointmentResource;
+use App\Models\ActivityLogs;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\PregnancyTracking;
@@ -14,6 +15,7 @@ use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -180,7 +182,21 @@ class AppointmentController extends Controller
                 $appointmentDate = Carbon::parse($request->appointment_date);
                 $status = $this->calculatePregnancyStatus($pregnancy_tracking->lmp, $appointmentDate);
                 $pregnancy_tracking->update(['pregnancy_status' => $status]);
+                $appointment->update(['pregnancy_status' => $status]);
             }
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'title' => 'Appointment Created',
+                'info' => [
+                    'new' => $appointment->only(['pregnancy_tracking_id', 'appointment_date', 'priority', 'visit-count', 'pregnancy_status'])
+                ],
+                'loggable_type' => Appointment::class,
+                'loggable_id' => $appointment->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
 
             return response()->json([
                 'message' => 'Appointment created successfully',
@@ -225,6 +241,8 @@ class AppointmentController extends Controller
             $hasDateChanged = $oldDate !== $newDate;
             $hasPriorityChanged = $oldPriority !== $newPriority || $oldVisitCount !== $newVisitCount;
 
+            $changes = $appointment->getDirty();
+            $oldData = $appointment->getOriginal(array_keys($changes));
             // Handle different update scenarios
             if ($hasDateChanged) {
                 // Date is changing - check if target date is full
@@ -246,6 +264,20 @@ class AppointmentController extends Controller
             }
 
             $appointment = $appointment->fresh();
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'update',
+                'title' => 'Appointment Updated',
+                'info' => [
+                    'old' => $oldData,
+                    'new' => $changes,
+                ],
+                'loggable_type' => Appointment::class,
+                'loggable_id' => $appointment->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
 
             if ($old_pregnancy_tracking_id !== $new_pregnancy_tracking_id) {
                 $old_pregnancy_tracking = PregnancyTracking::find($old_pregnancy_tracking_id);
@@ -277,6 +309,7 @@ class AppointmentController extends Controller
                     $appointmentDate = Carbon::parse($request->appointment_date);
                     $status = $this->calculatePregnancyStatus($new_pregnancy_tracking->lmp, $appointmentDate);
                     $new_pregnancy_tracking->update(['pregnancy_status' => $status]);
+                    $appointment->update(['pregnancy_status' => $status]);
                 }
             } else {
                 $pregnancy_tracking = PregnancyTracking::find($old_pregnancy_tracking_id);

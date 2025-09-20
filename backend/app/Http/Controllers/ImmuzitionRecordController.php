@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ImmunizationRequest;
 use App\Http\Resources\ImmuzinationRecordResource;
+use App\Models\ActivityLogs;
 use App\Models\CovidVaccine;
 use App\Models\ImmuzitionRecord;
 use App\Models\OtherVaccine;
 use App\Models\TetanusVaccine;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ImmuzitionRecordController extends Controller
@@ -105,6 +107,20 @@ class ImmuzitionRecordController extends Controller
                 'other_vaccine_id' => $vaccineIds['other_vaccine_id'] ?? null,
             ]);
 
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'title' => 'Immunization Created',
+                'info' => [
+                    'new' => $immunizationRecord->only(['pregnancy_tracking_id', 'tetanus_vaccine_id', 'covid_vaccine_id', 'other_vaccine_id']),
+                ],
+                'loggable_type' => ImmuzitionRecord::class,
+                'loggable_id' => $immunizationRecord->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+
+
             DB::commit();
 
             return response()->json([
@@ -161,9 +177,24 @@ class ImmuzitionRecordController extends Controller
                 'other_vaccine_id'
             );
 
+            $oldData = $immunizationRecord->only(['pregnancy_tracking_id', 'tetanus_vaccine_id', 'covid_vaccine_id', 'other_vaccine_id']);
             // Update pregnancy_tracking_id if changed
             $immunizationRecord->update([
                 'pregnancy_tracking_id' => $vaccineData['pregnancy_tracking_id']
+            ]);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'update',
+                'title' => 'Immunization Updated',
+                'info' => [
+                    'old' => $oldData,
+                    'new' => $immunizationRecord->only(['pregnancy_tracking_id', 'tetanus_vaccine_id', 'covid_vaccine_id', 'other_vaccine_id']),
+                ],
+                'loggable_type' => ImmuzitionRecord::class,
+                'loggable_id' => $immunizationRecord->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
             ]);
 
             DB::commit();

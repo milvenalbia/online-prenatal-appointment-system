@@ -109,7 +109,7 @@ const OutPatients = () => {
         showActions={true}
         defaultPerPage={10}
         onAdd={handleAdd}
-        addButton={user.role_id !== 3 ? '' : 'Add Out Patient'}
+        addButton={user.role_id !== 2 ? 'Add Out Patient' : ''}
         ref={dataTableRef}
       />
       {isOpen && (

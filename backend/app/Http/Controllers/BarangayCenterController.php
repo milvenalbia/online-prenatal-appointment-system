@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\BarangayCenterCollection;
 use App\Http\Resources\BarangayCenterResource;
+use App\Models\ActivityLogs;
 use App\Models\BarangayCenter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BarangayCenterController extends Controller
 {
@@ -67,7 +70,23 @@ class BarangayCenterController extends Controller
             'barangay' => 'required|exists:barangays,id',
         ]);
 
-        BarangayCenter::create($fields);
+        DB::transaction(function () use ($request, $fields) {
+            $health_station = BarangayCenter::create($fields);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'title' => 'Barangay Center Created',
+                'info' => [
+                    'new' => $health_station->only(['health_station', 'municipality', 'barangay'])
+                ],
+                'loggable_type' => BarangayCenter::class,
+                'loggable_id' => $health_station->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+        });
+
 
         return [
             'message' => 'Barangay Health Station created successfully',
@@ -99,7 +118,26 @@ class BarangayCenterController extends Controller
             'barangay' => 'required|exists:barangays,id',
         ]);
 
-        $barangayCenter->update($fields);
+        DB::transaction(function () use ($request, $fields, $barangayCenter) {
+            $changes = $barangayCenter->getDirty();
+            $oldData = $barangayCenter->getOriginal(array_keys($changes));
+
+            $barangayCenter->update($fields);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'update',
+                'title' => 'Barangay Center Updated',
+                'info' => [
+                    'old' => $oldData,
+                    'new' => $changes,
+                ],
+                'loggable_type' => BarangayCenter::class,
+                'loggable_id' => $barangayCenter->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+        });
 
         return [
             'message' => 'Barangay Health Station updated successfully',

@@ -2,10 +2,13 @@ import { Bell, Calendar, UserRound, Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { useAuthStore } from '../store/AuthStore.js';
+import useNotificationStore from '../store/notificationStore.js';
 
 const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
   const { user } = useAuthStore();
   const [scrolled, setScrolled] = useState(false);
+
+  const { unread_count } = useNotificationStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,7 +47,7 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
         {/* Right side - Actions */}
         <div className='flex gap-4 sm:gap-6 items-center'>
           {/* Make Appointment Button - Hidden on mobile, different sizes */}
-          {user.role_id === 3 && (
+          {user.role_id !== 2 && (
             <>
               <Link
                 to={'appointments/create'}
@@ -68,9 +71,11 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
 
           {/* Notifications */}
           <div className='relative'>
-            <span className='absolute w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white -top-2 sm:-top-3 -right-1 sm:-right-2'>
-              <span className='text-xs'>20</span>
-            </span>
+            {unread_count > 0 && (
+              <span className='absolute w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white -top-2 sm:-top-3 -right-1 sm:-right-2'>
+                <span className='text-xs'>{unread_count}</span>
+              </span>
+            )}
             <Bell className='h-8 w-8 sm:h-10 sm:w-10 p-1.5 sm:p-2 bg-white rounded-md shadow-md cursor-pointer hover:bg-gray-50 transition-colors' />
           </div>
 

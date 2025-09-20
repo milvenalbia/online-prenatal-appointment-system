@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\OutPatientResource;
 use App\Http\Resources\PrenatalOutPatientValueResource;
+use App\Models\ActivityLogs;
+use App\Models\Appointment;
 use App\Models\OutPatient;
 use App\Models\PregnancyTracking;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class OutPatientController extends Controller
@@ -108,9 +111,10 @@ class OutPatientController extends Controller
         ]);
 
 
-        DB::transaction(function () use ($fields) {
+        DB::transaction(function () use ($fields, $request) {
 
-            $pregnancy_tracking = PregnancyTracking::where('id', $fields['pregnancy_tracking_id'])
+            $pregnancy_tracking = PregnancyTracking::with('doctor')
+                ->where('id', $fields['pregnancy_tracking_id'])
                 ->where('isDone', false)
                 ->first();
 
@@ -125,6 +129,37 @@ class OutPatientController extends Controller
             $outpatient->update([
                 'file_number' => $fileNumber,
                 'phic' => $pregnancy_tracking->phic ? 'yes' : 'no',
+                'attending_physician' => $pregnancy_tracking->doctor->fullname,
+            ]);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'title' => 'Out Patient Created',
+                'info' => [
+                    'new' => $outpatient->only(['pregnancy_tracking_id', 'file_number', 'attending_physician'])
+                ],
+                'loggable_type' => OutPatient::class,
+                'loggable_id' => $outpatient->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+
+            $appointment = Appointment::where('pregnancy_tracking_id', $pregnancy_tracking->id)
+                ->where('status', 'scheduled')
+                ->update(['status' => 'completed']);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'update',
+                'title' => 'Appointment Status Updated',
+                'info' => [
+                    'new' => $appointment->only(['pregnancy_tracking_id', 'status'])
+                ],
+                'loggable_type' => Appointment::class,
+                'loggable_id' => $appointment->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
             ]);
         });
 
@@ -142,11 +177,40 @@ class OutPatientController extends Controller
     {
         $out_patient = OutPatient::with('pregnancy_tracking')
             ->where('pregnancy_tracking_id', $id)
-            ->whereDate('created_at', Carbon::now())
+            ->whereDate('created_at', Carbon::today())
+            ->latest('created_at')
             ->first();
 
-        return ['data' => new PrenatalOutPatientValueResource($out_patient)];
+        if ($out_patient) {
+            return ['data' => new PrenatalOutPatientValueResource($out_patient)];
+        }
+
+        $pregnancyTracking = PregnancyTracking::where('id', $id)->where('isDone', false)->first();
+
+        $referenceDate = Carbon::now();
+        $lmp = $pregnancyTracking->lmp ? Carbon::parse($pregnancyTracking->lmp) : null;
+
+        if ($lmp) {
+            $days = (int) $lmp->diffInDays($referenceDate) % 7;
+            $weeks = (int) $lmp->diffInWeeks($referenceDate);
+            $aog = $days > 0 ? "{$weeks}w/{$days}d" : "{$weeks}w/0d";
+        } else {
+            $aog = '';
+        }
+
+        return [
+            'data' => [
+                'temp'    => '',
+                'weight'  => '',
+                'rr'      => '',
+                'pr'      => '',
+                'two_sat' => '',
+                'bp'      => '',
+                'aog'     => $aog,
+            ]
+        ];
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -167,18 +231,86 @@ class OutPatientController extends Controller
         ]);
 
 
-        DB::transaction(function () use ($fields, $outPatient) {
+        DB::transaction(function () use ($fields, $outPatient, $request) {
 
-            $pregnancy_tracking = PregnancyTracking::where('id', $fields['pregnancy_tracking_id'])
+            $old_pregnancy_tracking_id = $outPatient->pregnancy_tracking_id;
+
+            $pregnancy_tracking = PregnancyTracking::with('doctor')
+                ->where('id', $fields['pregnancy_tracking_id'])
                 ->where('isDone', false)
                 ->first();
 
+            $oldData = $outPatient->only(array_keys($fields));
+
             $outPatient->update(array_merge($fields, [
                 'phic' => $pregnancy_tracking->phic ? 'yes' : 'no',
+                'attending_physician' => $pregnancy_tracking->doctor->fullname,
             ]));
+
+            $changes = $outPatient->getChanges();
+
+            $oldDataFiltered = array_intersect_key($oldData, $changes);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'title' => 'Out Patient Created',
+                'info' => [
+                    'old' => $oldDataFiltered,
+                    'new' => $changes,
+                ],
+                'loggable_type' => OutPatient::class,
+                'loggable_id' => $outPatient->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+
+            $old_appointment = Appointment::where('pregnancy_tracking_id', $old_pregnancy_tracking_id)
+                ->where('status', 'completed');
+
+            $new_appointment = Appointment::where('pregnancy_tracking_id', $pregnancy_tracking->id)
+                ->where('status', 'scheduled');
+
+            if ($old_pregnancy_tracking_id !== $pregnancy_tracking->id) {
+
+                //update old appointment
+
+                $old_appointment->update(['status' => 'scheduled']);
+
+                //update new appointment
+
+                $new_appointment->update(['status' => 'completed']);
+
+                ActivityLogs::create([
+                    'user_id' => Auth::id(),
+                    'action' => 'update',
+                    'title' => 'Appointment Status Updated',
+                    'info' => [
+                        'old' => $old_appointment->only(['pregnancy_tracking_id', 'status']),
+                        'new' => $new_appointment->only(['pregnancy_tracking_id', 'status'])
+                    ],
+                    'loggable_type' => Appointment::class,
+                    'loggable_id' => $new_appointment->id,
+                    'ip_address' => $request->ip() ?? null,
+                    'user_agent' => $request->header('User-Agent') ?? null,
+                ]);
+            } else {
+                $new_appointment->update(['status' => 'completed']);
+
+                ActivityLogs::create([
+                    'user_id' => Auth::id(),
+                    'action' => 'update',
+                    'title' => 'Appointment Status Updated',
+                    'info' => [
+                        'new' => $new_appointment->only(['pregnancy_tracking_id', 'status'])
+                    ],
+                    'loggable_type' => Appointment::class,
+                    'loggable_id' => $new_appointment->id,
+                    'ip_address' => $request->ip() ?? null,
+                    'user_agent' => $request->header('User-Agent') ?? null,
+                ]);
+            }
         });
-
-
 
         return [
             'message' => 'Out Patient updated successfully!',

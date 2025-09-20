@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\NurseResource;
 use App\Http\Resources\SelectNurseResource;
+use App\Models\ActivityLogs;
 use App\Models\BarangayCenter;
 use App\Models\Nurse;
 use Illuminate\Http\Request;
@@ -82,7 +83,23 @@ class NurseController extends Controller
             'barangay_center_id' => 'required|exists:barangay_centers,id',
         ]);
 
-        Nurse::create($fields);
+        DB::transaction(function () use ($request, $fields) {
+            $nurse = Nurse::create($fields);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'title' => 'Nurse Created',
+                'info' => [
+                    'new' => $nurse->only(['firstname', 'lastname', 'barangay_center_id']),
+                ],
+                'loggable_type' => Nurse::class,
+                'loggable_id' => $nurse->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+        });
+
 
         return [
             'message' => 'Nurse has been created successfully',
@@ -111,7 +128,29 @@ class NurseController extends Controller
             'barangay_center_id' => 'required|exists:barangay_centers,id',
         ]);
 
-        $nurse->update($fields);
+        DB::transaction(function () use ($request, $fields, $nurse) {
+            $oldData = $nurse->only(array_keys($fields));
+
+            $nurse->update($fields);
+
+            $changes = $nurse->getChanges();
+
+            $oldDataFiltered = array_intersect_key($oldData, $changes);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'update',
+                'title' => 'Nurse Updated',
+                'info' => [
+                    'old' => $oldDataFiltered,
+                    'new' => $changes,
+                ],
+                'loggable_type' => Nurse::class,
+                'loggable_id' => $nurse->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+        });
 
         return [
             'message' => 'Nurse has been updated successfully',

@@ -10,6 +10,7 @@ import {
 import SelectReact from '../../ui/SelectReact';
 import InputGroup from '../../ui/InputGroup';
 import DatePicker from '../../ui/DatePicker';
+import api from '../../../api/axios';
 
 const OutPatientsForm = ({
   onSubmit,
@@ -20,6 +21,42 @@ const OutPatientsForm = ({
   isSubmitting,
   isEdit,
 }) => {
+  const handleChange = async (value) => {
+    if (value) {
+      try {
+        const res = await api.get(`/api/prenatal-visits/${value}`);
+
+        const data = res.data.data || res.data;
+
+        if (data) {
+          setFormData((prev) => ({
+            ...prev,
+            pregnancy_tracking_id: value,
+            weight: data.weight,
+            bp: data.bp,
+            temp: data.temp,
+            rr: data.rr,
+            pr: data.pr,
+            two_sat: data.two_sat,
+          }));
+        }
+      } catch (error) {
+        console.log('Error ', error);
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        pregnancy_tracking_id: value,
+        weight: '',
+        bp: '',
+        temp: '',
+        rr: '',
+        pr: '',
+        two_sat: '',
+      }));
+    }
+  };
+
   return (
     <form onSubmit={onSubmit}>
       <div className='flex flex-col md:flex-row gap-4 bg-gray-50 rounded-lg space-y-6 sm:w-auto mb-2'>
@@ -34,7 +71,7 @@ const OutPatientsForm = ({
               placeholder='Choose a patient'
               value={formData.pregnancy_tracking_id}
               formData={formData}
-              setFormData={setFormData}
+              onChange={(value) => handleChange(value)}
               labelKey='fullname'
             />
             {error.pregnancy_tracking_id && (

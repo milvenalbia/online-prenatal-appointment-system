@@ -7,7 +7,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\VonageMessage;
 
-class SendSmsNotification extends Notification
+class SendSmsNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

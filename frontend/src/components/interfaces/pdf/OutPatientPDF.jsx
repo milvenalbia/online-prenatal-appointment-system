@@ -251,7 +251,7 @@ const OutPatientPDF = ({ formData = {} }) => (
           </View>
           <Text style={[styles.label, { width: 40 }]}>PHIC</Text>
           <View style={styles.shortUnderline}>
-            <Text style={styles.dataText}>{formData.address || ''}</Text>
+            <Text style={styles.dataText}>{formData.phic || ''}</Text>
           </View>
         </View>
 

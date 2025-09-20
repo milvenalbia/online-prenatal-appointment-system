@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLogs;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -60,7 +63,22 @@ class UserController extends Controller
             'barangay_center_id' => 'nullable|exists:barangay_centers,id'
         ]);
 
-        $user = User::create($fields);
+        DB::transaction(function () use ($request, $fields) {
+            $user = User::create($fields);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'create',
+                'title' => 'User Created',
+                'info' => [
+                    'new_user' => $user->only(['id', 'name', 'email'])
+                ],
+                'loggable_type' => User::class,
+                'loggable_id' => $user->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+        });
 
         return [
             'message' => 'User created successfully',
@@ -92,7 +110,27 @@ class UserController extends Controller
             unset($fields['password']);
         }
 
-        $user->update($fields);
+        DB::transaction(function () use ($request, $fields, $user) {
+            $oldData = $user->only(['name', 'email']);
+
+            $user->update($fields);
+
+            ActivityLogs::create([
+                'user_id' => Auth::id(),
+                'action' => 'update',
+                'title' => 'User Updated',
+                'info' => [
+                    'old' => $oldData,
+                    'new' => $user->only(['name', 'email'])
+                ],
+                'loggable_type' => User::class,
+                'loggable_id' => $user->id,
+                'ip_address' => $request->ip() ?? null,
+                'user_agent' => $request->header('User-Agent') ?? null,
+            ]);
+        });
+
+
 
         return [
             'message' => 'User updated successfully',

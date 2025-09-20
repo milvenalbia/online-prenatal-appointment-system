@@ -25,7 +25,7 @@ const PregnancyTrackingRecords = () => {
     outcome_sex: '',
     outcome_weight: '',
     place_of_delivery: '',
-    phic: false,
+    phic: 0,
   });
 
   const { handleSubmit, isSubmitting, error, setError } = useFormSubmit();
@@ -41,6 +41,14 @@ const PregnancyTrackingRecords = () => {
   const handleEdit = (row) => {
     if (user.role_id !== 2) {
       setPregnancyTrackingId(row.id);
+      setFormData((prev) => ({
+        ...prev,
+        date_delivery: row.date_delivery,
+        outcome_sex: row.outcome_sex,
+        outcome_weight: row.outcome_weight,
+        place_of_delivery: row.place_of_delivery,
+        phic: row.phic,
+      }));
       setIsOpen(true);
     } else {
       navigate('create', { state: { row } });
@@ -57,7 +65,7 @@ const PregnancyTrackingRecords = () => {
       isEdit: true,
       url: `/api/edit/pregnancy-trackings/${pregnancyTrackingId}`,
       formData,
-      onSuccess: (record) => {},
+      onSuccess: () => dataTableRef.current?.fetchData(),
       onReset: () => {
         setError({});
         setPregnancyTrackingId(0);
@@ -67,7 +75,7 @@ const PregnancyTrackingRecords = () => {
           outcome_sex: '',
           outcome_weight: '',
           place_of_delivery: '',
-          phic: false,
+          phic: 0,
         });
       },
     });
@@ -114,9 +122,9 @@ const PregnancyTrackingRecords = () => {
         showPerPage={true}
         showActions={true}
         defaultPerPage={10}
-        onAdd={user.role_id === 3 ? '' : handleAdd}
+        onAdd={user.role_id !== 3 ? handleAdd : ''}
         onDownload={handelDownload}
-        addButton={user.role_id !== 2 ? '' : 'Create Pregnancy Tracking'}
+        addButton={user.role_id !== 3 ? 'Create Pregnancy Tracking' : ''}
         hasSortByCategory
         hasSortByStatus
         hasAdvanceFilter

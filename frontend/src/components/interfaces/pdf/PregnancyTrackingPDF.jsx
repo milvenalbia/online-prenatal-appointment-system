@@ -611,7 +611,9 @@ const PregnancyTrackingPDF = ({ formData, patientType }) => {
 
                 {/* 4 ANC Given columns */}
                 <View style={[styles.cell, styles.checkupCell2]}>
-                  <Text>{isFirstRow ? '✔' : ''}</Text>
+                  <Text>
+                    {isFirstRow ? (formData?.anc_given ? '/' : '') : ''}
+                  </Text>
                 </View>
                 <View style={[styles.cell, styles.checkupCell2]}>
                   <Text></Text>

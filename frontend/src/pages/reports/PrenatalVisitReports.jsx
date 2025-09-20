@@ -128,7 +128,8 @@ const PrenatalVisitReports = () => {
 
       // 2. By Attended By
       const attendedBy = allData.reduce((acc, item) => {
-        const doctor = item.attended_by || 'Unknown';
+        const doctor =
+          item.attending_physician || item.doctor_name || 'Unknown';
         if (!acc[doctor]) {
           acc[doctor] = [];
         }

@@ -16,6 +16,8 @@ import {
   Hospital,
   ClipboardPlus,
   BriefcaseMedical,
+  Cpu,
+  Bell,
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore.js';
 
@@ -88,6 +90,18 @@ const AdminLayout = () => {
       name: 'Doctor Management',
       link: 'doctor-management',
       icon: <BriefcaseMedical />,
+      show: user.role_id === 1 || user.role_id === 3,
+    },
+    {
+      name: 'Notifications',
+      link: 'notifications',
+      icon: <Bell />,
+      show: user.role_id === 1 || user.role_id === 3,
+    },
+    {
+      name: 'Activity Logs',
+      link: 'activity-logs',
+      icon: <Cpu />,
       show: user.role_id === 1 || user.role_id === 3,
     },
     {

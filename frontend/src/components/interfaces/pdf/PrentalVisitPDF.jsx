@@ -197,13 +197,30 @@ const PrenatalVisitPDF = ({ formData = {}, patientData = {} }) => {
   const visitsArray = Array.isArray(formData) ? formData : [formData];
 
   const groupVisitsByTrimester = (visits) => {
-    const first = visits.slice(0, 1);
-    const second = visits.slice(1, 2);
-    const third = visits.slice(2, 4);
-    return { first, second, third };
+    return visits.reduce(
+      (acc, visit) => {
+        switch (visit.pregnancy_status) {
+          case 'first_trimester':
+            acc.first.push(visit);
+            break;
+          case 'second_trimester':
+            acc.second.push(visit);
+            break;
+          case 'third_trimester':
+            acc.third.push(visit);
+            break;
+          default:
+            // if pregnancy_status doesn't match, optionally put in "other"
+            if (!acc.other) acc.other = [];
+            acc.other.push(visit);
+        }
+        return acc;
+      },
+      { first: [], second: [], third: [] }
+    );
   };
 
-  const { first, second, third } = groupVisitsByTrimester(visitsArray);
+  const { first, second, third, other } = groupVisitsByTrimester(visitsArray);
 
   const renderVisitCells = (visits, maxCount, isLastTrimester = false) => {
     const cells = [];

@@ -47,7 +47,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
   const [formData, setFormData] = useState({
     pregnancy_tracking_id: '',
     appointment_date: null,
-    priority: 'medium',
+    priority: 'low',
     visit_count: 1,
     note: '',
     doctor_id: '',
@@ -65,11 +65,6 @@ const AppointmentForm = ({ row = null, type = null }) => {
       label: 'High Priority',
       color: 'bg-red-100 text-red-800 border-red-200',
       value: 1,
-    },
-    medium: {
-      label: 'Medium Priority',
-      color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      value: 2,
     },
     low: {
       label: 'Low Priority',
@@ -104,7 +99,7 @@ const AppointmentForm = ({ row = null, type = null }) => {
     setFormData({
       pregnancy_tracking_id: '',
       appointment_date: null,
-      priority: 'medium',
+      priority: 'low',
       visit_count: 1,
       note: '',
       doctor_id: '',

@@ -16,135 +16,22 @@ import { Link } from 'react-router';
 import Card from '../components/interfaces/cards/Card';
 import { useAuthStore } from '../store/AuthStore.js';
 import Title from '../components/Title.jsx';
+import useDashboardStore from '../store/dashboardStore.js';
 
 const Dashboard = () => {
   const { user } = useAuthStore();
-  const referrals = [
-    {
-      id: 1,
-      patientName: 'John Smith',
-      referredTo: 'Dr. Sarah Johnson',
-      specialty: 'Cardiology',
-      date: '2025-08-20',
-      status: 'Pending',
-    },
-    {
-      id: 2,
-      patientName: 'Emma Davis',
-      referredTo: 'Dr. Michael Brown',
-      specialty: 'Dermatology',
-      date: '2025-08-19',
-      status: 'Confirmed',
-    },
-    {
-      id: 3,
-      patientName: 'Robert Wilson',
-      referredTo: 'Dr. Lisa Chen',
-      specialty: 'Orthopedics',
-      date: '2025-08-18',
-      status: 'Completed',
-    },
-    {
-      id: 4,
-      patientName: 'Maria Garcia',
-      referredTo: 'Dr. David Lee',
-      specialty: 'Neurology',
-      date: '2025-08-17',
-      status: 'Pending',
-    },
-    {
-      id: 5,
-      patientName: 'Maria Garcia',
-      referredTo: 'Dr. David Lee',
-      specialty: 'Neurology',
-      date: '2025-08-17',
-      status: 'Pending',
-    },
-    {
-      id: 6,
-      patientName: 'Maria Garcia',
-      referredTo: 'Dr. David Lee',
-      specialty: 'Neurology',
-      date: '2025-08-17',
-      status: 'confirmed',
-    },
-    {
-      id: 7,
-      patientName: 'Maria Garcia',
-      referredTo: 'Dr. David Lee',
-      specialty: 'Neurology',
-      date: '2025-08-17',
-      status: 'completed',
-    },
-  ];
-
-  const upcomingAppointments = [
-    {
-      id: 1,
-      patientName: 'Alice Johnson',
-      time: '09:00 AM',
-      date: 'Tomorrow',
-      type: 'Consultation',
-    },
-    {
-      id: 2,
-      patientName: 'Mark Thompson',
-      time: '10:30 AM',
-      date: 'Tomorrow',
-      type: 'Follow-up',
-    },
-    {
-      id: 3,
-      patientName: 'Sophie Miller',
-      time: '02:00 PM',
-      date: 'Aug 23',
-      type: 'Check-up',
-    },
-    {
-      id: 4,
-      patientName: 'James Anderson',
-      time: '03:30 PM',
-      date: 'Aug 23',
-      type: 'Consultation',
-    },
-    {
-      id: 5,
-      patientName: 'Rachel Green',
-      time: '11:00 AM',
-      date: 'Aug 24',
-      type: 'Follow-up',
-    },
-    {
-      id: 6,
-      patientName: 'Rachel Green',
-      time: '11:00 AM',
-      date: 'Aug 24',
-      type: 'Follow-up',
-    },
-    {
-      id: 7,
-      patientName: 'Rachel Green',
-      time: '11:00 AM',
-      date: 'Aug 24',
-      type: 'Follow-up',
-    },
-    {
-      id: 8,
-      patientName: 'Rachel Green',
-      time: '11:00 AM',
-      date: 'Aug 24',
-      type: 'Follow-up',
-    },
-  ];
+  const { data, pregnancy_data, appointment_data } = useDashboardStore();
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed':
-        return 'bg-green-100 text-green-800';
       case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'first_trimester':
         return 'bg-blue-100 text-blue-800';
+      case 'second_trimester':
+        return 'bg-teal-100 text-teal-800';
+      case 'third_trimester':
+        return 'bg-purple-100 text-purple-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -162,7 +49,7 @@ const Dashboard = () => {
         >
           <Card
             title='Total Patients'
-            value='200'
+            value={data[0].total_patients}
             icon={User}
             iconBgColor='bg-blue-100'
             iconColor='text-blue-600'
@@ -170,7 +57,7 @@ const Dashboard = () => {
           {user.role_id !== 2 && (
             <Card
               title='Total Appointments'
-              value='50'
+              value={data[0].total_appointments}
               icon={CalendarCheck}
               iconBgColor='bg-blue-100'
               iconColor='text-blue-600'
@@ -179,7 +66,7 @@ const Dashboard = () => {
           <div className='sm:col-span-2 lg:col-span-1'>
             <Card
               title='Total Pregnancy Trackings'
-              value='57'
+              value={data[0].total_pregnancy_tracking}
               icon={Baby}
               iconBgColor='bg-blue-100'
               iconColor='text-blue-600'
@@ -190,28 +77,28 @@ const Dashboard = () => {
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6'>
           <Card
             title='1st Trimester'
-            value='20'
+            value={data[0].total_first_trimester}
             icon={HeartPulse}
             iconBgColor='bg-emerald-100'
             iconColor='text-emerald-600'
           />
           <Card
             title='2nd Trimester'
-            value='25'
+            value={data[0].total_second_trimester}
             icon={HeartPlus}
             iconBgColor='bg-emerald-100'
             iconColor='text-emerald-600'
           />
           <Card
             title='3rd Trimester'
-            value='17'
+            value={data[0].total_third_trimester}
             icon={Stethoscope}
             iconBgColor='bg-emerald-100'
             iconColor='text-emerald-600'
           />
           <Card
-            title='4th Trimester'
-            value='30'
+            title='Completed'
+            value={data[0].total_completed}
             icon={Activity}
             iconBgColor='bg-emerald-100'
             iconColor='text-emerald-600'
@@ -222,14 +109,14 @@ const Dashboard = () => {
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-6'>
             <Card
               title='Immunization Records'
-              value='20'
+              value={data[0].total_immunization}
               icon={Syringe}
               iconBgColor='bg-blue-100'
               iconColor='text-blue-600'
             />
             <Card
               title='Prenatal Visit Records'
-              value='47'
+              value={data[0].total_prenatal_visit}
               icon={ClipboardList}
               iconBgColor='bg-blue-100'
               iconColor='text-blue-600'
@@ -237,7 +124,7 @@ const Dashboard = () => {
             <div className='sm:col-span-2 lg:col-span-1'>
               <Card
                 title='Total Out Patients'
-                value='28'
+                value={data[0].total_out_patients}
                 icon={Hospital}
                 iconBgColor='bg-blue-100'
                 iconColor='text-blue-600'
@@ -261,7 +148,7 @@ const Dashboard = () => {
 
               {/* Mobile Card View */}
               <div className='block sm:hidden space-y-3'>
-                {referrals.map((referral) => (
+                {pregnancy_data.map((referral) => (
                   <div
                     key={referral.id}
                     className='border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors'
@@ -269,10 +156,10 @@ const Dashboard = () => {
                     <div className='flex justify-between items-start mb-2'>
                       <div>
                         <p className='font-medium text-gray-900'>
-                          {referral.patientName}
+                          {referral.patient_name}
                         </p>
                         <p className='text-sm text-gray-500'>
-                          {referral.specialty}
+                          {referral.health_station}
                         </p>
                       </div>
                       <span
@@ -284,8 +171,10 @@ const Dashboard = () => {
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>
-                      <p>To: {referral.referredTo}</p>
-                      <p>{new Date(referral.date).toLocaleDateString()}</p>
+                      <p>To: {referral.referral_unit}</p>
+                      <p>
+                        {new Date(referral.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -303,7 +192,7 @@ const Dashboard = () => {
                         Referred To
                       </th>
                       <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell'>
-                        Specialty
+                        Heatlh Station
                       </th>
                       <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                         Date
@@ -314,31 +203,31 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody className='bg-white divide-y divide-gray-200'>
-                    {referrals.map((referral) => (
+                    {pregnancy_data.map((referral) => (
                       <tr key={referral.id} className='hover:bg-gray-50'>
                         <td className='px-6 py-4 whitespace-nowrap'>
                           <div className='text-sm font-medium text-gray-900'>
-                            {referral.patientName}
+                            {referral.patient_name}
                           </div>
                           <div className='text-sm text-gray-500 lg:hidden'>
-                            {referral.referredTo}
+                            {referral.referral_unit}
                           </div>
                           <div className='text-sm text-gray-500 md:hidden'>
-                            {referral.specialty}
+                            {referral.health_station}
                           </div>
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell'>
-                          {referral.referredTo}
+                          {referral.referral_unit}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell'>
-                          {referral.specialty}
+                          {referral.health_station}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                           <span className='hidden sm:inline'>
-                            {new Date(referral.date).toLocaleDateString()}
+                            {new Date(referral.created_at).toLocaleDateString()}
                           </span>
                           <span className='sm:hidden'>
-                            {new Date(referral.date).toLocaleDateString(
+                            {new Date(referral.created_at).toLocaleDateString(
                               'en-US',
                               { month: 'short', day: 'numeric' }
                             )}
@@ -369,7 +258,7 @@ const Dashboard = () => {
                   Upcoming Appointments
                 </h2>
                 <div className='space-y-3 h-90 overflow-y-hidden hover:overflow-y-auto'>
-                  {upcomingAppointments.map((appointment) => (
+                  {appointment_data.map((appointment) => (
                     <div
                       key={appointment.id}
                       className='flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors'
@@ -380,19 +269,16 @@ const Dashboard = () => {
                         </div>
                         <div className='min-w-0 flex-1'>
                           <p className='text-sm font-medium text-gray-900 truncate'>
-                            {appointment.patientName}
+                            {appointment.patient_name}
                           </p>
                           <p className='text-xs text-gray-500'>
-                            {appointment.type}
+                            {appointment.status}
                           </p>
                         </div>
                       </div>
                       <div className='text-right flex-shrink-0'>
-                        <p className='text-sm font-medium text-gray-900'>
-                          {appointment.time}
-                        </p>
                         <p className='text-xs text-gray-500'>
-                          {appointment.date}
+                          {appointment.appointment_date}
                         </p>
                       </div>
                     </div>

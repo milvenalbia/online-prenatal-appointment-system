@@ -48,6 +48,7 @@ const DataTable = forwardRef((props, ref) => {
     onDownloadReport = null,
     onAdd = null,
     isAppointment = false,
+    hasSortByAction = false,
   } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -73,7 +74,11 @@ const DataTable = forwardRef((props, ref) => {
   const { user } = useAuthStore();
 
   const statusOptions = [
-    { name: 'Scheduled', value: 'scheduled', show: ['Appointments'] },
+    {
+      name: 'Scheduled',
+      value: 'scheduled',
+      show: ['Appointments', 'Appointments Reports'],
+    },
     {
       name: '1st Trimester',
       value: 'first_trimester',
@@ -92,9 +97,13 @@ const DataTable = forwardRef((props, ref) => {
     {
       name: 'Completed',
       value: title === 'Pregnancy Tracking' ? 'completed' : 'completed',
-      show: ['Pregnancy Tracking', 'Appointments'],
+      show: ['Pregnancy Tracking', 'Appointments', 'Appointments Reports'],
     },
-    { name: 'Missed Appointment', value: 'missed', show: ['Appointments'] },
+    {
+      name: 'Missed Appointment',
+      value: 'missed',
+      show: ['Appointments', 'Appointments Reports'],
+    },
   ];
 
   const pregnancyStatusOptions = [
@@ -118,7 +127,6 @@ const DataTable = forwardRef((props, ref) => {
 
   const priorityOptions = [
     { name: 'High', value: 'high' },
-    { name: 'Medium', value: 'medium' },
     { name: 'Low', value: 'low' },
   ];
 
@@ -164,20 +172,11 @@ const DataTable = forwardRef((props, ref) => {
   };
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 500);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [searchTerm]);
-
-  useEffect(() => {
+    // Fetch data whenever page changes OR when filters change
     fetchData();
   }, [
-    apiEndpoint,
     currentPage,
+    apiEndpoint,
     perPage,
     debouncedSearchTerm,
     sortField,
@@ -186,6 +185,17 @@ const DataTable = forwardRef((props, ref) => {
     dateTo,
     formData,
   ]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
 
   useImperativeHandle(ref, () => ({
     fetchData,
@@ -294,6 +304,7 @@ const DataTable = forwardRef((props, ref) => {
       ...prev,
       [name]: value,
     }));
+    setCurrentPage(1);
   };
 
   const handleSelectedDates = (selectedDates) => {
@@ -301,6 +312,7 @@ const DataTable = forwardRef((props, ref) => {
       setRange(selectedDates);
       setDateFrom(selectedDates[0]);
       setDateTo(selectedDates[1]);
+      setCurrentPage(1);
     }
   };
 
@@ -531,6 +543,33 @@ const DataTable = forwardRef((props, ref) => {
                         onClick={handleOpenAdvanceFilter}
                       />
                     </div>
+
+                    {hasSortByAction && user.role_id !== 2 && (
+                      <div className='w-full'>
+                        <label
+                          className='text-sm text-gray-600'
+                          htmlFor='status'
+                        >
+                          Sort by Activity Action
+                        </label>
+                        <SelectReact
+                          id='category'
+                          name='category'
+                          endpoint='/api/activity-logs/actions'
+                          placeholder='Sort by activity action'
+                          formData={formData}
+                          onChange={(value) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              category: value,
+                            }));
+                            setCurrentPage(1);
+                          }}
+                          labelKey='action'
+                        />
+                      </div>
+                    )}
+
                     {hasSortByCategory && user.role_id !== 2 && (
                       <div className='w-full'>
                         <label
@@ -545,7 +584,13 @@ const DataTable = forwardRef((props, ref) => {
                           endpoint='/api/barangay-centers'
                           placeholder='Sort by health station'
                           formData={formData}
-                          setFormData={setFormData}
+                          onChange={(value) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              category: value,
+                            }));
+                            setCurrentPage(1);
+                          }}
                           labelKey='health_station'
                         />
                       </div>
