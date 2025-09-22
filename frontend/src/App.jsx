@@ -40,7 +40,7 @@ function App() {
   useEffect(() => {
     fetchUnreadCount();
     fetchDashboardData();
-  }, []);
+  }, [fetchDashboardData]);
   // useEffect(() => {
   //   console.log('Setting up Echo listener...');
   //   // Subscribe to the notifications channel

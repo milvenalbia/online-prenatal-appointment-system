@@ -58,6 +58,20 @@ class NotificationController extends Controller
         ]);
     }
 
+    public function limitedNotifications()
+    {
+        $query = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->limit(7)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $query,
+        ]);
+    }
+
     public function getUnreadCount(): JsonResponse
     {
         $count = Notification::where('user_id', Auth::id())

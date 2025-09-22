@@ -7,8 +7,7 @@ use App\Models\User;
 use App\Notifications\SendSmsNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Notification as FacadesNotification;
-
+use Illuminate\Support\Facades\Notification;
 
 class AuthController extends Controller
 {
@@ -32,10 +31,11 @@ class AuthController extends Controller
 
         $token = $user->createToken($user->name);
 
-        // $phoneNumber = '639616880510';
-        // $message = "Hello from Vonage!";
+        // Correct way to send an ad-hoc notification
+        // $phoneNumber = ['639060319020', '639351103690'];
+        // $message = "Testing: Let me know if this message find you.";
 
-        // $response = FacadesNotification::route('vonage', $phoneNumber)
+        // Notification::route('philsms', $phoneNumber)
         //     ->notify(new SendSmsNotification($message));
 
         return [

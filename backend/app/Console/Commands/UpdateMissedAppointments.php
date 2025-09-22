@@ -31,29 +31,19 @@ class UpdateMissedAppointments extends Command
      */
     public function handle()
     {
+
+        $appointment_count = Appointment::whereDate('appointment_date', Carbon::today())->count();
+
         $appointments = Appointment::where('status', 'scheduled')
             ->whereDate('appointment_date', Carbon::today())
             ->get();
 
-        $appointment_count = Appointment::whereDate('appointment_date', Carbon::today())->count();
+        $successCount = $appointments->count();
+        $successfulPatients = $appointments->pluck('pregnancy_tracking.fullname')->filter()->toArray();
 
-        $successCount = 0;
-        $failedCount = 0;
-        $successfulPatients = [];
-
-        foreach ($appointments as $appointment) {
-            try {
-
-                $patientName = $appointment->pregnancy_tracking?->fullname ?? 'Unknown Patient';
-
-                $appointment->update(['status' => 'missed']);
-
-                $successCount++;
-                $successfulPatients[] = $patientName;
-            } catch (\Exception $e) {
-                $failedCount++;
-            }
-        }
+        // Bulk update
+        Appointment::whereIn('id', $appointments->pluck('id'))
+            ->update(['status' => 'missed']);
 
         $message = "Out of {$appointment_count} scheduled appointments today, {$successCount} were missed.";
 

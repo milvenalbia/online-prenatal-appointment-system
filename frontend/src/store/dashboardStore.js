@@ -19,7 +19,6 @@ const useDashboardStore = create(
           const res = await api.get('/api/dashboard');
           const data = res.data;
 
-          console.log(data.data);
           set({
             data: data.data,
             pregnancy_data: data.pregnancy_data,

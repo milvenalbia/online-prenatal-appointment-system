@@ -23,18 +23,41 @@ const Dashboard = () => {
   const { data, pregnancy_data, appointment_data } = useDashboardStore();
 
   const getStatusColor = (status) => {
+    let d_status = '';
+    let classes = '';
+
     switch (status.toLowerCase()) {
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        d_status = 'Completed';
+        classes = 'bg-green-100 text-green-800';
+        break;
       case 'first_trimester':
-        return 'bg-blue-100 text-blue-800';
+        d_status = '1st Trimester';
+        classes = 'bg-blue-100 text-blue-800';
+        break;
       case 'second_trimester':
-        return 'bg-teal-100 text-teal-800';
+        d_status = '2nd Trimester';
+        classes = 'bg-teal-100 text-teal-800';
+        break;
       case 'third_trimester':
-        return 'bg-purple-100 text-purple-800';
+        d_status = '3rd Trimester';
+        classes = 'bg-purple-100 text-purple-800';
+        break;
+      case 'accepted':
+        d_status = 'Accepted';
+        classes = 'bg-green-100 text-green-800';
+        break;
+      case 'pending':
+        d_status = 'Pending';
+        classes = 'bg-yellow-100 text-yellow-800';
+        break;
       default:
-        return 'bg-gray-100 text-gray-800';
+        d_status = 'Referral';
+        classes = 'bg-gray-100 text-gray-800';
+        break;
     }
+
+    return { d_status, classes };
   };
 
   return (
@@ -49,7 +72,7 @@ const Dashboard = () => {
         >
           <Card
             title='Total Patients'
-            value={data[0].total_patients}
+            value={data?.total_patients || 0}
             icon={User}
             iconBgColor='bg-blue-100'
             iconColor='text-blue-600'
@@ -57,66 +80,77 @@ const Dashboard = () => {
           {user.role_id !== 2 && (
             <Card
               title='Total Appointments'
-              value={data[0].total_appointments}
+              value={data?.total_appointments || 0}
               icon={CalendarCheck}
+              path={'/admin/appointments'}
               iconBgColor='bg-blue-100'
               iconColor='text-blue-600'
             />
           )}
-          <div className='sm:col-span-2 lg:col-span-1'>
+          <div
+            className={`${
+              user.role_id !== 2 ? 'sm:col-span-2 lg:col-span-1 ' : ''
+            }`}
+          >
             <Card
               title='Total Pregnancy Trackings'
-              value={data[0].total_pregnancy_tracking}
+              value={data?.total_pregnancy_tracking || 0}
               icon={Baby}
+              path={'/admin/pregnancy-trackings'}
               iconBgColor='bg-blue-100'
               iconColor='text-blue-600'
             />
           </div>
         </div>
 
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6'>
-          <Card
-            title='1st Trimester'
-            value={data[0].total_first_trimester}
-            icon={HeartPulse}
-            iconBgColor='bg-emerald-100'
-            iconColor='text-emerald-600'
-          />
-          <Card
-            title='2nd Trimester'
-            value={data[0].total_second_trimester}
-            icon={HeartPlus}
-            iconBgColor='bg-emerald-100'
-            iconColor='text-emerald-600'
-          />
-          <Card
-            title='3rd Trimester'
-            value={data[0].total_third_trimester}
-            icon={Stethoscope}
-            iconBgColor='bg-emerald-100'
-            iconColor='text-emerald-600'
-          />
-          <Card
-            title='Completed'
-            value={data[0].total_completed}
-            icon={Activity}
-            iconBgColor='bg-emerald-100'
-            iconColor='text-emerald-600'
-          />
-        </div>
-
+        {user.role_id !== 2 && (
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6'>
+            <Card
+              title='1st Trimester'
+              value={data?.total_first_trimester || 0}
+              icon={HeartPulse}
+              iconBgColor='bg-emerald-100'
+              iconColor='text-emerald-600'
+              path='/admin/pregnancy-trackings?pregnancy_status=first_trimester'
+            />
+            <Card
+              title='2nd Trimester'
+              value={data?.total_second_trimester || 0}
+              icon={HeartPlus}
+              iconBgColor='bg-emerald-100'
+              iconColor='text-emerald-600'
+              path='/admin/pregnancy-trackings?pregnancy_status=second_trimester'
+            />
+            <Card
+              title='3rd Trimester'
+              value={data?.total_third_trimester || 0}
+              icon={Stethoscope}
+              iconBgColor='bg-emerald-100'
+              iconColor='text-emerald-600'
+              path='/admin/pregnancy-trackings?pregnancy_status=third_trimester'
+            />
+            <Card
+              title='Completed'
+              value={data?.total_completed || 0}
+              icon={Activity}
+              iconBgColor='bg-emerald-100'
+              iconColor='text-emerald-600'
+              path='/admin/pregnancy-trackings?pregnancy_status=completed'
+            />
+          </div>
+        )}
         {user.role_id !== 2 && (
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-6'>
             <Card
               title='Immunization Records'
-              value={data[0].total_immunization}
+              value={data?.total_immunization || 0}
               icon={Syringe}
               iconBgColor='bg-blue-100'
               iconColor='text-blue-600'
             />
             <Card
               title='Prenatal Visit Records'
-              value={data[0].total_prenatal_visit}
+              value={data?.total_prenatal_visit || 'Loading ...'}
               icon={ClipboardList}
               iconBgColor='bg-blue-100'
               iconColor='text-blue-600'
@@ -124,7 +158,7 @@ const Dashboard = () => {
             <div className='sm:col-span-2 lg:col-span-1'>
               <Card
                 title='Total Out Patients'
-                value={data[0].total_out_patients}
+                value={data?.total_out_patients || 0}
                 icon={Hospital}
                 iconBgColor='bg-blue-100'
                 iconColor='text-blue-600'
@@ -163,11 +197,11 @@ const Dashboard = () => {
                         </p>
                       </div>
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                          referral.status
-                        )}`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          getStatusColor(referral.status).classes
+                        }`}
                       >
-                        {referral.status}
+                        {getStatusColor(referral.status).d_status}
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>
@@ -235,11 +269,11 @@ const Dashboard = () => {
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
                           <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                              referral.status
-                            )}`}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              getStatusColor(referral.status).classes
+                            }`}
                           >
-                            {referral.status}
+                            {getStatusColor(referral.status).d_status}
                           </span>
                         </td>
                       </tr>

@@ -121,29 +121,6 @@ class AppointmentController extends Controller
         ];
     }
 
-    /**
-     * Get available slots for a specific date
-     */
-    public function getAvailableSlots(Request $request): JsonResponse
-    {
-        $request->validate([
-            'date' => 'required|date|after:today'
-        ]);
-
-        try {
-            $availableSlots = $this->schedulingService->getAvailableSlots($request->date);
-            $appointments = $this->schedulingService->getAppointmentsForDate($request->date);
-
-            return response()->json([
-                'available_slots' => $availableSlots,
-                'current_appointments' => $appointments,
-                'is_available' => $this->schedulingService->isDateAvailable($request->date)
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
-    }
-
     public function show(Appointment $qppointment) {}
 
     /**
@@ -349,44 +326,6 @@ class AppointmentController extends Controller
     }
 
 
-    /**
-     * Get appointments for a date range (for calendar view)
-     */
-    public function getCalendarData(Request $request): JsonResponse
-    {
-        $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date'
-        ]);
-
-        try {
-            $startDate = Carbon::parse($request->start_date);
-            $endDate = Carbon::parse($request->end_date);
-            $calendarData = [];
-
-            while ($startDate->lte($endDate)) {
-                $dateStr = $startDate->format('Y-m-d');
-
-                if (!$startDate->isWeekend() && !$startDate->isPast()) {
-                    $appointments = $this->schedulingService->getAppointmentsForDate($dateStr);
-
-                    $calendarData[$dateStr] = [
-                        'appointments' => $appointments->toArray(),
-                        'booking_count' => $appointments->count(),
-                        'available_slots' => $this->schedulingService->getAvailableSlots($dateStr),
-                        'is_available' => $this->schedulingService->isDateAvailable($dateStr)
-                    ];
-                }
-
-                $startDate->addDay();
-            }
-
-            return response()->json($calendarData);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
-    }
-
     public function getAvailabilityByRange(Request $request): JsonResponse
     {
         $start = $request->input('start'); // YYYY-MM-DD
@@ -451,72 +390,6 @@ class AppointmentController extends Controller
 
         return response()->json($availability);
     }
-
-
-    // public function getAvailabilityByRange(Request $request): JsonResponse
-    // {
-    //     $start = $request->input('start'); // YYYY-MM-DD
-    //     $end = $request->input('end');     // YYYY-MM-DD
-    //     $maxSlots = 5; // This is the max slot to display in the calendar
-
-    //     $appointments = Appointment::selectRaw('DATE(appointment_date) as date, COUNT(*) as count')
-    //         ->whereBetween('appointment_date', [$start, $end])
-    //         ->groupBy('date')
-    //         ->get();
-
-    //     $availability = [];
-    //     foreach ($appointments as $day) {
-    //         $remaining = max($maxSlots - $day->count, 0);
-    //         $availability[$day->date] = [
-    //             'appointments_count' => $day->count,
-    //             'remaining_slots' => $remaining,
-    //             'is_fully_booked' => $remaining === 0,
-    //         ];
-    //     }
-
-    //     return response()->json($availability);
-    // }
-
-
-    /**
-     * Update appointment (limited to notes and priority)
-     */
-    // public function update(Request $request, $id): JsonResponse
-    // {
-    //     $request->validate([
-    //         'pregnancy_tracking_id' => 'required|exists:pregnancy_trackings,id',
-    //         'appointment_date' => 'required|date|after_or_equal:today',
-    //         'priority' => 'required|in:high,medium,low',
-    //         'visit_count' => 'integer|min:1',
-    //         'notes' => 'nullable|string|max:1000'
-    //     ]);
-
-    //     try {
-    //         $appointment = Appointment::findOrFail($id);
-
-    //         $old_date = $appointment->appointment_date;
-    //         $oldPriority = $appointment->priority;
-    //         $oldDate = $appointment->appointment_date;
-    //         $appointment->update($request->only(['priority', 'notes', 'appointment_date', 'pregnancy_tracking_id', 'visit_count']));
-
-    //         // If priority changed, reorganize appointments
-    //         if (($request->has('priority') && $oldPriority !== $request->priority) || ($request->has('appointment_date') && $oldDate !== $request->appointment_date)) {
-    //             $updated_priority_score = $this->schedulingService->getPriorityScore($request->visit_count, $request->priority);
-
-    //             $appointment->update(['priority_score' => $updated_priority_score]);
-    //             $this->schedulingService->reorganizeAppointments($appointment->appointment_date, $old_date);
-    //             $appointment = $appointment->fresh();
-    //         }
-
-    //         return response()->json([
-    //             'message' => 'Appointment updated successfully',
-    //             'appointment' => $appointment
-    //         ]);
-    //     } catch (Exception $e) {
-    //         return response()->json(['error' => $e->getMessage()], 400);
-    //     }
-    // }
-
 
 
     /**

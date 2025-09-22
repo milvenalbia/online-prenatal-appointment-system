@@ -49,6 +49,7 @@ const DataTable = forwardRef((props, ref) => {
     onAdd = null,
     isAppointment = false,
     hasSortByAction = false,
+    pregnancyStatus = '',
   } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -66,7 +67,7 @@ const DataTable = forwardRef((props, ref) => {
   const [range, setRange] = useState([]);
   const [formData, setFormData] = useState({
     category: '',
-    status: '',
+    status: pregnancyStatus || '',
     pregnancy_status: '',
     priority: '',
   });
@@ -75,34 +76,34 @@ const DataTable = forwardRef((props, ref) => {
 
   const statusOptions = [
     {
+      show: ['Appointments', 'Appointment Reports'],
       name: 'Scheduled',
       value: 'scheduled',
-      show: ['Appointments', 'Appointments Reports'],
     },
     {
+      show: ['Pregnancy Tracking', 'Appointments', 'Appointment Reports'],
+      name: 'Completed',
+      value: 'completed',
+    },
+    {
+      show: ['Appointments', 'Appointment Reports'],
+      name: 'Missed',
+      value: 'missed',
+    },
+    {
+      show: ['Pregnancy Tracking'],
       name: '1st Trimester',
       value: 'first_trimester',
-      show: ['Pregnancy Tracking'],
     },
     {
+      show: ['Pregnancy Tracking'],
       name: '2nd Trimester',
       value: 'second_trimester',
-      show: ['Pregnancy Tracking'],
     },
     {
+      show: ['Pregnancy Tracking'],
       name: '3rd Trimester',
       value: 'third_trimester',
-      show: ['Pregnancy Tracking'],
-    },
-    {
-      name: 'Completed',
-      value: title === 'Pregnancy Tracking' ? 'completed' : 'completed',
-      show: ['Pregnancy Tracking', 'Appointments', 'Appointments Reports'],
-    },
-    {
-      name: 'Missed Appointment',
-      value: 'missed',
-      show: ['Appointments', 'Appointments Reports'],
     },
   ];
 
@@ -134,6 +135,7 @@ const DataTable = forwardRef((props, ref) => {
     if (!status) {
       setLoading(true);
     }
+
     try {
       const params = {
         page: currentPage,

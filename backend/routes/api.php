@@ -30,8 +30,6 @@ Route::get('/test-broadcast', function () {
     return response()->json(['status' => 'Event dispatched']);
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index']);
-
 Route::post('/login', [AuthController::class, 'login'])->middleware(['throttle:login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -53,7 +51,11 @@ Route::middleware(['throttle:api', 'auth:sanctum'])->group(function () {
     Route::apiResource('/appointments', AppointmentController::class);
     Route::apiResource('/activity-logs', ActivityLogsController::class);
 
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+
     Route::get('/notifications', [NotificationController::class, 'index']);
+
+    Route::get('/limited-notifications', [NotificationController::class, 'limitedNotifications']);
 
     Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount']);
 

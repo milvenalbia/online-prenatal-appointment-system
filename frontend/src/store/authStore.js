@@ -3,6 +3,8 @@ import { persist } from 'zustand/middleware';
 import CryptoJS from 'crypto-js';
 import { toast } from 'sonner';
 import api from '../api/axios';
+import useDashboardStore from './dashboardStore.js';
+import useNotificationStore from './notificationStore.js';
 // Optional: use env or hardcode for dev (not safe for production frontend)
 const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
@@ -58,6 +60,12 @@ export const useAuthStore = create(
           const data = res.data;
           set({ user: data.user, token: data.token, isLoading: false });
 
+          const { fetchDashboardData } = useDashboardStore.getState();
+          const { fetchUnreadCount } = useNotificationStore.getState();
+
+          fetchDashboardData();
+          fetchUnreadCount();
+
           navigate('/admin/dashboard');
           toast.success(data.message || 'Login successfully');
         } catch (err) {
@@ -71,6 +79,8 @@ export const useAuthStore = create(
             if (status === 401) {
               set({ user: null, token: null, isLoading: false });
               localStorage.removeItem('auth-storage');
+              localStorage.removeItem('notification-store');
+              localStorage.removeItem('dashboard');
             }
           }
         }
@@ -86,6 +96,8 @@ export const useAuthStore = create(
         set({ user: null, token: null, isLoading: false });
 
         localStorage.removeItem('auth-storage');
+        localStorage.removeItem('notification-store');
+        localStorage.removeItem('dashboard');
         toast.success('You have been logged out!');
       },
     }),

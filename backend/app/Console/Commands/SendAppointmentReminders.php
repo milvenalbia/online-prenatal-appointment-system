@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Notifications\SendSmsNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Notification as FacadesNotification;
 
 class SendAppointmentReminders extends Command
 {
@@ -52,13 +53,15 @@ class SendAppointmentReminders extends Command
         foreach ($appointments as $appointment) {
             try {
                 $date = Carbon::parse($appointment->appointment_date)->format('F j, Y');
+                $phoneNumber = $appointment->pregnancy_tracking?->patient->contact;
                 $patientName = $appointment->pregnancy_tracking?->fullname ?? 'Unknown Patient';
 
                 $message = "Hello {$patientName}, reminder: you have a prenatal appointment on "
                     . $date
                     . ".\nFrom: St. Paul Tagoloan.";
 
-                $appointment->notify(new SendSmsNotification($message));
+                FacadesNotification::route('philsms', $phoneNumber)
+                    ->notify(new SendSmsNotification($message));
 
                 $appointment->update(['sms_status' => 'sent']);
 

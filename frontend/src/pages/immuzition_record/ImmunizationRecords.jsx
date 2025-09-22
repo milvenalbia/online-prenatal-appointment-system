@@ -120,7 +120,7 @@ const ImmunizationRecords = () => {
         showActions={true}
         defaultPerPage={10}
         onAdd={handleAdd}
-        addButton={user.role_id !== 3 ? 'Add Immunization Record' : ''}
+        addButton={user.role_id !== 2 ? 'Add Immunization Record' : ''}
         ref={dataTableRef}
       />
       {isOpen && (

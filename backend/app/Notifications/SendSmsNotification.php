@@ -2,47 +2,49 @@
 
 namespace App\Notifications;
 
+use App\Broadcasting\PhilSmsChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\VonageMessage;
 
 class SendSmsNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $messageText;
+    protected $message;
+    protected $recipients;
+    protected $senderId;
+    protected $type;
+    protected $scheduleTime;
 
-    /**
-     * Create a new notification instance.
-     *
-     * @return void
-     */
-    public function __construct($messageText)
-    {
-        $this->messageText = $messageText;
+    public function __construct(
+        string $message,
+        $recipients = null,         // single or array of numbers
+        string $senderId = 'PhilSMS', // <= 11 chars
+        string $type = 'plain',
+        ?string $scheduleTime = null // RFC3339 format
+    ) {
+        $this->message = $message;
+        $this->recipients = $recipients;
+        $this->senderId = $senderId;
+        $this->type = $type;
+        $this->scheduleTime = $scheduleTime;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
     public function via($notifiable)
     {
-        return ['vonage'];
+        return [PhilSmsChannel::class];
     }
 
-    /**
-     * Get the Vonage / SMS representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\VonageMessage
-     */
-    public function toVonage($notifiable)
+    public function toPhilsms($notifiable)
     {
-        return (new VonageMessage)
-            ->content($this->messageText);
+        return [
+            // if not passed, fallback to notifiable route
+            'recipient'       => $this->recipients ?? $notifiable->routeNotificationFor('philsms'),
+            'message'         => $this->message,
+            'sender_id'       => $this->senderId,
+            'type'            => $this->type,
+            'schedule_time'   => $this->scheduleTime,
+        ];
     }
 }

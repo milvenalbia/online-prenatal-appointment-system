@@ -2,6 +2,8 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import useErrorStore from '../store/errorStore.js';
 import api from '../api/axios';
+import useDashboardStore from '../store/dashboardStore.js';
+import useNotificationStore from '../store/notificationStore.js';
 
 export const fetchOptions = async (endpoint, valueKey, labelKey) => {
   try {
@@ -23,6 +25,9 @@ export function useFormSubmit() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { error, setError } = useErrorStore();
   const [data, SetData] = useState(null);
+
+  const { fetchDashboardData } = useDashboardStore.getState();
+  const { fetchUnreadCount } = useNotificationStore.getState();
 
   const handleSubmit = async ({
     e,
@@ -48,6 +53,9 @@ export function useFormSubmit() {
         onSuccess?.(data.data ?? data);
         onReset?.();
         SetData(data?.data ?? data);
+
+        fetchDashboardData();
+        fetchUnreadCount();
       }
     } catch (error) {
       if (error.response) {

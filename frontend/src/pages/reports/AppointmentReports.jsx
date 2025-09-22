@@ -213,18 +213,7 @@ const AppointmentReports = () => {
       );
       addWorksheet(workbook, 'Completed', completedData, 'Completed');
 
-      // 6. By Referral (empty pregnancy status)
-      const referralData = allData.filter(
-        (item) =>
-          !item.pregnancy_status ||
-          item.pregnancy_status === '' ||
-          item.pregnancy_status?.toLowerCase() === 'referral' ||
-          item.status === '' ||
-          item.status?.toLowerCase() === 'referral'
-      );
-      addWorksheet(workbook, 'Referral', referralData, 'Referral');
-
-      // 7. Summary Sheet
+      // 6. Summary Sheet
       const summaryWorksheet = workbook.addWorksheet('Summary');
 
       // Summary data
@@ -237,7 +226,6 @@ const AppointmentReports = () => {
         ['Second Trimester', secondTrimesterData.length],
         ['Third Trimester', thirdTrimesterData.length],
         ['Completed', completedData.length],
-        ['Referral', referralData.length],
         [''],
         ['High Priority', highData.length],
         ['Low Priority', lowData.length],
@@ -322,7 +310,7 @@ const AppointmentReports = () => {
         hasSortByPriority
         hasAdvanceFilter
         isAppointment
-        downloadReport={'Export Out Patients'}
+        downloadReport={'Export All Appointments'}
         onDownloadReport={downloadReport}
       />
     </Container>

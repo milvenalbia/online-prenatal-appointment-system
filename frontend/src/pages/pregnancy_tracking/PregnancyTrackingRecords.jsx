@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { pdf } from '@react-pdf/renderer';
 import Container from '../../components/ui/Container';
 import DataTable from '../../components/ui/Datatable';
@@ -17,6 +17,8 @@ const PregnancyTrackingRecords = () => {
   const navigate = useNavigate();
   const dataTableRef = useRef();
   const { user } = useAuthStore();
+  const [searchParams] = useSearchParams();
+  const pregnancyStatus = searchParams.get('pregnancy_status');
 
   const [isOpen, setIsOpen] = useState(false);
   const [pregnancyTrackingId, setPregnancyTrackingId] = useState(0);
@@ -128,6 +130,7 @@ const PregnancyTrackingRecords = () => {
         hasSortByCategory
         hasSortByStatus
         hasAdvanceFilter
+        pregnancyStatus={pregnancyStatus}
         ref={dataTableRef}
       />
 

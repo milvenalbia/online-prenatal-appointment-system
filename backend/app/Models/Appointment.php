@@ -37,10 +37,11 @@ class Appointment extends Model
     }
 
     /**
-     * Tell Laravel which phone number to use for Vonage.
+     * Tell Laravel which phone number to use for PhilSMS.
      */
-    public function routeNotificationForVonage(Notification $notification): string
+    public function routeNotificationForPhilsms(Notification $notification): string
     {
+        // Make sure to use the correct attribute for the patient's phone number
         return optional($this->pregnancy_tracking?->patient)->contact;
     }
 
