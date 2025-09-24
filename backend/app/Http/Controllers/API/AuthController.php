@@ -32,8 +32,8 @@ class AuthController extends Controller
         $token = $user->createToken($user->name);
 
         // Correct way to send an ad-hoc notification
-        // $phoneNumber = ['639060319020', '639351103690'];
-        // $message = "Testing: Let me know if this message find you.";
+        // $phoneNumber = ['639060319020', '639651036268', '639295823759'];
+        // $message = "This is a sms test only.";
 
         // Notification::route('philsms', $phoneNumber)
         //     ->notify(new SendSmsNotification($message));

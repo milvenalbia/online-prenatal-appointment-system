@@ -166,9 +166,17 @@ class PregnancyTrackingController extends Controller
                 . str_pad($dailyCount, 2, '0', STR_PAD_LEFT)
                 . str_pad($pregnancy_tracking->id, 3, '0', STR_PAD_LEFT);
 
-            $pregnancy_tracking->update([
-                'pregnancy_tracking_number' => $pregnancy_tracking_number,
-            ]);
+            if (!empty($pregnancy_tracking->lmp)) {
+                $status = $this->calculatePregnancyStatus($pregnancy_tracking->lmp, Carbon::now());
+                $pregnancy_tracking->update([
+                    'pregnancy_status' => $status,
+                    'pregnancy_tracking_number' => $pregnancy_tracking_number,
+                ]);
+            } else {
+                $pregnancy_tracking->update([
+                    'pregnancy_tracking_number' => $pregnancy_tracking_number,
+                ]);
+            }
 
             ActivityLogs::create([
                 'user_id' => Auth::id(),
@@ -202,8 +210,6 @@ class PregnancyTrackingController extends Controller
             'message' => 'Pregnancy Tracking created successfully',
         ];
     }
-
-
 
     /**
      * Display the specified resource.
@@ -258,6 +264,10 @@ class PregnancyTrackingController extends Controller
 
             $oldPregnancyData = $pregnancyTracking->only(array_keys($fields));
 
+            if (!empty($pregnancyTracking->lmp)) {
+                $status = $this->calculatePregnancyStatus($pregnancyTracking->lmp, Carbon::now());
+                $fields['pregnancy_status'] = $status;
+            }
             // update the record
             $pregnancyTracking->update($fields);
 
@@ -267,8 +277,8 @@ class PregnancyTrackingController extends Controller
 
             ActivityLogs::create([
                 'user_id' => Auth::id(),
-                'action' => 'create',
-                'title' => 'Pregnancy Tracking Created',
+                'action' => 'update',
+                'title' => 'Pregnancy Tracking Updated',
                 'info' => [
                     'old' => $oldPregnancyDataFiltered,
                     'new' => $changes,
@@ -299,6 +309,21 @@ class PregnancyTrackingController extends Controller
             'data' => new PregnancyTrackingResource($pregnancy_tracking),
             'message' => 'Pregnancy Tracking created successfully',
         ];
+    }
+
+    private function calculatePregnancyStatus(string $lmp, Carbon $referenceDate): string
+    {
+        $lmp = Carbon::parse($lmp);
+        $weeks = $lmp->diffInWeeks($referenceDate);
+
+        if ($weeks <= 12) {
+            return 'first_trimester';
+        } elseif ($weeks <= 27) {
+            return 'second_trimester';
+        } elseif ($weeks <= 40) {
+            return 'third_trimester';
+        }
+        return 'postpartum';
     }
 
     public function update_pregnancy(Request $request, PregnancyTracking $pregnancy_tracking)

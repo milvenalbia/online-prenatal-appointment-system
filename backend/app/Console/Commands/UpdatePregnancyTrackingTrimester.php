@@ -9,6 +9,7 @@ use App\Models\PregnancyTracking;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 
 class UpdatePregnancyTrackingTrimester extends Command
 {
@@ -29,70 +30,108 @@ class UpdatePregnancyTrackingTrimester extends Command
     /**
      * Execute the console command.
      */
-
-
     public function handle()
     {
-        // --- Count pregnancies before update ---
+        $today = Carbon::today();
+
+        // Count pregnancies before update
         $totalPregnancies = PregnancyTracking::count();
 
-        // --- Bulk updates ---
+        if ($totalPregnancies === 0) {
+            $this->info("No pregnancy tracking records found to update.");
+            return;
+        }
+
+        // Bulk updates with better performance
         $first = PregnancyTracking::whereRaw('TIMESTAMPDIFF(WEEK, lmp, CURDATE()) <= 12')
-            ->update(['pregnancy_status' => 'first_trimester']);
+            ->where('pregnancy_status', '!=', 'first_trimester') // Only update if different
+            ->update([
+                'pregnancy_status' => 'first_trimester',
+                'updated_at' => now()
+            ]);
 
         $second = PregnancyTracking::whereRaw('TIMESTAMPDIFF(WEEK, lmp, CURDATE()) BETWEEN 13 AND 27')
-            ->update(['pregnancy_status' => 'second_trimester']);
+            ->where('pregnancy_status', '!=', 'second_trimester')
+            ->update([
+                'pregnancy_status' => 'second_trimester',
+                'updated_at' => now()
+            ]);
 
         $third = PregnancyTracking::whereRaw('TIMESTAMPDIFF(WEEK, lmp, CURDATE()) BETWEEN 28 AND 40')
-            ->update(['pregnancy_status' => 'third_trimester']);
+            ->where('pregnancy_status', '!=', 'third_trimester')
+            ->update([
+                'pregnancy_status' => 'third_trimester',
+                'updated_at' => now()
+            ]);
 
         $completed = PregnancyTracking::whereRaw('TIMESTAMPDIFF(WEEK, lmp, CURDATE()) > 40')
-            ->update(['pregnancy_status' => 'completed']);
+            ->where('pregnancy_status', '!=', 'completed')
+            ->update([
+                'pregnancy_status' => 'completed',
+                'updated_at' => now()
+            ]);
 
-        // --- Build message ---
-        $message = "Pregnancy statuses updated successfully today (" . Carbon::today()->toDateString() . ").\n\n";
-        $message .= "Out of {$totalPregnancies} pregnancies:\n";
+        $totalUpdated = $first + $second + $third + $completed;
+
+        // Build message
+        $message = "Pregnancy statuses updated successfully today ({$today->toDateString()}).\n\n";
+        $message .= "Out of {$totalPregnancies} pregnancies, {$totalUpdated} were updated:\n";
         $message .= "• {$first} set to First Trimester\n";
         $message .= "• {$second} set to Second Trimester\n";
         $message .= "• {$third} set to Third Trimester\n";
         $message .= "• {$completed} set to Completed\n";
 
-        $notifMessage = "Pregnancy statuses updated today: {$first} first, {$second} second, {$third} third, {$completed} completed.";
+        $notifMessage = "Pregnancy statuses updated: {$totalUpdated} records changed ({$first} first, {$second} second, {$third} third, {$completed} completed).";
 
-        // --- Fire event for broadcast ---
-        event(new UserNotified($notifMessage));
+        // Trigger user notification event
+        if (User::whereIn('role_id', [1, 3])->exists()) {
+            event(new UserNotified($notifMessage));
+        }
 
-        // --- Log activity ---
         $systemUserId = User::where('email', 'system@gmail.com')->value('id');
+
+        // Fix: Handle loggable_id cannot be null
+        // Get a sample pregnancy tracking ID for the batch operation
+        $samplePregnancyId = PregnancyTracking::value('id');
 
         ActivityLogs::create([
             'user_id' => $systemUserId,
-            'action' => 'scheduler',
+            'action' => 'scheduler_batch',
             'title' => 'Automated Pregnancy Trimester Update',
             'info' => [
-                'first_trimester'  => $first,
-                'second_trimester' => $second,
-                'third_trimester'  => $third,
-                'completed'        => $completed,
-                'total'            => $totalPregnancies,
-                'message'          => $message,
-                'date'             => Carbon::today(),
+                'new' => [
+                    'first_trimester_updated' => $first,
+                    'second_trimester_updated' => $second,
+                    'third_trimester_updated' => $third,
+                    'completed_updated' => $completed,
+                    'total_pregnancies' => $totalPregnancies,
+                    'total_updated' => $totalUpdated,
+                    'message' => $message,
+                    'date' => $today->toDateString(),
+                ]
             ],
             'loggable_type' => PregnancyTracking::class,
-            'loggable_id' => null,
+            'loggable_id' => $samplePregnancyId, // Use sample ID for batch operation
             'ip_address' => 'system',
             'user_agent' => 'scheduler',
         ]);
 
-        // --- Notify users (except role_id = 2) ---
+        // Bulk create notifications instead of looping
         $users = User::select('id')->where('role_id', '!=', 2)->get();
 
-        foreach ($users as $user) {
-            Notification::create([
-                'user_id' => $user->id,
-                'title'   => 'Pregnancy Trimester Update',
-                'message' => $message,
-            ]);
+        if ($users->isNotEmpty()) {
+            $notificationData = $users->map(function ($user) use ($message) {
+                return [
+                    'user_id' => $user->id,
+                    'title' => 'Pregnancy Trimester Update',
+                    'message' => $message,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            })->toArray();
+
+            // Bulk insert notifications
+            Notification::insert($notificationData);
         }
 
         $this->info($notifMessage);

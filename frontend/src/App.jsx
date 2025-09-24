@@ -30,40 +30,58 @@ import ActivityLogs from './pages/activity_logs/ActivityLogs';
 import Notifications from './pages/notifications/Notifications';
 import useNotificationStore from './store/notificationStore.js';
 import useDashboardStore from './store/dashboardStore.js';
-// import echo from './utils/echo';
+import echo from './utils/echo';
+import { useAuthStore } from './store/authStore.js';
 
 function App() {
   const { fetchUnreadCount } = useNotificationStore();
 
   const { fetchDashboardData } = useDashboardStore();
 
+  const { user } = useAuthStore();
+
   useEffect(() => {
     fetchUnreadCount();
     fetchDashboardData();
-  }, [fetchDashboardData]);
-  // useEffect(() => {
-  //   console.log('Setting up Echo listener...');
-  //   // Subscribe to the notifications channel
-  //   const channel = echo.channel('notifications');
-  //   // Listen for the notify-user event
-  //   channel.listen('.notify.user', (data) => {
-  //     console.log('Received notification:', data);
-  //     toast.success(data.message || 'New notification received!');
-  //   });
-  //   // Optional: Listen for successful subscription
-  //   channel.subscribed(() => {
-  //     console.log('Successfully subscribed to notifications channel');
-  //   });
-  //   // Optional: Listen for subscription errors
-  //   channel.error((error) => {
-  //     console.error('Channel subscription error:', error);
-  //   });
-  //   return () => {
-  //     console.log('Cleaning up Echo listener...');
-  //     channel.stopListening('.notify.user');
-  //     echo.leaveChannel('notifications');
-  //   };
-  // }, []);
+  }, []);
+
+  useEffect(() => {
+    console.log('Setting up Echo listener...');
+
+    const channel = echo.channel('notifications');
+
+    // Listen for the notify-user event
+    channel.listen('.notify.user', (data) => {
+      console.log('Received notification:', data);
+      console.log('User role:', user.role_id);
+      console.log('Target roles:', data.target_roles);
+
+      // Check if current user's role is in the target roles
+      if (data.target_roles && data.target_roles.includes(user.role_id)) {
+        toast.success(data.message || 'New notification received!');
+        fetchUnreadCount();
+        console.log('Notification displayed for user role:', user.role_id);
+      } else {
+        console.log('Notification filtered out for user role:', user.role_id);
+      }
+    });
+
+    // Optional: Listen for successful subscription
+    channel.subscribed(() => {
+      console.log('Successfully subscribed to notifications channel');
+    });
+
+    // Optional: Listen for subscription errors
+    channel.error((error) => {
+      console.error('Channel subscription error:', error);
+    });
+
+    return () => {
+      console.log('Cleaning up Echo listener...');
+      channel.stopListening('.notify.user');
+      echo.leaveChannel('notifications');
+    };
+  }, [user]);
 
   const permissions = {
     dashboard: [1, 2, 3],

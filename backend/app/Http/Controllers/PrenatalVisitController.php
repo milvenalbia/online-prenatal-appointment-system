@@ -146,7 +146,11 @@ class PrenatalVisitController extends Controller
 
             $appointment = Appointment::where('pregnancy_tracking_id', $pregnancy_tracking->id)
                 ->where('status', 'scheduled')
-                ->update(['status' => 'completed']);
+                ->first();
+
+            if ($appointment->status === 'scheduled') {
+                $appointment->update(['status' => 'completed']);
+            }
 
             ActivityLogs::create([
                 'user_id' => Auth::id(),

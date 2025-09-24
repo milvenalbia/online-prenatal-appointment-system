@@ -72,9 +72,13 @@ export const pregnancy_tracking_columns = [
           colorClass = 'bg-purple-100 text-purple-800';
           status = '3rd Trimester';
           break;
-        case 'fourth_trimester':
-          colorClass = 'bg-pink-100 text-pink-800';
-          status = '4th Trimester';
+        case 'accepted':
+          status = 'Accepted';
+          colorClass = 'bg-green-100 text-green-800';
+          break;
+        case 'pending':
+          status = 'Pending';
+          colorClass = 'bg-yellow-100 text-yellow-800';
           break;
         default:
           colorClass = 'bg-gray-200 text-gray-800';
@@ -1139,7 +1143,7 @@ export const appointment_columns = [
         case 'scheduled':
           colorClass = 'bg-blue-100 text-blue-800';
           break;
-        case 'cancelled':
+        case 'missed':
           colorClass = 'bg-red-100 text-red-800';
           break;
         default:

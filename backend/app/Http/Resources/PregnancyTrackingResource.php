@@ -14,6 +14,11 @@ class PregnancyTrackingResource extends JsonResource
      */
     public function toArray($request)
     {
+        $user = $request->user();
+
+        // Check if patient has an appointment
+        $hasAppointment = $this->appointments()->exists();
+
         return [
             'id' => $this->id,
             'patient_id' => $this->patient_id,
@@ -56,7 +61,9 @@ class PregnancyTrackingResource extends JsonResource
             'abortion' => $this->abortion,
             'lmp' => $this->lmp,
             'edc' => $this->edc,
-            'pregnancy_status' => $this->pregnancy_status,
+            'pregnancy_status' => $user && $user->id === 2
+                ? ($hasAppointment ? 'accepted' : 'pending')
+                : $this->pregnancy_status,
             'bemoc' => $this->bemoc,
             'bemoc_address' => $this->bemoc_address,
             'cemoc' => $this->cemoc,

@@ -49,6 +49,7 @@ class SendAppointmentReminders extends Command
         $failedCount = 0;
         $successfulPatients = [];
         $failedPatients = [];
+        $processedAppointmentIds = [];
 
         foreach ($appointments as $appointment) {
             try {
@@ -67,10 +68,12 @@ class SendAppointmentReminders extends Command
 
                 $successCount++;
                 $successfulPatients[] = $patientName;
+                $processedAppointmentIds[] = $appointment->id;
             } catch (\Exception $e) {
                 $appointment->update(['sms_status' => 'not_sent']);
                 $failedCount++;
                 $failedPatients[] = $appointment->pregnancy_tracking?->fullname ?? 'Unknown Patient';
+                $processedAppointmentIds[] = $appointment->id;
             }
         }
 
@@ -87,36 +90,51 @@ class SendAppointmentReminders extends Command
 
         $notifMessage = "Reminders successfully sent {$successCount} out of {$appointments->count()} appointment(s).";
 
-        event(new UserNotified($notifMessage));
+        if (User::whereIn('role_id', [1, 3])->exists()) {
+            event(new UserNotified($notifMessage));
+        }
 
         $systemUserId = User::where('email', 'system@gmail.com')->value('id');
 
+        // SOLUTION 1: Use the first appointment ID as the loggable_id
+        // This represents the batch operation with one of the processed appointments
+        $firstAppointmentId = $processedAppointmentIds[0] ?? $appointments->first()->id;
+
         ActivityLogs::create([
             'user_id' => $systemUserId,
-            'action' => 'sms',
+            'action' => 'sms_batch',
             'title' => 'Automated Appointment Reminders',
             'info' => [
-                'success_count' => $successCount,
-                'failed_count' => $failedCount,
-                'message' => $message,
-                'date' => $tomorrow,
+                'new' => [
+                    'success_count' => $successCount,
+                    'failed_count' => $failedCount,
+                    'message' => $message,
+                    'date' => $tomorrow,
+                    'processed_appointment_ids' => $processedAppointmentIds, // Store all IDs in info
+                    'batch_operation' => true,
+                ]
             ],
             'loggable_type' => Appointment::class,
-            'loggable_id' => null,
+            'loggable_id' => $firstAppointmentId,
             'ip_address' => 'system',
             'user_agent' => 'scheduler',
         ]);
 
-        // Notify all users in your system
+        // Bulk create notifications without looping - SOLUTION 2
         $users = User::select('id')->where('role_id', '!=', 2)->get();
 
-        foreach ($users as $user) {
-            Notification::create([
+        $notificationData = $users->map(function ($user) use ($message) {
+            return [
                 'user_id' => $user->id,
-                'title'   => 'Appointment Reminders',
+                'title' => 'Appointment Reminders',
                 'message' => $message,
-            ]);
-        }
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        })->toArray();
+
+        // Bulk insert notifications
+        Notification::insert($notificationData);
 
         $this->info($notifMessage);
     }

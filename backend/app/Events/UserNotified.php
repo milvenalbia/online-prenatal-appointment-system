@@ -14,29 +14,31 @@ class UserNotified implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public string $message;
+    public $message;
+    public $targetRoles;
 
-    /**
-     * Create a new event instance.
-     */
-    public function __construct(string $message)
+    public function __construct($message, $targetRoles = [1, 3])
     {
         $this->message = $message;
+        $this->targetRoles = $targetRoles;
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
     public function broadcastOn()
     {
-        return ['notifications'];
+        return new Channel('notifications');
     }
 
-    // 👇 This makes the frontend see ".notify.user"
     public function broadcastAs()
     {
         return 'notify.user';
+    }
+
+    public function broadcastWith()
+    {
+        return [
+            'message' => $this->message,
+            'target_roles' => $this->targetRoles,
+            'timestamp' => now()->toISOString(),
+        ];
     }
 }

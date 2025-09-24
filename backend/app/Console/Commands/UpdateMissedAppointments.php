@@ -9,6 +9,7 @@ use App\Models\Notification;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateMissedAppointments extends Command
 {
@@ -24,62 +25,90 @@ class UpdateMissedAppointments extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Update appointments scheduled for today as missed if they are still scheduled';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
+        $today = Carbon::today();
+        $appointment_count = Appointment::whereDate('appointment_date', $today)->count();
 
-        $appointment_count = Appointment::whereDate('appointment_date', Carbon::today())->count();
-
-        $appointments = Appointment::where('status', 'scheduled')
-            ->whereDate('appointment_date', Carbon::today())
+        $appointments = Appointment::with(['pregnancy_tracking'])
+            ->where('status', 'scheduled')
+            ->whereDate('appointment_date', $today)
             ->get();
+
+        if ($appointments->isEmpty()) {
+            $this->info("No scheduled appointments found for today ({$today->toDateString()}) to mark as missed.");
+            return;
+        }
 
         $successCount = $appointments->count();
         $successfulPatients = $appointments->pluck('pregnancy_tracking.fullname')->filter()->toArray();
+        $appointmentIds = $appointments->pluck('id')->toArray();
 
-        // Bulk update
-        Appointment::whereIn('id', $appointments->pluck('id'))
-            ->update(['status' => 'missed']);
+        // Bulk update all appointments to missed status
+        Appointment::whereIn('id', $appointmentIds)
+            ->update([
+                'status' => 'missed',
+                'updated_at' => now()
+            ]);
 
-        $message = "Out of {$appointment_count} scheduled appointments today, {$successCount} were missed.";
+        $message = "Out of {$appointment_count} scheduled appointments today, {$successCount} were marked as missed.";
 
         if ($successCount > 0) {
             $message .= "\n\nMissed Patients:\n• " . implode("\n• ", $successfulPatients);
         }
 
-        $notifMessage = "Out of {$appointment_count} scheduled appointments today, {$successCount} were missed.";
+        $notifMessage = "Out of {$appointment_count} scheduled appointments today, {$successCount} were marked as missed.";
 
-        event(new UserNotified($notifMessage));
+        // Trigger user notification event
+        if (User::whereIn('role_id', [1, 3])->exists()) {
+            event(new UserNotified($notifMessage));
+        }
 
         $systemUserId = User::where('email', 'system@gmail.com')->value('id');
 
+        // Create a single batch activity log instead of individual logs
         ActivityLogs::create([
             'user_id' => $systemUserId,
-            'action' => 'scheduler',
-            'title' => 'Automated Missed Appointment Update',
+            'action' => 'scheduler_batch',
+            'title' => 'Automated Missed Appointments Update',
             'info' => [
-                'success_count' => $successCount,
-                'message' => $message,
-                'date' => Carbon::today(),
+                'new' => [
+                    'success_count' => $successCount,
+                    'total_appointments_today' => $appointment_count,
+                    'message' => $message,
+                    'date' => $today->toDateString(),
+                    'processed_appointment_ids' => $appointmentIds,
+                    'missed_patients' => $successfulPatients,
+                    'batch_operation' => true,
+                ]
             ],
             'loggable_type' => Appointment::class,
-            'loggable_id' => null,
+            'loggable_id' => $appointmentIds[0], // Use first appointment ID for the batch
             'ip_address' => 'system',
             'user_agent' => 'scheduler',
         ]);
 
+        // Bulk create notifications instead of looping
         $users = User::select('id')->where('role_id', '!=', 2)->get();
 
-        foreach ($users as $user) {
-            Notification::create([
+        $notificationData = $users->map(function ($user) use ($message) {
+            return [
                 'user_id' => $user->id,
-                'title'   => 'Missed Appointment Reminders',
+                'title' => 'Missed Appointment Updates',
                 'message' => $message,
-            ]);
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        })->toArray();
+
+        // Bulk insert all notifications at once
+        if (!empty($notificationData)) {
+            Notification::insert($notificationData);
         }
 
         $this->info($notifMessage);
