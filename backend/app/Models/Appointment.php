@@ -22,7 +22,7 @@ class Appointment extends Model
         'booking_timestamp',
         'sms_status',
         'priority_score',
-        'pregnancy-status',
+        'pregnancy_status',
     ];
 
     protected $casts = [

@@ -1,8 +1,16 @@
 import { Phone, User } from 'lucide-react';
 import InputGroup from '../../ui/InputGroup';
 import PhoneNumberField from '../../ui/PhoneNumberField';
+import SelectGroup from '../../ui/SelectGroup';
 
 const ContactPersonInfo = ({ formData, inputChange, error }) => {
+  const relationship_options = [
+    { name: 'Father', value: 'father' },
+    { name: 'Mother', value: 'mother' },
+    { name: 'Sibling', value: 'sibling' },
+    { name: 'Gurdian', value: 'gurdian' },
+  ];
+
   return (
     <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
       <div className='w-full'>
@@ -38,11 +46,11 @@ const ContactPersonInfo = ({ formData, inputChange, error }) => {
         )}
       </div>
       <div className='w-full'>
-        <InputGroup
-          type='text'
+        <SelectGroup
           name='contact_person_relationship'
           value={formData.contact_person_relationship}
           onChange={inputChange}
+          options={relationship_options}
           placeholder='Relationship'
           icon={<User className='h-5 w-5 text-gray-400' />}
           id='contact_person_relationship'

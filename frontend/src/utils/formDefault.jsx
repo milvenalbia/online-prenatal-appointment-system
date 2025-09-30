@@ -26,7 +26,7 @@ export const pregnancyFormData = {
   patient_id: '',
   patient_type: '',
   province: 57,
-  region: 10,
+  region: 13,
   religion: 'Roman Catholic',
   referral_unit: 'St. Paul Hospital',
   sex: 'female',
@@ -45,7 +45,6 @@ export const pregnancyFormData = {
   outcome_weight: '',
   place_of_delivery: '',
   attended_by: '',
-  phic: '',
   risk_codes: [{ risk_code: '', date_detected: '', risk_status: '' }],
 };
 
@@ -96,7 +95,6 @@ export const pregnancyEditFormData = (data = {}) => ({
   outcome_weight: '',
   place_of_delivery: '',
   attended_by: '',
-  phic: '',
   risk_codes: [{ risk_code: '', date_detected: '', risk_status: '' }],
   ...data,
 });

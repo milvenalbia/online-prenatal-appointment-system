@@ -8,6 +8,7 @@ use App\Models\ActivityLogs;
 use App\Models\Appointment;
 use App\Models\OutPatient;
 use App\Models\PregnancyTracking;
+use App\Models\PrenatalVisit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -146,24 +147,31 @@ class OutPatientController extends Controller
             ]);
 
             $appointment = Appointment::where('pregnancy_tracking_id', $pregnancy_tracking->id)
+                ->whereDate('appointment_date', Carbon::today())
                 ->first();
 
-            if ($appointment->status === 'scheduled') {
-                $appointment->update(['status' => 'completed']);
-            }
+            if ($appointment) {
+                $has_prenatal_visit_today = PrenatalVisit::where('pregnancy_tracking_id', $pregnancy_tracking->id)
+                    ->whereDate('created_at', $appointment->appointment_date)
+                    ->exists();
 
-            ActivityLogs::create([
-                'user_id' => Auth::id(),
-                'action' => 'update',
-                'title' => 'Appointment Status Updated',
-                'info' => [
-                    'new' => $appointment->only(['pregnancy_tracking_id', 'status'])
-                ],
-                'loggable_type' => Appointment::class,
-                'loggable_id' => $appointment->id,
-                'ip_address' => $request->ip() ?? null,
-                'user_agent' => $request->header('User-Agent') ?? null,
-            ]);
+                if ($appointment->status === 'scheduled' && $has_prenatal_visit_today) {
+                    $appointment->update(['status' => 'completed']);
+
+                    ActivityLogs::create([
+                        'user_id' => Auth::id(),
+                        'action' => 'update',
+                        'title' => 'Appointment Status Updated',
+                        'info' => [
+                            'new' => $appointment->only(['pregnancy_tracking_id', 'status'])
+                        ],
+                        'loggable_type' => Appointment::class,
+                        'loggable_id' => $appointment->id,
+                        'ip_address' => $request->ip() ?? null,
+                        'user_agent' => $request->header('User-Agent') ?? null,
+                    ]);
+                }
+            }
         });
 
 
@@ -243,6 +251,10 @@ class OutPatientController extends Controller
                 ->where('isDone', false)
                 ->first();
 
+            if (!$pregnancy_tracking) {
+                throw new \Exception('No active pregnancy tracking found.');
+            }
+
             $oldData = $outPatient->only(array_keys($fields));
 
             $outPatient->update(array_merge($fields, [
@@ -269,49 +281,60 @@ class OutPatientController extends Controller
             ]);
 
             $old_appointment = Appointment::where('pregnancy_tracking_id', $old_pregnancy_tracking_id)
-                ->where('status', 'completed');
+                ->whereDate('appointment_date', Carbon::today())
+                ->first();
 
             $new_appointment = Appointment::where('pregnancy_tracking_id', $pregnancy_tracking->id)
-                ->where('status', 'scheduled');
+                ->whereDate('appointment_date', Carbon::today())
+                ->first();
+
+            $has_prenatal_visit_today = PrenatalVisit::where('pregnancy_tracking_id', $pregnancy_tracking->id)
+                ->whereDate('created_at', Carbon::today())
+                ->exists();
 
             if ($old_pregnancy_tracking_id !== $pregnancy_tracking->id) {
 
                 //update old appointment
-
-                $old_appointment->update(['status' => 'scheduled']);
+                if ($old_appointment && $old_appointment->status === 'completed') {
+                    $old_appointment->update(['status' => 'scheduled']);
+                }
 
                 //update new appointment
 
-                $new_appointment->update(['status' => 'completed']);
+                if ($new_appointment && $has_prenatal_visit_today) {
+                    $new_appointment->update(['status' => 'completed']);
 
-                ActivityLogs::create([
-                    'user_id' => Auth::id(),
-                    'action' => 'update',
-                    'title' => 'Appointment Status Updated',
-                    'info' => [
-                        'old' => $old_appointment->only(['pregnancy_tracking_id', 'status']),
-                        'new' => $new_appointment->only(['pregnancy_tracking_id', 'status'])
-                    ],
-                    'loggable_type' => Appointment::class,
-                    'loggable_id' => $new_appointment->id,
-                    'ip_address' => $request->ip() ?? null,
-                    'user_agent' => $request->header('User-Agent') ?? null,
-                ]);
+                    ActivityLogs::create([
+                        'user_id' => Auth::id(),
+                        'action' => 'update',
+                        'title' => 'Appointment Status Updated',
+                        'info' => [
+                            'old' => $old_appointment->only(['pregnancy_tracking_id', 'status']),
+                            'new' => $new_appointment->only(['pregnancy_tracking_id', 'status'])
+                        ],
+                        'loggable_type' => Appointment::class,
+                        'loggable_id' => $new_appointment->id,
+                        'ip_address' => $request->ip() ?? null,
+                        'user_agent' => $request->header('User-Agent') ?? null,
+                    ]);
+                }
             } else {
-                $new_appointment->update(['status' => 'completed']);
+                if ($new_appointment && $has_prenatal_visit_today) {
+                    $new_appointment->update(['status' => 'completed']);
 
-                ActivityLogs::create([
-                    'user_id' => Auth::id(),
-                    'action' => 'update',
-                    'title' => 'Appointment Status Updated',
-                    'info' => [
-                        'new' => $new_appointment->only(['pregnancy_tracking_id', 'status'])
-                    ],
-                    'loggable_type' => Appointment::class,
-                    'loggable_id' => $new_appointment->id,
-                    'ip_address' => $request->ip() ?? null,
-                    'user_agent' => $request->header('User-Agent') ?? null,
-                ]);
+                    ActivityLogs::create([
+                        'user_id' => Auth::id(),
+                        'action' => 'update',
+                        'title' => 'Appointment Status Updated',
+                        'info' => [
+                            'new' => $new_appointment->only(['pregnancy_tracking_id', 'status'])
+                        ],
+                        'loggable_type' => Appointment::class,
+                        'loggable_id' => $new_appointment->id,
+                        'ip_address' => $request->ip() ?? null,
+                        'user_agent' => $request->header('User-Agent') ?? null,
+                    ]);
+                }
             }
         });
 

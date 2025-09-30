@@ -200,219 +200,219 @@ class ImmunizationRequest extends FormRequest
     /**
      * Configure the validator instance
      */
-    // public function withValidator($validator)
-    // {
-    //     $validator->after(function ($validator) {
-    //         $this->validateAtLeastOneVaccine($validator);
-    //         $this->validateVaccinationSequence($validator);
-    //     });
-    // }
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $this->validateAtLeastOneVaccine($validator);
+            $this->validateVaccinationSequence($validator);
+        });
+    }
 
-    // /**
-    //  * Validate that at least one vaccine type has data
-    //  */
-    // protected function validateAtLeastOneVaccine($validator)
-    // {
-    //     $hasTetanus = $this->hasTetanusData();
-    //     $hasCovid = $this->hasCovidData();
-    //     $hasOther = $this->hasOtherVaccineData();
+    /**
+     * Validate that at least one vaccine type has data
+     */
+    protected function validateAtLeastOneVaccine($validator)
+    {
+        $hasTetanus = $this->hasTetanusData();
+        $hasCovid = $this->hasCovidData();
+        $hasOther = $this->hasOtherVaccineData();
 
-    //     if (!$hasTetanus && !$hasCovid && !$hasOther) {
-    //         $validator->errors()->add('vaccine', 'At least one vaccine type must be provided.');
-    //     }
-    // }
+        if (!$hasTetanus && !$hasCovid && !$hasOther) {
+            $validator->errors()->add('vaccine', 'At least one vaccine type must be provided.');
+        }
+    }
 
-    // /**
-    //  * Validate vaccination sequence logic
-    //  */
-    // protected function validateVaccinationSequence($validator)
-    // {
-    //     // Validate tetanus sequence
-    //     $this->validateTetanusSequence($validator);
+    /**
+     * Validate vaccination sequence logic
+     */
+    protected function validateVaccinationSequence($validator)
+    {
+        // Validate tetanus sequence
+        $this->validateTetanusSequence($validator);
 
-    //     // Validate COVID sequence
-    //     $this->validateCovidSequence($validator);
+        // Validate COVID sequence
+        $this->validateCovidSequence($validator);
 
-    //     // Validate other vaccine sequence
-    //     $this->validateOtherVaccineSequence($validator);
-    // }
+        // Validate other vaccine sequence
+        $this->validateOtherVaccineSequence($validator);
+    }
 
-    // /**
-    //  * Validate tetanus vaccination sequence
-    //  */
-    // protected function validateTetanusSequence($validator)
-    // {
-    //     $doses = [
-    //         'tetanus_first_given',
-    //         'tetanus_second_given',
-    //         'tetanus_third_given',
-    //         'tetanus_fourth_given',
-    //         'tetanus_fifth_given'
-    //     ];
+    /**
+     * Validate tetanus vaccination sequence
+     */
+    protected function validateTetanusSequence($validator)
+    {
+        $doses = [
+            'tetanus_first_given',
+            'tetanus_second_given',
+            'tetanus_third_given',
+            'tetanus_fourth_given',
+            'tetanus_fifth_given'
+        ];
 
-    //     // Check that doses are given in sequence (no skipping)
-    //     $lastGivenIndex = -1;
-    //     foreach ($doses as $index => $dose) {
-    //         if ($this->filled($dose)) {
-    //             if ($index > $lastGivenIndex + 1) {
-    //                 $previousDose = $doses[$index - 1];
-    //                 $validator->errors()->add($dose, "You must provide {$previousDose} before {$dose}.");
-    //             }
-    //             $lastGivenIndex = $index;
-    //         }
-    //     }
+        // Check that doses are given in sequence (no skipping)
+        $lastGivenIndex = -1;
+        foreach ($doses as $index => $dose) {
+            if ($this->filled($dose)) {
+                if ($index > $lastGivenIndex + 1) {
+                    $previousDose = $doses[$index - 1];
+                    $validator->errors()->add($dose, "You must provide {$previousDose} before {$dose}.");
+                }
+                $lastGivenIndex = $index;
+            }
+        }
 
-    //     // Validate minimum intervals between doses (example: 4 weeks)
-    //     $this->validateDoseInterval($validator, 'tetanus_first_given', 'tetanus_second_given', 30);
-    //     $this->validateDoseInterval($validator, 'tetanus_second_given', 'tetanus_third_given', 30);
-    // }
+        // Validate minimum intervals between doses (example: 4 weeks)
+        $this->validateDoseInterval($validator, 'tetanus_first_given', 'tetanus_second_given', 30);
+        $this->validateDoseInterval($validator, 'tetanus_second_given', 'tetanus_third_given', 30);
+    }
 
-    // /**
-    //  * Validate COVID vaccination sequence
-    //  */
-    // protected function validateCovidSequence($validator)
-    // {
-    //     // COVID second dose should be at least 3 weeks after first dose
-    //     $this->validateDoseInterval($validator, 'covid_first_given', 'covid_second_given', 21);
+    /**
+     * Validate COVID vaccination sequence
+     */
+    protected function validateCovidSequence($validator)
+    {
+        // COVID second dose should be at least 3 weeks after first dose
+        $this->validateDoseInterval($validator, 'covid_first_given', 'covid_second_given', 21);
 
-    //     // Booster should be at least 5 months after second dose
-    //     $this->validateDoseInterval($validator, 'covid_second_given', 'covid_booster_given', 150);
+        // Booster should be at least 5 months after second dose
+        $this->validateDoseInterval($validator, 'covid_second_given', 'covid_booster_given', 150);
 
-    //     // Cannot have second dose without first dose
-    //     if ($this->filled('covid_second_given') && !$this->filled('covid_first_given')) {
-    //         $validator->errors()->add('covid_second_given', 'First COVID dose must be provided before second dose.');
-    //     }
+        // Cannot have second dose without first dose
+        if ($this->filled('covid_second_given') && !$this->filled('covid_first_given')) {
+            $validator->errors()->add('covid_second_given', 'First COVID dose must be provided before second dose.');
+        }
 
-    //     // Cannot have booster without second dose
-    //     if ($this->filled('covid_booster_given') && !$this->filled('covid_second_given')) {
-    //         $validator->errors()->add('covid_booster_given', 'Second COVID dose must be provided before booster.');
-    //     }
-    // }
+        // Cannot have booster without second dose
+        if ($this->filled('covid_booster_given') && !$this->filled('covid_second_given')) {
+            $validator->errors()->add('covid_booster_given', 'Second COVID dose must be provided before booster.');
+        }
+    }
 
-    // /**
-    //  * Validate other vaccine sequence
-    //  */
-    // protected function validateOtherVaccineSequence($validator)
-    // {
-    //     if (!$this->filled('other_vaccine_name')) {
-    //         return; // No other vaccine data to validate
-    //     }
+    /**
+     * Validate other vaccine sequence
+     */
+    protected function validateOtherVaccineSequence($validator)
+    {
+        if (!$this->filled('other_vaccine_name')) {
+            return; // No other vaccine data to validate
+        }
 
-    //     $doses = [
-    //         'other_first_given',
-    //         'other_second_given',
-    //         'other_third_given',
-    //         'other_fourth_given',
-    //         'other_fifth_given'
-    //     ];
+        $doses = [
+            'other_first_given',
+            'other_second_given',
+            'other_third_given',
+            'other_fourth_given',
+            'other_fifth_given'
+        ];
 
-    //     // Must have at least first dose if vaccine name is provided
-    //     if (!$this->filled('other_first_given')) {
-    //         $validator->errors()->add('other_first_given', 'First dose date is required when vaccine name is provided.');
-    //     }
+        // Must have at least first dose if vaccine name is provided
+        if (!$this->filled('other_first_given')) {
+            $validator->errors()->add('other_first_given', 'First dose date is required when vaccine name is provided.');
+        }
 
-    //     // Check sequence
-    //     $lastGivenIndex = -1;
-    //     foreach ($doses as $index => $dose) {
-    //         if ($this->filled($dose)) {
-    //             if ($index > $lastGivenIndex + 1) {
-    //                 $previousDose = $doses[$index - 1];
-    //                 $validator->errors()->add($dose, "You must provide {$previousDose} before {$dose}.");
-    //             }
-    //             $lastGivenIndex = $index;
-    //         }
-    //     }
-    // }
+        // Check sequence
+        $lastGivenIndex = -1;
+        foreach ($doses as $index => $dose) {
+            if ($this->filled($dose)) {
+                if ($index > $lastGivenIndex + 1) {
+                    $previousDose = $doses[$index - 1];
+                    $validator->errors()->add($dose, "You must provide {$previousDose} before {$dose}.");
+                }
+                $lastGivenIndex = $index;
+            }
+        }
+    }
 
-    // /**
-    //  * Validate minimum interval between doses
-    //  */
-    // protected function validateDoseInterval($validator, $firstDose, $secondDose, $minDays)
-    // {
-    //     if ($this->filled($firstDose) && $this->filled($secondDose)) {
-    //         $firstDate = \Carbon\Carbon::parse($this->input($firstDose));
-    //         $secondDate = \Carbon\Carbon::parse($this->input($secondDose));
+    /**
+     * Validate minimum interval between doses
+     */
+    protected function validateDoseInterval($validator, $firstDose, $secondDose, $minDays)
+    {
+        if ($this->filled($firstDose) && $this->filled($secondDose)) {
+            $firstDate = \Carbon\Carbon::parse($this->input($firstDose));
+            $secondDate = \Carbon\Carbon::parse($this->input($secondDose));
 
-    //         if ($secondDate->diffInDays($firstDate) < $minDays) {
-    //             $validator->errors()->add(
-    //                 $secondDose,
-    //                 "There must be at least {$minDays} days between {$firstDose} and {$secondDose}."
-    //             );
-    //         }
-    //     }
-    // }
+            if ($secondDate->diffInDays($firstDate) < $minDays) {
+                $validator->errors()->add(
+                    $secondDose,
+                    "There must be at least {$minDays} days between {$firstDose} and {$secondDose}."
+                );
+            }
+        }
+    }
 
-    // /**
-    //  * Check if tetanus vaccine data exists
-    //  */
-    // protected function hasTetanusData(): bool
-    // {
-    //     $tetanusFields = [
-    //         'tetanus_first_given',
-    //         'tetanus_second_given',
-    //         'tetanus_third_given',
-    //         'tetanus_fourth_given',
-    //         'tetanus_fifth_given'
-    //     ];
+    /**
+     * Check if tetanus vaccine data exists
+     */
+    protected function hasTetanusData(): bool
+    {
+        $tetanusFields = [
+            'tetanus_first_given',
+            'tetanus_second_given',
+            'tetanus_third_given',
+            'tetanus_fourth_given',
+            'tetanus_fifth_given'
+        ];
 
-    //     return collect($tetanusFields)->some(fn($field) => $this->filled($field));
-    // }
+        return collect($tetanusFields)->some(fn($field) => $this->filled($field));
+    }
 
-    // /**
-    //  * Check if COVID vaccine data exists
-    //  */
-    // protected function hasCovidData(): bool
-    // {
-    //     $covidFields = [
-    //         'covid_first_given',
-    //         'covid_second_given',
-    //         'covid_booster_given'
-    //     ];
+    /**
+     * Check if COVID vaccine data exists
+     */
+    protected function hasCovidData(): bool
+    {
+        $covidFields = [
+            'covid_first_given',
+            'covid_second_given',
+            'covid_booster_given'
+        ];
 
-    //     return collect($covidFields)->some(fn($field) => $this->filled($field));
-    // }
+        return collect($covidFields)->some(fn($field) => $this->filled($field));
+    }
 
-    // /**
-    //  * Check if other vaccine data exists
-    //  */
-    // protected function hasOtherVaccineData(): bool
-    // {
-    //     return $this->filled('other_vaccine_name') || $this->filled('other_first_given');
-    // }
+    /**
+     * Check if other vaccine data exists
+     */
+    protected function hasOtherVaccineData(): bool
+    {
+        return $this->filled('other_vaccine_name') || $this->filled('other_first_given');
+    }
 
-    // /**
-    //  * Get validated data organized by vaccine type
-    //  */
-    // public function getVaccineData(): array
-    // {
-    //     $validated = $this->validated();
+    /**
+     * Get validated data organized by vaccine type
+     */
+    public function getVaccineData(): array
+    {
+        $validated = $this->validated();
 
-    //     return [
-    //         'pregnancy_tracking_id' => $validated['pregnancy_tracking_id'],
-    //         'tetanus' => $this->extractVaccineData($validated, 'tetanus'),
-    //         'covid' => $this->extractVaccineData($validated, 'covid'),
-    //         'other' => $this->extractVaccineData($validated, 'other'),
-    //     ];
-    // }
+        return [
+            'pregnancy_tracking_id' => $validated['pregnancy_tracking_id'],
+            'tetanus' => $this->extractVaccineData($validated, 'tetanus'),
+            'covid' => $this->extractVaccineData($validated, 'covid'),
+            'other' => $this->extractVaccineData($validated, 'other'),
+        ];
+    }
 
-    // /**
-    //  * Extract vaccine-specific data from validated input
-    //  */
-    // protected function extractVaccineData(array $validated, string $type): array
-    // {
-    //     $data = [];
-    //     $prefix = $type . '_';
+    /**
+     * Extract vaccine-specific data from validated input
+     */
+    protected function extractVaccineData(array $validated, string $type): array
+    {
+        $data = [];
+        $prefix = $type . '_';
 
-    //     foreach ($validated as $key => $value) {
-    //         if (str_starts_with($key, $prefix) && !is_null($value)) {
-    //             // Remove prefix and convert to snake_case for database
-    //             $cleanKey = str_replace($prefix, '', $key);
-    //             $data[$cleanKey] = $value;
-    //         }
-    //     }
+        foreach ($validated as $key => $value) {
+            if (str_starts_with($key, $prefix) && !is_null($value)) {
+                // Remove prefix and convert to snake_case for database
+                $cleanKey = str_replace($prefix, '', $key);
+                $data[$cleanKey] = $value;
+            }
+        }
 
-    //     return $data;
-    // }
+        return $data;
+    }
 
     /**
      * Custom attributes for validation messages

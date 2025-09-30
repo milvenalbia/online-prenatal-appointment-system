@@ -134,7 +134,7 @@ const UserRecords = () => {
                     required
                     value={formData.name}
                     onChange={inputChange}
-                    placeholder='Fullname'
+                    placeholder='Name'
                     icon={<User className='h-5 w-5 text-gray-400' />}
                     id={'name'}
                     hasLabel
