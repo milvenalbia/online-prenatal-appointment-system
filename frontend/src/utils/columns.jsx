@@ -1097,7 +1097,13 @@ export const appointment_columns = [
     title: 'Date',
     sortable: false,
     width: 'w-[10%]',
-    render: (value) => new Date(value).toLocaleDateString(),
+    render: (value) => {
+      return new Date(value).toLocaleDateString('en-US', {
+        month: 'short', // "Oct"
+        day: '2-digit', // "01"
+        year: 'numeric', // "2025"
+      });
+    },
   },
 
   {

@@ -18,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class AppointmentController extends Controller
 {
@@ -190,12 +191,22 @@ class AppointmentController extends Controller
 
     public function update(Request $request, $id)
     {
+
+        $appointment_model = Appointment::findOrFail($id);
+
         $request->validate([
             'pregnancy_tracking_id' => 'required|exists:pregnancy_trackings,id',
-            'appointment_date' => 'required|date|after_or_equal:today',
+            'appointment_date' => [
+                'required',
+                'date',
+                Rule::when(
+                    $request->appointment_date != $appointment_model->appointment_date,
+                    ['after_or_equal:today']
+                ),
+            ],
             'priority' => 'required|in:high,medium,low',
             'visit_count' => 'integer|min:1',
-            'notes' => 'nullable|string|max:1000'
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         DB::transaction(function () use ($request, $id) {
@@ -218,8 +229,8 @@ class AppointmentController extends Controller
             $hasDateChanged = $oldDate !== $newDate;
             $hasPriorityChanged = $oldPriority !== $newPriority || $oldVisitCount !== $newVisitCount;
 
-            $changes = $appointment->getDirty();
-            $oldData = $appointment->getOriginal(array_keys($changes));
+            $oldData = $appointment->only(array_keys($request->all()));
+
             // Handle different update scenarios
             if ($hasDateChanged) {
                 // Date is changing - check if target date is full
@@ -240,14 +251,18 @@ class AppointmentController extends Controller
                 $appointment->update($request->only(['pregnancy_tracking_id', 'notes']));
             }
 
+            $changes = $appointment->getChanges();
+
             $appointment = $appointment->fresh();
+
+            $oldDataFiltered = array_intersect_key($oldData, $changes);
 
             ActivityLogs::create([
                 'user_id' => Auth::id(),
                 'action' => 'update',
                 'title' => 'Appointment Updated',
                 'info' => [
-                    'old' => $oldData,
+                    'old' => $oldDataFiltered,
                     'new' => $changes,
                 ],
                 'loggable_type' => Appointment::class,

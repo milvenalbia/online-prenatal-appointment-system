@@ -1,5 +1,4 @@
 import Container from '../../components/ui/Container';
-import ProgressBar from '../../components/forms/appointment/ProgressBar';
 import Legend from '../../components/forms/appointment/Legend';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import AppointmentForm from '../../components/forms/appointment/AppointmentForm';

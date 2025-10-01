@@ -131,7 +131,10 @@ const AppointmentForm = ({ row = null, type = null }) => {
 
   return (
     <>
-      <ProgressBar steps={steps} currentStep={currentStep} />
+      <div className='sticky top-26 z-10 -mx-4 px-4 sm:mx-0 sm:px-0'>
+        <ProgressBar steps={steps} currentStep={currentStep} />
+      </div>
+
       <div className='bg-white rounded-xl shadow-lg border border-gray-200'>
         {/* Step 1: Date Selection with FullCalendar */}
         {currentStep === 1 && (

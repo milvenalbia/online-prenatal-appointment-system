@@ -243,7 +243,9 @@ const FormWizard = ({ row = null }) => {
 
   return (
     <div className='w-full mx-auto sm:p-4'>
-      <StepIndicator steps={steps} currentStep={currentStep} error={error} />
+      <div className='sticky top-26 z-10 bg-white py-0.5 border-b-1 rounded-lg border-gray-200 -mx-4 px-4 sm:mx-0 sm:px-0'>
+        <StepIndicator steps={steps} currentStep={currentStep} error={error} />
+      </div>
 
       <div className='bg-white border border-gray-200 rounded-lg p-6 mb-6'>
         {renderStepContent()}
