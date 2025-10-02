@@ -94,4 +94,5 @@ Route::middleware(['throttle:api', 'auth:sanctum'])->group(function () {
     Route::get('/filter/pregnancy-trakings/has-appointments', [SelectAddressController::class, 'pregnancy_trackings_has_appointments']);
     Route::get('/available-appointments', [AppointmentController::class, 'getAvailabilityByRange']);
     Route::get('/group-prenatal-visits/{id}', [PrenatalVisitController::class, 'getGroupPrenatalVisit']);
+    Route::get('/nurse-and-midwife-existence', [SelectAddressController::class, 'checkNurseMidwifeExistence']);
 });

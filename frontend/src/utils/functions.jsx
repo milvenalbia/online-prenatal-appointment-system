@@ -64,7 +64,9 @@ export function useFormSubmit() {
         if (status === 422 && data.errors) {
           setError(data.errors || data.message);
           if (showToastError) {
-            toast.error(`Please check the form for possible errors.`);
+            toast.error(
+              data.message || `Please check the form for possible errors.`
+            );
           }
         } else if (status === 429) {
           toast.error(`${data.message} Try again in a moment.`);

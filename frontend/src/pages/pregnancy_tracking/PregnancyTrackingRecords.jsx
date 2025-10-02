@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { pdf } from '@react-pdf/renderer';
 import Container from '../../components/ui/Container';
@@ -12,6 +12,7 @@ import InputGroup from '../../components/ui/InputGroup.jsx';
 import { Map, User, Weight } from 'lucide-react';
 import SelectGroup from '../../components/ui/SelectGroup.jsx';
 import FormModal from '../../components/ui/FormModal.jsx';
+import api from '../../api/axios.js';
 
 const PregnancyTrackingRecords = () => {
   const navigate = useNavigate();
@@ -130,6 +131,7 @@ const PregnancyTrackingRecords = () => {
         hasSortByCategory
         hasSortByStatus
         hasAdvanceFilter
+        checkExists
         pregnancyStatus={pregnancyStatus}
         ref={dataTableRef}
       />

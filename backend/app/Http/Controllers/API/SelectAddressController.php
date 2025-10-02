@@ -8,6 +8,7 @@ use App\Http\Resources\GetMidwivesAndBarangayWorkersResource;
 use App\Http\Resources\SelectBarangayWorkerResource;
 use App\Http\Resources\SelectMidWifeResource;
 use App\Http\Resources\SelectNurseResource;
+use App\Models\Appointment;
 use App\Models\Barangay;
 use App\Models\BarangayCenter;
 use App\Models\BarangayWorker;
@@ -18,7 +19,9 @@ use App\Models\PregnancyTracking;
 use App\Models\Province;
 use App\Models\Region;
 use App\Models\Role;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class SelectAddressController extends Controller
@@ -131,15 +134,26 @@ class SelectAddressController extends Controller
 
     public function pregnancy_trackings_has_appointments()
     {
-        $pregnancy_trackings = PregnancyTracking::select(['id', 'fullname'])
-            ->where('isDone', false)
-            ->whereHas('appointments')
+        // $pregnancy_trackings = PregnancyTracking::select(['id', 'fullname'])
+        //     ->where('isDone', false)
+        //     ->whereHas('appointments')
+        //     ->get();
+
+        // return $pregnancy_trackings->map(function ($tracking) {
+        //     return [
+        //         'id' => $tracking->id,
+        //         'fullname' => $tracking->fullname,
+        //     ];
+        // });
+
+        $appointment = Appointment::with('pregnancy_tracking')
+            ->whereDate('appointment_date', Carbon::today())
             ->get();
 
-        return $pregnancy_trackings->map(function ($tracking) {
+        return $appointment->map(function ($apt) {
             return [
-                'id' => $tracking->id,
-                'fullname' => $tracking->fullname,
+                'id' => $apt->pregnancy_tracking_id,
+                'fullname' => $apt->pregnancy_tracking->fullname,
             ];
         });
     }
@@ -207,5 +221,25 @@ class SelectAddressController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    public function checkNurseMidwifeExistence()
+    {
+
+        $user = Auth::user();
+
+        $has_nurse = Nurse::when(
+            $user && $user->role_id === 2,
+            fn($query) => $query->where('barangay_center_id', $user->barangay_center_id)
+        )->exists();
+
+        $has_midwife = Midwife::when(
+            $user && $user->role_id === 2,
+            fn($query) => $query->where('barangay_center_id', $user->barangay_center_id)
+        )->exists();
+
+        return [
+            'data' => $has_midwife && $has_nurse,
+        ];
     }
 }

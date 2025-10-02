@@ -50,6 +50,7 @@ const DataTable = forwardRef((props, ref) => {
     isAppointment = false,
     hasSortByAction = false,
     pregnancyStatus = '',
+    checkExists = false,
   } = props;
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -65,6 +66,8 @@ const DataTable = forwardRef((props, ref) => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [openAdvanceFilter, setOpenAdvanceFilter] = useState(false);
   const [range, setRange] = useState([]);
+  const [hasNurseAndMidwife, setHasNurseAndMidwife] = useState(false);
+  const [existenceLoading, setExistenceLoading] = useState(true);
   const [formData, setFormData] = useState({
     category: '',
     status: pregnancyStatus || '',
@@ -202,6 +205,29 @@ const DataTable = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({
     fetchData,
   }));
+
+  useEffect(() => {
+    if (!checkExists) return;
+
+    setExistenceLoading(true);
+
+    const fetchExistence = async () => {
+      try {
+        const res = await api.get('/api/nurse-and-midwife-existence');
+        const data = res.data;
+
+        if (data) {
+          setHasNurseAndMidwife(data.data);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setExistenceLoading(false); // stop loading
+      }
+    };
+
+    fetchExistence();
+  }, [checkExists]);
 
   const displayColumns = columns;
 
@@ -508,15 +534,32 @@ const DataTable = forwardRef((props, ref) => {
             </p>
           </div>
           <div className='flex items-center gap-2'>
-            {addButton && (
-              <button
-                onClick={handleAdd}
-                className='primary-btn px-4 py-2 text-sm text-white font-medium inline-flex items-center gap-2 rounded-md'
-              >
-                <PlusCircle size={22} />
-                <span>{addButton}</span>
-              </button>
-            )}
+            {addButton &&
+              (checkExists ? (
+                existenceLoading ? (
+                  <SmallLoading />
+                ) : hasNurseAndMidwife ? (
+                  <button
+                    onClick={handleAdd}
+                    className='primary-btn px-4 py-2 text-sm text-white font-medium inline-flex items-center gap-2 rounded-md'
+                  >
+                    <PlusCircle size={22} />
+                    <span>{addButton}</span>
+                  </button>
+                ) : (
+                  <p className='border border-yellow-200 bg-yellow-50 px-3 py-2 text-sm font-medium text-yellow-700 rounded-md'>
+                    Note: Need 1 nurse & 1 midwife to create pregnancy form.
+                  </p>
+                )
+              ) : (
+                <button
+                  onClick={handleAdd}
+                  className='primary-btn px-4 py-2 text-sm text-white font-medium inline-flex items-center gap-2 rounded-md'
+                >
+                  <PlusCircle size={22} />
+                  <span>{addButton}</span>
+                </button>
+              ))}
             {downloadReport && (
               <button
                 onClick={handleDownloadReport}
