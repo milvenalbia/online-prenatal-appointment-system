@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Document,
   Page,
   Text,
   View,
   StyleSheet,
-  PDFDownloadLink,
+  pdf,
 } from '@react-pdf/renderer';
 
 // Create styles
@@ -28,18 +28,6 @@ const styles = StyleSheet.create({
   hospitalSubtitle: {
     fontSize: 9,
     marginBottom: 20,
-  },
-  location: {
-    fontSize: 10,
-    color: '#666666',
-    marginTop: 2,
-  },
-  logo: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#E0E0E0',
-    marginLeft: 10,
-    borderRadius: 20,
   },
   title: {
     fontSize: 12,
@@ -66,7 +54,7 @@ const styles = StyleSheet.create({
   underline: {
     borderBottomWidth: 1,
     borderBottomColor: '#000000',
-    borderStyle: 'solid',
+    borderBottomStyle: 'solid',
     flex: 1,
     height: 12,
     marginRight: 15,
@@ -74,7 +62,7 @@ const styles = StyleSheet.create({
   shortUnderline: {
     borderBottomWidth: 1,
     borderBottomColor: '#000000',
-    borderStyle: 'solid',
+    borderBottomStyle: 'solid',
     width: 80,
     height: 12,
     marginRight: 10,
@@ -89,7 +77,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#000000',
-    borderStyle: 'solid',
+    borderBottomStyle: 'solid',
   },
   tableHeader: {
     backgroundColor: '#F0F0F0',
@@ -99,7 +87,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     borderRightWidth: 1,
     borderRightColor: '#000000',
-    borderStyle: 'solid',
+    borderRightStyle: 'solid',
     flex: 1,
   },
   tableCell: {
@@ -109,7 +97,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     borderRightWidth: 1,
     borderRightColor: '#000000',
-    borderStyle: 'solid',
+    borderRightStyle: 'solid',
     flex: 1,
     height: 25,
   },
@@ -120,26 +108,14 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#000000',
     borderStyle: 'solid',
-    height: 300,
+    minHeight: 300,
     marginTop: 20,
-    position: 'relative',
+    padding: 10,
   },
   commentsTitle: {
-    position: 'absolute',
-    top: -8,
-    left: 10,
-    backgroundColor: '#FFFFFF',
-    padding: '0 5',
     fontSize: 12,
-    color: '#000000',
     fontWeight: 'bold',
-  },
-  flexCol: {
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  nameUnderline: {
-    width: 150,
+    marginBottom: 10,
   },
   dataText: {
     fontSize: 9,
@@ -148,155 +124,147 @@ const styles = StyleSheet.create({
 });
 
 // PDF Document Component
-const OutPatientPDF = ({ formData = {} }) => (
+const OutPatientDocument = ({ formData = {} }) => (
   <Document>
     <Page size='A4' style={styles.page}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.hospitalName}>SAINT PAUL HOSPITAL</Text>
         <Text style={styles.hospitalSubtitle}>TAGOLOAN, MISAMIS ORIENTAL</Text>
       </View>
 
-      {/* Title */}
       <Text style={styles.title}>OUT-PATIENT RECORD SHEET</Text>
 
-      {/* Patient Information */}
       <View style={styles.formSection}>
-        <View style={[styles.formRow, { marginBottom: 50, width: 300 }]}>
+        <View style={[styles.formRow, { marginBottom: 20 }]}>
           <Text style={[styles.label, { width: 80 }]}>FILE NUMBER</Text>
-          <View style={[styles.underline, styles.nameUnderline]}>
+          <View style={[styles.underline, { width: 150 }]}>
             <Text style={styles.dataText}>{formData.file_number || ''}</Text>
           </View>
         </View>
 
-        <View style={[styles.formRow, { marginBottom: 20 }]}>
-          <Text style={[styles.label, { marginTop: -15 }]}>
-            NAME OF PATIENT
-          </Text>
-          <View style={styles.formCol}>
-            <View style={[styles.underline, styles.nameUnderline]}>
-              <Text style={[styles.dataText, { marginTop: -12 }]}>
-                {formData.lastname || ''}
-              </Text>
-            </View>
-            <Text style={styles.label}>APELLIDO</Text>
-          </View>
-          <View style={styles.formCol}>
-            <View style={[styles.underline, styles.nameUnderline]}>
-              <Text style={[styles.dataText, { marginTop: -12 }]}>
-                {formData.firstname || ''}
-              </Text>
-            </View>
-            <Text style={styles.label}>PANGALAN</Text>
-          </View>
-          <View style={styles.formCol}>
-            <View style={[styles.underline, styles.nameUnderline]}>
-              <Text style={[styles.dataText, { marginTop: -12 }]}>
-                {formData.middlename || ''}
-              </Text>
-            </View>
-            <Text style={styles.label}>MIDDLE NAME</Text>
-          </View>
-        </View>
-
-        <View style={[styles.formRow, { marginBottom: 20 }]}>
-          <Text style={[styles.label, { width: 40 }]}>AGE/SEX</Text>
-          <View style={[styles.underline, styles.shortUnderline]}>
-            <Text style={styles.dataText}>{`${formData.age || ''}/${
-              formData.sex || ''
-            }`}</Text>
-          </View>
-          <Text style={[styles.label, { width: 60 }]}>BIRTHDATE</Text>
-          <View style={[styles.underline, styles.shortUnderline]}>
-            <Text style={styles.dataText}>{formData.birth_date || ''}</Text>
-          </View>
-          <Text style={[styles.label, { width: 50 }]}>RELIGION</Text>
-          <View style={[styles.underline, styles.shortUnderline]}>
-            <Text style={styles.dataText}>{formData.religion || ''}</Text>
-          </View>
-        </View>
-
-        <View style={[styles.formRow, { marginBottom: 20 }]}>
-          <Text style={[styles.label, { width: 60 }]}>ADDRESS</Text>
-          <View style={styles.underline}>
-            <Text style={styles.dataText}>{`${formData.zone || ''} ${
-              formData.full_address || ''
-            }`}</Text>
-          </View>
-          <Text style={[styles.label, { width: 80 }]}>PLACE OF BIRTH</Text>
-          <View style={[styles.underline, styles.shortUnderline]}>
-            <Text style={styles.dataText}>{formData.birth_place || ''}</Text>
-          </View>
-        </View>
-
-        <View style={[styles.formRow, { marginBottom: 20 }]}>
-          <Text style={[styles.label, { width: 200 }]}>
-            IN CASE OF EMERGENCY CONTACT PERSON
-          </Text>
+        <View style={styles.formRow}>
+          <Text style={styles.label}>NAME</Text>
           <View style={styles.underline}>
             <Text style={styles.dataText}>
-              {formData.contact_person_name || ''}
+              {formData.lastname || ''} {formData.firstname || ''}{' '}
+              {formData.middlename || ''}
             </Text>
-          </View>
-        </View>
-
-        <View style={[styles.formRow, { marginBottom: 20 }]}>
-          <Text style={[styles.label, { width: 115 }]}>
-            ATTENDING PHYSICIAN
-          </Text>
-          <View style={styles.underline}>
-            <Text style={styles.dataText}>
-              {formData.attending_physician || ''}
-            </Text>
-          </View>
-          <Text style={[styles.label, { width: 40 }]}>PHIC</Text>
-          <View style={styles.shortUnderline}>
-            <Text style={styles.dataText}>{formData.phic || ''}</Text>
           </View>
         </View>
 
         <View style={styles.formRow}>
-          <Text style={[styles.label, { width: 115 }]}>CHIEF COMPLAINT</Text>
+          <Text style={styles.label}>ADDRESS</Text>
           <View style={styles.underline}>
-            <Text style={styles.dataText}>{formData.chief_complain || ''}</Text>
+            <Text style={styles.dataText}>{formData.address || ''}</Text>
+          </View>
+        </View>
+
+        <View style={styles.formRow}>
+          <Text style={styles.label}>AGE</Text>
+          <View style={styles.shortUnderline}>
+            <Text style={styles.dataText}>{formData.age || ''}</Text>
+          </View>
+          <Text style={[styles.label, { width: 60 }]}>SEX</Text>
+          <View style={styles.shortUnderline}>
+            <Text style={styles.dataText}>{formData.sex || ''}</Text>
           </View>
         </View>
       </View>
 
-      {/* Vital Signs Table */}
       <View style={styles.vitalSignsTable}>
         <View style={styles.tableRow}>
-          <Text style={styles.tableHeader}>DATE</Text>
-          <Text style={styles.tableHeader}>TIME</Text>
-          <Text style={styles.tableHeader}>WEIGHT</Text>
-          <Text style={styles.tableHeader}>HEIGHT</Text>
-          <Text style={styles.tableHeader}>TEMP</Text>
-          <Text style={styles.tableHeader}>RR</Text>
-          <Text style={styles.tableHeader}>PR</Text>
-          <Text style={styles.tableHeader}>02 SAT</Text>
-          <Text style={[styles.tableHeader, styles.lastCell]}>BP</Text>
+          {[
+            'DATE',
+            'TIME',
+            'WEIGHT',
+            'HEIGHT',
+            'TEMP',
+            'RR',
+            'PR',
+            'O2 SAT',
+            'BP',
+          ].map((header, i) => (
+            <Text
+              key={header}
+              style={[styles.tableHeader, i === 8 && styles.lastCell]}
+            >
+              {header}
+            </Text>
+          ))}
         </View>
+
         <View style={styles.tableRow}>
-          <Text style={styles.tableCell}>{formData.date || ''}</Text>
-          <Text style={styles.tableCell}>{formData.time || ''}</Text>
-          <Text style={styles.tableCell}>{formData.weight || ''}</Text>
-          <Text style={styles.tableCell}>{formData.height || ''}</Text>
-          <Text style={styles.tableCell}>{formData.temp || ''}</Text>
-          <Text style={styles.tableCell}>{formData.rr || ''}</Text>
-          <Text style={styles.tableCell}>{formData.pr || ''}</Text>
-          <Text style={styles.tableCell}>{formData.two_sat || ''}</Text>
-          <Text style={[styles.tableCell, styles.lastCell]}>
-            {formData.bp || ''}
-          </Text>
+          {[
+            formData.date,
+            formData.time,
+            formData.weight,
+            formData.height,
+            formData.temp,
+            formData.rr,
+            formData.pr,
+            formData.o2_sat,
+            formData.bp,
+          ].map((cell, i) => (
+            <Text
+              key={i}
+              style={[styles.tableCell, i === 8 && styles.lastCell]}
+            >
+              {cell || ''}
+            </Text>
+          ))}
         </View>
       </View>
 
-      {/* Comments Section */}
       <View style={styles.commentsSection}>
         <Text style={styles.commentsTitle}>Comments</Text>
+        <Text style={styles.dataText}>{formData.comments || ''}</Text>
       </View>
     </Page>
   </Document>
 );
+
+// Main Component
+const OutPatientPDF = ({ formData = {} }) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleDownload = async () => {
+    setLoading(true);
+    try {
+      const blob = await pdf(
+        <OutPatientDocument formData={formData} />
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `outpatient_record_${formData.lastname || 'record'}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const buttonStyle = {
+    backgroundColor: loading ? '#ccc' : '#1a73e8',
+    color: '#fff',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    borderWidth: 0,
+    fontWeight: 'bold',
+    cursor: loading ? 'not-allowed' : 'pointer',
+    fontSize: '14px',
+  };
+
+  return (
+    <div style={{ textAlign: 'center', marginTop: '20px' }}>
+      <button onClick={handleDownload} disabled={loading} style={buttonStyle}>
+        {loading ? 'Preparing document...' : 'Download Out-Patient Record'}
+      </button>
+    </div>
+  );
+};
 
 export default OutPatientPDF;

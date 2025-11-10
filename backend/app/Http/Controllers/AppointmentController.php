@@ -42,7 +42,6 @@ class AppointmentController extends Controller
         $perPage    = $request->input('per_page', 10);
         $report     = $request->input('report', false);
 
-        // Optional: whitelist sortable columns to prevent SQL injection
         $sortableColumns = [
             'fullname' => 'pregnancy_trackings.fullname',
             'appointment_date' => 'appointments.appointment_date',
@@ -53,38 +52,61 @@ class AppointmentController extends Controller
             $sortBy = 'created_at';
         }
 
-        $appointments = Appointment::select('appointments.*')
-            ->join('pregnancy_trackings', 'appointments.pregnancy_tracking_id', '=', 'pregnancy_trackings.id')
-            ->with([
-                'pregnancy_tracking',
-                'pregnancy_tracking.patient',
-            ])
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('pregnancy_trackings.fullname', 'LIKE', "%{$search}%")
-                        ->orWhere('pregnancy_trackings.pregnancy_tracking_number', 'LIKE', "%{$search}%");
-                });
-            })
-            ->when($status, function ($query, $status) {
-                $query->where('appointments.status', $status);
-            })
-            ->when($pregnancy_status, function ($query, $pregnancy_status) {
-                $query->where('pregnancy_trackings.pregnancy_status', $pregnancy_status);
-            })
-            ->when($priority, function ($query, $priority) {
-                $query->where('appointments.priority', $priority);
-            })
-            ->when($dateFrom, function ($query, $dateFrom) {
-                $query->whereDate('appointments.appointment_date', '>=', $dateFrom);
-            })
-            ->when($dateTo, function ($query, $dateTo) {
-                $query->whereDate('appointments.appointment_date', '<=', $dateTo);
+        // COMPLETE REWRITE: Use raw query to debug
+        $baseQuery = Appointment::query();
+
+        // Add search filter
+        if ($search) {
+            $baseQuery->whereHas('pregnancy_tracking', function ($q) use ($search) {
+                $q->where('fullname', 'LIKE', "%{$search}%")
+                    ->orWhere('pregnancy_tracking_number', 'LIKE', "%{$search}%");
             });
+        }
+
+        // Add other filters
+        if ($status) {
+            $baseQuery->where('appointments.status', $status);
+        }
+
+        if ($pregnancy_status) {
+            $baseQuery->where('appointments.pregnancy_status', $pregnancy_status);
+        }
+
+        if ($priority) {
+            $baseQuery->where('appointments.priority', $priority);
+        }
+
+        if ($dateFrom) {
+            $baseQuery->whereDate('appointments.appointment_date', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $baseQuery->whereDate('appointments.appointment_date', '<=', $dateTo);
+        }
+
+        // Handle sorting
+        if ($sortBy === 'fullname') {
+            $baseQuery->join('pregnancy_trackings', 'appointments.pregnancy_tracking_id', '=', 'pregnancy_trackings.id')
+                ->select('appointments.*')
+                ->orderBy('pregnancy_trackings.fullname', $sortDir);
+        } else {
+            $baseQuery->orderBy('appointments.' . $sortBy, $sortDir);
+        }
+
+        // Debug: Log the actual SQL query
+        Log::info('SQL Query: ' . $baseQuery->toSql());
+        Log::info('Bindings: ' . json_encode($baseQuery->getBindings()));
 
         if ($report) {
-            $appointments = $appointments->orderBy($sortableColumns[$sortBy], 'asc');
+            $results = $baseQuery->get();
 
-            $results = $appointments->get();
+            // Debug each result
+            foreach ($results as $result) {
+                Log::info("Result ID: {$result->id} - Pregnancy Status Direct: {$result->pregnancy_status}");
+            }
+
+            // Load relationships AFTER getting results
+            $results->load(['pregnancy_tracking.patient']);
 
             return [
                 'data' => AppointmentResource::collection($results),
@@ -96,9 +118,15 @@ class AppointmentController extends Controller
                 ],
             ];
         } else {
-            $appointments = $appointments->orderBy($sortableColumns[$sortBy], $sortDir);
+            $results = $baseQuery->paginate($perPage);
 
-            $results = $appointments->paginate($perPage);
+            // Debug each result BEFORE eager loading
+            foreach ($results as $result) {
+                Log::info("Paginated Result ID: {$result->id} - Pregnancy Status Direct: {$result->pregnancy_status}");
+            }
+
+            // Load relationships separately
+            $results->load(['pregnancy_tracking.patient']);
 
             return [
                 'data' => AppointmentResource::collection($results),
@@ -110,17 +138,99 @@ class AppointmentController extends Controller
                 ],
             ];
         }
-
-        return [
-            'data' => AppointmentResource::collection($appointments),
-            'meta' => [
-                'total' => $appointments->total(),
-                'per_page' => $appointments->perPage(),
-                'current_page' => $appointments->currentPage(),
-                'last_page' => $appointments->lastPage(),
-            ],
-        ];
     }
+
+    // public function index(Request $request)
+    // {
+    //     $search     = $request->input('search');
+    //     $status     = $request->input('status');
+    //     $priority   = $request->input('priority');
+    //     $pregnancy_status   = $request->input('pregnancy_status');
+    //     $dateFrom   = $request->input('date_from');
+    //     $dateTo     = $request->input('date_to');
+    //     $sortBy     = $request->input('sort_by', 'created_at');
+    //     $sortDir    = $request->input('sort_dir', 'desc');
+    //     $perPage    = $request->input('per_page', 10);
+    //     $report     = $request->input('report', false);
+
+    //     // Optional: whitelist sortable columns to prevent SQL injection
+    //     $sortableColumns = [
+    //         'fullname' => 'pregnancy_trackings.fullname',
+    //         'appointment_date' => 'appointments.appointment_date',
+    //         'created_at' => 'appointments.created_at',
+    //     ];
+
+    //     if (!array_key_exists($sortBy, $sortableColumns)) {
+    //         $sortBy = 'created_at';
+    //     }
+
+    //     // IMPORTANT: Explicitly select appointments.* to avoid column ambiguity
+    //     $appointments = Appointment::select(
+    //         'appointments.*',
+    //         'pregnancy_trackings.fullname as pt_fullname' // Alias to avoid confusion
+    //     )
+    //         ->join('pregnancy_trackings', 'appointments.pregnancy_tracking_id', '=', 'pregnancy_trackings.id')
+    //         ->with([
+    //             'pregnancy_tracking' => function ($query) {
+    //                 // Explicitly select only needed columns to avoid data mixing
+    //                 $query->select('id', 'fullname', 'pregnancy_tracking_number', 'attended_by', 'patient_id');
+    //             },
+    //             'pregnancy_tracking.patient' => function ($query) {
+    //                 $query->select('id', 'contact');
+    //             },
+    //         ])
+    //         ->when($search, function ($query, $search) {
+    //             $query->where(function ($q) use ($search) {
+    //                 $q->where('pregnancy_trackings.fullname', 'LIKE', "%{$search}%")
+    //                     ->orWhere('pregnancy_trackings.pregnancy_tracking_number', 'LIKE', "%{$search}%");
+    //             });
+    //         })
+    //         ->when($status, function ($query, $status) {
+    //             $query->where('appointments.status', $status);
+    //         })
+    //         ->when($pregnancy_status, function ($query, $pregnancy_status) {
+    //             $query->where('appointments.pregnancy_status', $pregnancy_status);
+    //         })
+    //         ->when($priority, function ($query, $priority) {
+    //             $query->where('appointments.priority', $priority);
+    //         })
+    //         ->when($dateFrom, function ($query, $dateFrom) {
+    //             $query->whereDate('appointments.appointment_date', '>=', $dateFrom);
+    //         })
+    //         ->when($dateTo, function ($query, $dateTo) {
+    //             $query->whereDate('appointments.appointment_date', '<=', $dateTo);
+    //         });
+
+    //     if ($report) {
+    //         $appointments = $appointments->orderBy($sortableColumns[$sortBy], 'asc');
+
+    //         $results = $appointments->get();
+
+    //         return [
+    //             'data' => AppointmentResource::collection($results),
+    //             'meta' => [
+    //                 'total' => $results->count(),
+    //                 'per_page' => $results->count(),
+    //                 'current_page' => 1,
+    //                 'last_page' => 1,
+    //             ],
+    //         ];
+    //     } else {
+    //         $appointments = $appointments->orderBy($sortableColumns[$sortBy], $sortDir);
+
+    //         $results = $appointments->paginate($perPage);
+
+    //         return [
+    //             'data' => AppointmentResource::collection($results),
+    //             'meta' => [
+    //                 'total' => $results->total(),
+    //                 'per_page' => $results->perPage(),
+    //                 'current_page' => $results->currentPage(),
+    //                 'last_page' => $results->lastPage(),
+    //             ],
+    //         ];
+    //     }
+    // }
 
     public function show(Appointment $qppointment) {}
 
@@ -157,10 +267,11 @@ class AppointmentController extends Controller
 
             // Calculate pregnancy status based on LMP and appointment date
             if (!empty($pregnancy_tracking->lmp)) {
-                $appointmentDate = Carbon::parse($request->appointment_date);
-                $status = $this->calculatePregnancyStatus($pregnancy_tracking->lmp, $appointmentDate);
-                $pregnancy_tracking->update(['pregnancy_status' => $status]);
-                $appointment->update(['pregnancy_status' => $status]);
+                DB::transaction(function () use ($pregnancy_tracking, $appointment, $request) {
+                    $appointmentDate = Carbon::parse($request->appointment_date);
+                    $status = $this->calculatePregnancyStatus($pregnancy_tracking->lmp, $appointmentDate);
+                    $appointment->update(['pregnancy_status' => $status]);
+                });
             }
 
             ActivityLogs::create([
@@ -281,12 +392,6 @@ class AppointmentController extends Controller
                     ]);
                 }
 
-                // ✅ Old tracking status based on NOW
-                if ($old_pregnancy_tracking->lmp) {
-                    $status = $this->calculatePregnancyStatus($old_pregnancy_tracking->lmp, Carbon::now());
-                    $old_pregnancy_tracking->update(['pregnancy_status' => $status]);
-                }
-
                 $new_pregnancy_tracking = PregnancyTracking::find($new_pregnancy_tracking_id);
 
                 // Assign doctor if none
@@ -298,19 +403,22 @@ class AppointmentController extends Controller
 
                 // ✅ New tracking status based on appointment_date
                 if ($new_pregnancy_tracking->lmp) {
-                    $appointmentDate = Carbon::parse($request->appointment_date);
-                    $status = $this->calculatePregnancyStatus($new_pregnancy_tracking->lmp, $appointmentDate);
-                    $new_pregnancy_tracking->update(['pregnancy_status' => $status]);
-                    $appointment->update(['pregnancy_status' => $status]);
+                    DB::transaction(function () use ($new_pregnancy_tracking, $appointment, $request) {
+                        $appointmentDate = Carbon::parse($request->appointment_date);
+                        $status = $this->calculatePregnancyStatus($new_pregnancy_tracking->lmp, $appointmentDate);
+                        $appointment->update(['pregnancy_status' => $status]);
+                    });
                 }
             } else {
                 $pregnancy_tracking = PregnancyTracking::find($old_pregnancy_tracking_id);
 
                 // ✅ Same tracking, use appointment_date
-                if ($pregnancy_tracking->lmp) {
-                    $appointmentDate = Carbon::parse($request->appointment_date);
-                    $status = $this->calculatePregnancyStatus($pregnancy_tracking->lmp, $appointmentDate);
-                    $pregnancy_tracking->update(['pregnancy_status' => $status]);
+                if (!empty($pregnancy_tracking->lmp)) {
+                    DB::transaction(function () use ($pregnancy_tracking, $appointment, $request) {
+                        $appointmentDate = Carbon::parse($request->appointment_date);
+                        $status = $this->calculatePregnancyStatus($pregnancy_tracking->lmp, $appointmentDate);
+                        $appointment->update(['pregnancy_status' => $status]);
+                    });
                 }
             }
         });

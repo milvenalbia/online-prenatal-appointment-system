@@ -482,6 +482,32 @@ export const midwife_columns = [
     width: 'w-[30%]',
   },
   {
+    key: 'license_number',
+    title: 'License',
+    sortable: false,
+    width: '10%',
+    render: (value) => {
+      let colorClass = '';
+      let status = '';
+      switch (value) {
+        case 'completed':
+          colorClass = 'bg-green-100 text-green-800';
+          status = 'Licensed';
+          break;
+        default:
+          colorClass = 'bg-gray-200 text-gray-800';
+          status = 'No License';
+      }
+      return (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold ${colorClass}`}
+        >
+          {status}
+        </span>
+      );
+    },
+  },
+  {
     key: 'created_at',
     title: 'Created',
     sortable: true,
@@ -1189,12 +1215,8 @@ export const appointment_columns = [
           colorClass = 'bg-purple-100 text-purple-800';
           status = '3rd Trimester';
           break;
-        case 'fourth_trimester':
-          colorClass = 'bg-pink-100 text-pink-800';
-          status = '4th Trimester';
-          break;
         default:
-          colorClass = 'bg-gray-100 text-gray-800';
+          colorClass = 'bg-gray-200 text-gray-800';
       }
       return (
         <span
@@ -1256,8 +1278,10 @@ export const appointment_columns = [
 
 export const pickerOptions = {
   mode: 'single',
-  dateFormat: 'Y-m-d',
   altInput: true,
+  altFormat: 'M j, Y',
+  dateFormat: 'Y-m-d',
+  disable: [(date) => false],
 };
 
 export const pickerNoWeekendsOptions = {

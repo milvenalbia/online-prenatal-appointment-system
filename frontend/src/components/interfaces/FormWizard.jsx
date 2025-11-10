@@ -247,7 +247,7 @@ const FormWizard = ({ row = null }) => {
         <StepIndicator steps={steps} currentStep={currentStep} error={error} />
       </div>
 
-      <div className='bg-white border border-gray-200 rounded-lg p-6 mb-6'>
+      <div className='bg-white sm:border sm:border-gray-200 rounded-lg p-0 sm:p-6 mb-6'>
         {renderStepContent()}
       </div>
 

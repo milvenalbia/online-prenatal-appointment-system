@@ -571,7 +571,7 @@ const ImmunizationForm = ({
 
         {/* Tab Content */}
         <div className='mt-8'>
-          <div className='bg-white border border-gray-200 rounded-lg p-6'>
+          <div className='bg-white border border-gray-200 rounded-lg p-4'>
             {activeTab === 'tetanus' && <TetanusForm />}
             {activeTab === 'covid' && <CovidForm />}
             {activeTab === 'other' && <OtherForm />}

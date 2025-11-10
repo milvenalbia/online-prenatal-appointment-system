@@ -73,23 +73,23 @@ const OutPatients = () => {
     }));
   };
 
-  const handelDownload = async (row) => {
-    const blob = await pdf(<OutPatientPDF formData={row} />).toBlob();
+  // const handelDownload = async (row) => {
+  //   const blob = await pdf(<OutPatientPDF formData={row} />).toBlob();
 
-    const url = URL.createObjectURL(blob);
+  //   const url = URL.createObjectURL(blob);
 
-    // ✅ Trigger browser download
-    // const link = document.createElement('a');
-    // link.href = url;
-    // link.download = 'pregnancy-tracking.pdf'; // filename
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
+  //   // ✅ Trigger browser download
+  //   // const link = document.createElement('a');
+  //   // link.href = url;
+  //   // link.download = 'pregnancy-tracking.pdf'; // filename
+  //   // document.body.appendChild(link);
+  //   // link.click();
+  //   // document.body.removeChild(link);
 
-    window.open(url, '_blank');
+  //   window.open(url, '_blank');
 
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
+  //   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  // };
 
   const columns = out_patient_column;
 

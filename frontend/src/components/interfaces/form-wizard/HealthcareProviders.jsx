@@ -1,5 +1,5 @@
 import api from '../../../api/axios';
-import { useAuthStore } from '../../../store/authStore.js';
+import { useAuthStore } from '../../../store/AuthStore.js';
 import SelectReact from '../../ui/SelectReact';
 
 const HealthcareProviders = ({ formData, setFormData, error }) => {

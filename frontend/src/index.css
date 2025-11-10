@@ -49,7 +49,6 @@ html {
     margin-bottom: 2px;
 }
 
-/* Adjust event height to accommodate doctor info */
 .fc-daygrid-event {
     white-space: normal !important;
     min-height: 40px;
@@ -65,7 +64,6 @@ html {
     color: white !important;
 }
 
-/* Mobile toolbar adjustments */
 @media (max-width: 768px) {
     .fc .fc-toolbar {
         flex-direction: column;

@@ -67,6 +67,7 @@ const NewPatientBasicInfo = ({ formData, inputChange, error, setFormData }) => {
         <div className='w-full'>
           <DatePicker
             options={pickerOptions}
+            disable_weekends
             name='birth_date'
             id='birth_date'
             value={formData.birth_date}
